@@ -3,7 +3,7 @@
 library for quantum machine learning, automatic differentiation, and
 optimization of hybrid quantum-classical computations.
 
-[Qulacs](http://qulacs.org/) Qulacs is high-performance quantum circuit
+[Qulacs](http://qulacs.org/) is a high-performance quantum circuit
 simulator for simulating large, noisy or parametric quantum circuits.
 Implemented in C/C++ and with python interface, Qulacs achieved both high
 speed circuit simulation and high usability.
