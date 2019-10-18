@@ -40,9 +40,19 @@ class QulacsDevice(Device):
     author = 'Steven Oud'
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
-            'PauliX', 'PauliY', 'PauliZ'}
+            'PauliX', 'PauliY', 'PauliZ', 'MergedOperation'}
     observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
 
+    _operations_map = {
+        'CNOT': CNOT,
+        'RX': RX,
+        'RY': RY,
+        'RZ': RZ,
+        'Rot': U3,
+        'PauliX': X,
+        'PauliY': Y,
+        'PauliZ': Z
+    }
     _observable_map = {
         'PauliX': X_matrix,
         'PauliY': Y_matrix,
@@ -64,24 +74,8 @@ class QulacsDevice(Device):
             self._state.load(par[0])
             return
 
-        if operation == 'CNOT':
-            self._circuit.add_gate(CNOT(*wires))
-        elif operation == 'Rot':
-            self._circuit.add_gate(U3(wires[0], *par))
-        elif operation == 'RX':
-            self._circuit.add_gate(RX(wires[0], par[0]))
-        elif operation == 'RY':
-            self._circuit.add_gate(RY(wires[0], par[0]))
-        elif operation == 'RZ':
-            self._circuit.add_gate(RZ(wires[0], par[0]))
-        elif operation == 'PauliX':
-            self._circuit.add_gate(X(wires[0]))
-        elif operation == 'PauliY':
-            self._circuit.add_gate(Y(wires[0]))
-        elif operation == 'PauliZ':
-            self._circuit.add_gate(Z(wires[0]))
-        else:
-            raise ValueError(f'Invalid operation "{operation}"')
+        mapped_operation = self._operations_map[operation]
+        self._circuit.add_gate(mapped_operation(*wires, *par))
 
     @property
     def state(self):
@@ -104,7 +98,6 @@ class QulacsDevice(Device):
         return expectation.real
 
     def reset(self):
-        self._state = QuantumState(self.num_wires)
         self._state.set_zero_state()
         self._circuit = QuantumCircuit(self.num_wires)
 
