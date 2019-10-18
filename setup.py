@@ -10,7 +10,7 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='PennyLane-Qulacs',
+    name='pennylane_qulacs',
     description='PennyLane plugin for Qulacs',
     version=version,
     long_description=long_description,
@@ -19,6 +19,7 @@ setup(
         'numpy',
         'qulacs'
     ],
+    packages=['pennylane_qulacs'],
     entry_points={
         'pennylane.plugins': [
             'qulacs.simulator = pennylane_qulacs.qulacs_device:QulacsDevice'

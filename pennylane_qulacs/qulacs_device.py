@@ -3,7 +3,7 @@ import numpy as np
 from pennylane import Device
 
 from qulacs import Observable, QuantumCircuit, QuantumState
-from qulacs.gate import CNOT, RX, RY, RZ, X, Y, Z, U3, DenseMatrix
+from qulacs.gate import CNOT, RX, RY, RZ, X, Y, Z, H, U3, DenseMatrix
 from qulacs.state import inner_product
 
 
@@ -40,7 +40,7 @@ class QulacsDevice(Device):
     author = 'Steven Oud'
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
-            'PauliX', 'PauliY', 'PauliZ'}
+            'PauliX', 'PauliY', 'PauliZ', 'Hadamard'}
     observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
 
     _operations_map = {
@@ -51,7 +51,8 @@ class QulacsDevice(Device):
         'Rot': U3,
         'PauliX': X,
         'PauliY': Y,
-        'PauliZ': Z
+        'PauliZ': Z,
+        'Hadamard': H
     }
     _observable_map = {
         'PauliX': X_matrix,
