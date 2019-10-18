@@ -13,6 +13,7 @@ setup(
     name='PennyLane-Qulacs',
     description='PennyLane plugin for Qulacs',
     version=version,
+    long_description=long_description,
     requirements=[
         'pennylane>=0.5.0',
         'numpy',
