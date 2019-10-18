@@ -14,3 +14,15 @@ This PennyLane plugin allows the use of the Qulacs simulator as device for Penny
 
 * Provides `qulacs.simulator` device to be used with PennyLane.
 * Combine Qulacs high performance simulator with PennyLane's automatic differentiation and optimization.
+
+## Installation
+Installing the latest master version can be done directly using pip:
+```
+pip install git+https://github.com/soudy/pennylane-qulacs@master
+```
+or by cloning this repo:
+```
+git clone https://github.com/soudy/pennylane-qulacs
+cd pennylane-qulacs
+pip install .
+```
