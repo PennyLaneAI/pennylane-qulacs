@@ -40,7 +40,7 @@ class QulacsDevice(Device):
     author = 'Steven Oud'
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
-            'PauliX', 'PauliY', 'PauliZ', 'MergedOperation'}
+            'PauliX', 'PauliY', 'PauliZ'}
     observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
 
     _operations_map = {
