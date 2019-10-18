@@ -8,7 +8,7 @@ simulator for simulating large, noisy or parametric quantum circuits.
 Implemented in C/C++ and with python interface, Qulacs achieved both high
 speed circuit simulation and high usability.
 
-This PennyLane plugin allows to use the simulator of Qulacs as devices for PennyLane.
+This PennyLane plugin allows the use of the Qulacs simulator as device for PennyLane.
 
 ## Features
 
