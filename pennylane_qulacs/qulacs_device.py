@@ -6,6 +6,8 @@ from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.gate import CNOT, RX, RY, RZ, X, Y, Z, H, U3, DenseMatrix
 from qulacs.state import inner_product
 
+from . import __version__
+
 
 X_matrix = np.array([[0, 1], [1, 0]])
 Y_matrix = np.array([[0, -1j], [1j, 0]])
@@ -36,7 +38,7 @@ class QulacsDevice(Device):
     name = 'Qulacs device'
     short_name = 'qulacs.simulator'
     pennylane_requires = '>=0.5.0'
-    version = '0.0.1'
+    version = __version__
     author = 'Steven Oud'
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
