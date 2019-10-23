@@ -1,12 +1,19 @@
 import numpy as np
 
-from pennylane import Device
+from pennylane import Device, DeviceError
 
 from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.gate import CNOT, RX, RY, RZ, X, Y, Z, H, U3, DenseMatrix
 from qulacs.state import inner_product
 
 from . import __version__
+
+
+GPU_SUPPORTED = True
+try:
+    from qulacs import QuantumStateGpu
+except ImportError:
+    GPU_SUPPORTED = False
 
 
 X_matrix = np.array([[0, 1], [1, 0]])
@@ -64,10 +71,18 @@ class QulacsDevice(Device):
         'Hermitian': hermitian
     }
 
-    def __init__(self, wires, **kwargs):
+    def __init__(self, wires, gpu=False, **kwargs):
         super().__init__(wires=wires)
 
-        self._state = QuantumState(wires)
+        if gpu:
+            if not GPU_SUPPORTED:
+                raise DeviceError('GPU not supported with installed version of qulacs.' +
+                        ' Please install "qulacs-gpu" to use GPU simulation.')
+
+            self._state = QuantumStateGpu(wires)
+        else:
+            self._state = QuantumState(wires)
+
         self._circuit = QuantumCircuit(wires)
 
     def apply(self, operation, wires, par):
