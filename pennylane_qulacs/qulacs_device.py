@@ -49,7 +49,7 @@ class QulacsDevice(Device):
     author = 'Steven Oud'
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
-            'PauliX', 'PauliY', 'PauliZ', 'Hadamard'}
+                  'PauliX', 'PauliY', 'PauliZ', 'Hadamard'}
     observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
 
     _operations_map = {
@@ -77,7 +77,7 @@ class QulacsDevice(Device):
         if gpu:
             if not GPU_SUPPORTED:
                 raise DeviceError('GPU not supported with installed version of qulacs.' +
-                        ' Please install "qulacs-gpu" to use GPU simulation.')
+                                  ' Please install "qulacs-gpu" to use GPU simulation.')
 
             self._state = QuantumStateGpu(wires)
         else:
