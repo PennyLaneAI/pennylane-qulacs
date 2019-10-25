@@ -48,6 +48,11 @@ class QulacsDevice(Device):
     version = __version__
     author = 'Steven Oud'
 
+    _capabilities = {
+        'model': 'qubit',
+        'tensor_observables': False
+    }
+
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
                   'PauliX', 'PauliY', 'PauliZ', 'Hadamard'}
     observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
