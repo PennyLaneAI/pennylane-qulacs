@@ -1,4 +1,5 @@
 import numpy as np
+import functools
 
 from pennylane import Device, DeviceError
 
@@ -50,7 +51,7 @@ class QulacsDevice(Device):
 
     _capabilities = {
         'model': 'qubit',
-        'tensor_observables': False
+        'tensor_observables': True
     }
 
     operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
@@ -112,8 +113,13 @@ class QulacsDevice(Device):
     def expval(self, observable, wires, par):
         bra = self._state.copy()
 
-        A = self._get_operator_matrix(observable, par)
-        dense_gate = DenseMatrix(wires, A)
+        if isinstance(observable, list):
+            A = self._get_tensor_operator_matrix(observable, par)
+        else:
+            A = self._get_operator_matrix(observable, par)
+
+        flat_wires = [item for sublist in wires for item in sublist]
+        dense_gate = DenseMatrix(flat_wires, A)
         dense_gate.update_quantum_state(self._state)
 
         expectation = inner_product(bra, self._state)
@@ -130,3 +136,7 @@ class QulacsDevice(Device):
             return A
 
         return A(*par)
+
+    def _get_tensor_operator_matrix(self, obs, par):
+        ops = [self._get_operator_matrix(o, p) for o, p in zip(obs, par)]
+        return functools.reduce(np.kron, ops)
