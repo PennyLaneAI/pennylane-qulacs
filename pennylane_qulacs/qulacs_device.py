@@ -115,11 +115,11 @@ class QulacsDevice(Device):
 
         if isinstance(observable, list):
             A = self._get_tensor_operator_matrix(observable, par)
+            wires = [item for sublist in wires for item in sublist]
         else:
             A = self._get_operator_matrix(observable, par)
 
-        flat_wires = [item for sublist in wires for item in sublist]
-        dense_gate = DenseMatrix(flat_wires, A)
+        dense_gate = DenseMatrix(wires, A)
         dense_gate.update_quantum_state(self._state)
 
         expectation = inner_product(bra, self._state)
