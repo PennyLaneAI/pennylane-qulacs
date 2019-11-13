@@ -30,6 +30,6 @@ pip install .
 We ran a 50 executions of 8 quantum neural network [strongly entangling layer](https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayer.html) and compared the runtimes between CPU and GPU.
 
 <p align="center">
-  <img alt="Qulacs PennyLane plugin benchmarks" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png">
+  <img alt="Qulacs PennyLane plugin benchmarks" width="60%" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png">
   <img alt="Qulacs PennyLane plugin benchmarks table" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qulacs_table.png">
 </p>
