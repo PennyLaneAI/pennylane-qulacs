@@ -61,40 +61,6 @@ def hermitian(*args):
     return A
 
 
-OPERATIONS_MAP = {
-    'QubitStateVector': None,
-    'BasisState': None,
-    'QubitUnitary': None,
-    'Toffoli': toffoli,
-    'CSWAP': CSWAP,
-    'CRZ': crz,
-    'Rot': None,
-    'SWAP': gate.SWAP,
-    'CNOT': gate.CNOT,
-    'CZ': gate.CZ,
-    'S': gate.S,
-    'Sdg': gate.Sdag,
-    'T': gate.T,
-    'Tdg': gate.Tdag,
-    'RX': gate.RX,
-    'RY': gate.RY,
-    'RZ': gate.RZ,
-    'PauliX': gate.X,
-    'PauliY': gate.Y,
-    'PauliZ': gate.Z,
-    'Hadamard': gate.H
-}
-
-OBSERVABLE_MAP = {
-    'PauliX': X,
-    'PauliY': Y,
-    'PauliZ': Z,
-    'Hadamard': H,
-    'Identity': I,
-    'Hermitian': hermitian
-}
-
-
 class QulacsDevice(Device):
     """Qulacs device"""
     name = 'Qulacs device'
@@ -108,11 +74,40 @@ class QulacsDevice(Device):
         'tensor_observables': True
     }
 
-    _operations_map = OPERATIONS_MAP
-    _observable_map = OBSERVABLE_MAP
+    _operations_map = {
+        'QubitStateVector': None,
+        'BasisState': None,
+        'QubitUnitary': None,
+        'Toffoli': toffoli,
+        'CSWAP': CSWAP,
+        'CRZ': crz,
+        'Rot': None,
+        'SWAP': gate.SWAP,
+        'CNOT': gate.CNOT,
+        'CZ': gate.CZ,
+        'S': gate.S,
+        'Sdg': gate.Sdag,
+        'T': gate.T,
+        'Tdg': gate.Tdag,
+        'RX': gate.RX,
+        'RY': gate.RY,
+        'RZ': gate.RZ,
+        'PauliX': gate.X,
+        'PauliY': gate.Y,
+        'PauliZ': gate.Z,
+        'Hadamard': gate.H
+    }
+    _observable_map = {
+        'PauliX': X,
+        'PauliY': Y,
+        'PauliZ': Z,
+        'Hadamard': H,
+        'Identity': I,
+        'Hermitian': hermitian
+    }
 
-    operations = OPERATIONS_MAP.keys()
-    observables = OBSERVABLE_MAP.keys()
+    operations = _operations_map.keys()
+    observables = _observable_map.keys()
 
     def __init__(self, wires, gpu=False, **kwargs):
         super().__init__(wires=wires)
@@ -145,8 +140,6 @@ class QulacsDevice(Device):
                 raise ValueError('State vector must be of length 2**wires.')
 
             self._state.load(par[0])
-
-            return
         elif operation == 'BasisState':
             if len(par[0]) != len(wires):
                 raise ValueError('Basis state must prepare all qubits.')
@@ -156,24 +149,18 @@ class QulacsDevice(Device):
                 basis_state = (basis_state << 1) | bit
 
             self._state.set_computational_basis(basis_state)
-
-            return
         elif operation == 'QubitUnitary':
             if len(par[0]) != 2 ** len(wires):
                 raise ValueError('Unitary matrix must be of shape (2**wires, 2**wires).')
 
             unitary_gate = gate.DenseMatrix(wires, par[0])
             self._circuit.add_gate(unitary_gate)
-
-            return
         elif operation == 'Rot':
             self._circuit.add_gate(gate.merge([
                 gate.RZ(wires[0], par[0]),
                 gate.RY(wires[0], par[1]),
                 gate.RZ(wires[0], par[2])
             ]))
-
-            return
         elif operation in ('CRZ', 'Toffoli', 'CSWAP'):
             mapped_operation = self._operations_map[operation]
             if callable(mapped_operation):
@@ -183,11 +170,9 @@ class QulacsDevice(Device):
 
             dense_gate = gate.DenseMatrix(wires, gate_matrix)
             self._circuit.add_gate(dense_gate)
-
-            return
-
-        mapped_operation = self._operations_map[operation]
-        self._circuit.add_gate(mapped_operation(*wires, *par))
+        else:
+            mapped_operation = self._operations_map[operation]
+            self._circuit.add_gate(mapped_operation(*wires, *par))
 
     @property
     def state(self):
