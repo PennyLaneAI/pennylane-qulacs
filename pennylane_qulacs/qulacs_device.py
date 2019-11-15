@@ -31,7 +31,6 @@ CSWAP = block_diag(I, I, SWAP)
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
-rot = lambda a, b, c: rz(c) @ (ry(b) @ rz(a))
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
@@ -62,6 +61,40 @@ def hermitian(*args):
     return A
 
 
+OPERATIONS_MAP = {
+    'QubitStateVector': None,
+    'BasisState': None,
+    'QubitUnitary': None,
+    'Toffoli': toffoli,
+    'CSWAP': CSWAP,
+    'CRZ': crz,
+    'Rot': None,
+    'SWAP': gate.SWAP,
+    'CNOT': gate.CNOT,
+    'CZ': gate.CZ,
+    'S': gate.S,
+    'Sdg': gate.Sdag,
+    'T': gate.T,
+    'Tdg': gate.Tdag,
+    'RX': gate.RX,
+    'RY': gate.RY,
+    'RZ': gate.RZ,
+    'PauliX': gate.X,
+    'PauliY': gate.Y,
+    'PauliZ': gate.Z,
+    'Hadamard': gate.H
+}
+
+OBSERVABLE_MAP = {
+    'PauliX': X,
+    'PauliY': Y,
+    'PauliZ': Z,
+    'Hadamard': H,
+    'Identity': I,
+    'Hermitian': hermitian
+}
+
+
 class QulacsDevice(Device):
     """Qulacs device"""
     name = 'Qulacs device'
@@ -75,41 +108,11 @@ class QulacsDevice(Device):
         'tensor_observables': True
     }
 
-    operations = {'CNOT', 'RX', 'RY', 'RZ', 'Rot', 'QubitStateVector',
-                  'PauliX', 'PauliY', 'PauliZ', 'Hadamard'}
-    observables = {'PauliX', 'PauliY', 'PauliZ', 'Hermitian'}
+    _operations_map = OPERATIONS_MAP
+    _observable_map = OBSERVABLE_MAP
 
-    _operations_map = {
-        'QubitStateVector': None,
-        'BasisState': None,
-        'QubitUnitary': None,
-        'Toffoli': toffoli,
-        'CSWAP': CSWAP,
-        'CRZ': crz,
-        'Rot': rot,
-        'SWAP': gate.SWAP,
-        'CNOT': gate.CNOT,
-        'CZ': gate.CZ,
-        'S': gate.S,
-        'Sdg': gate.Sdag,
-        'T': gate.T,
-        'Tdg': gate.Tdag,
-        'RX': gate.RX,
-        'RY': gate.RY,
-        'RZ': gate.RZ,
-        'PauliX': gate.X,
-        'PauliY': gate.Y,
-        'PauliZ': gate.Z,
-        'Hadamard': gate.H
-    }
-    _observable_map = {
-        'PauliX': X,
-        'PauliY': Y,
-        'PauliZ': Z,
-        'Hadamard': H,
-        'Identity': I,
-        'Hermitian': hermitian
-    }
+    operations = OPERATIONS_MAP.keys()
+    observables = OBSERVABLE_MAP.keys()
 
     def __init__(self, wires, gpu=False, **kwargs):
         super().__init__(wires=wires)
@@ -163,7 +166,15 @@ class QulacsDevice(Device):
             self._circuit.add_gate(unitary_gate)
 
             return
-        elif operation in ('Rot', 'CRZ', 'Toffoli', 'CSWAP'):
+        elif operation == 'Rot':
+            self._circuit.add_gate(gate.merge([
+                gate.RZ(wires[0], par[0]),
+                gate.RY(wires[0], par[1]),
+                gate.RZ(wires[0], par[2])
+            ]))
+
+            return
+        elif operation in ('CRZ', 'Toffoli', 'CSWAP'):
             mapped_operation = self._operations_map[operation]
             if callable(mapped_operation):
                 gate_matrix = mapped_operation(*par)
