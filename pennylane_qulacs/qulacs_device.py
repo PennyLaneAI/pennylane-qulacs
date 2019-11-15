@@ -1,12 +1,13 @@
 import numpy as np
 import functools
 import itertools
+from scipy.linalg import block_diag
 from collections import OrderedDict
 
 from pennylane import Device, DeviceError
 
-from qulacs import Observable, QuantumCircuit, QuantumState
 import qulacs.gate as gate
+from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.state import inner_product
 
 from . import __version__
@@ -24,6 +25,8 @@ X = np.array([[0, 1], [1, 0]])
 Y = np.array([[0, -1j], [1j, 0]])
 Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
+SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+CSWAP = block_diag(I, I, SWAP)
 
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
@@ -37,6 +40,8 @@ crz = lambda theta: np.array(
         [0, 0, 0, np.exp(1j * theta / 2)],
     ]
 )
+toffoli = np.diag([1 for i in range(8)])
+toffoli[6:8, 6:8] = np.array([[0, 1], [1, 0]])
 
 
 def hermitian(*args):
@@ -78,8 +83,10 @@ class QulacsDevice(Device):
         'QubitStateVector': None,
         'BasisState': None,
         'QubitUnitary': None,
-        'CRZ': None,
-        'Rot': None,
+        'Toffoli': toffoli,
+        'CSWAP': CSWAP,
+        'CRZ': crz,
+        'Rot': rot,
         'SWAP': gate.SWAP,
         'CNOT': gate.CNOT,
         'CZ': gate.CZ,
@@ -130,9 +137,6 @@ class QulacsDevice(Device):
 
         self._first_operation = False
 
-        if operation != 'QubitUnitary':
-            wires = list(reversed(wires))
-
         if operation == 'QubitStateVector':
             if len(par[0]) != 2**len(wires):
                 raise ValueError('State vector must be of length 2**wires.')
@@ -145,7 +149,7 @@ class QulacsDevice(Device):
                 raise ValueError('Basis state must prepare all qubits.')
 
             basis_state = 0
-            for bit in par[0]:
+            for bit in reversed(par[0]):
                 basis_state = (basis_state << 1) | bit
 
             self._state.set_computational_basis(basis_state)
@@ -159,14 +163,15 @@ class QulacsDevice(Device):
             self._circuit.add_gate(unitary_gate)
 
             return
-        elif operation == 'Rot':
-            rot_gate = gate.DenseMatrix(wires, rot(par[0], par[1], par[2]))
-            self._circuit.add_gate(rot_gate)
+        elif operation in ('Rot', 'CRZ', 'Toffoli', 'CSWAP'):
+            mapped_operation = self._operations_map[operation]
+            if callable(mapped_operation):
+                gate_matrix = mapped_operation(*par)
+            else:
+                gate_matrix = mapped_operation
 
-            return
-        elif operation == 'CRZ':
-            crz_gate = gate.DenseMatrix(wires, crz(par[0]))
-            self._circuit.add_gate(crz_gate)
+            dense_gate = gate.DenseMatrix(wires, gate_matrix)
+            self._circuit.add_gate(dense_gate)
 
             return
 
@@ -185,11 +190,9 @@ class QulacsDevice(Device):
 
         if isinstance(observable, list):
             A = self._get_tensor_operator_matrix(observable, par)
-            wires = [item for sublist in reversed(wires) for item in sublist]
+            wires = [item for sublist in wires for item in sublist]
         else:
             A = self._get_operator_matrix(observable, par)
-
-        wires = list(reversed(wires))
 
         dense_gate = gate.DenseMatrix(wires, A)
         dense_gate.update_quantum_state(self._state)

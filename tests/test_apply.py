@@ -76,7 +76,12 @@ two_qubit = [("CNOT", CNOT), ("SWAP", SWAP), ("CZ", CZ)]
 # list of all parametrized two-qubit gates
 two_qubit_param = [("CRZ", crz)]
 # list of all three-qubit gates
-three_qubit = []
+three_qubit = [("Toffoli", toffoli), ("CSWAP", CSWAP)]
+
+
+def reverse_state(state):
+    N = int(np.log2(len(state)))
+    return state.reshape([2] * N).T.flatten()
 
 
 @pytest.mark.parametrize("shots", [0])
@@ -96,6 +101,8 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
+        expected = reverse_state(expected)
+
         assert np.allclose(res, expected, **tol)
 
     def test_identity_basis_state(self, device, tol):
@@ -111,6 +118,8 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
+        expected = reverse_state(expected)
+
         assert np.allclose(res, expected, **tol)
 
     def test_qubit_state_vector(self, init_state, device, tol):
