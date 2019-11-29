@@ -31,5 +31,5 @@ We ran a 50 executions of 8 quantum neural network [strongly entangling layer](h
 
 <p align="center">
   <img alt="Qulacs PennyLane plugin benchmarks" width="60%" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png">
-  <img alt="Qulacs PennyLane plugin benchmarks table" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qulacs_table.png">
+  <img alt="Qulacs PennyLane plugin benchmarks table" width="70%" src="https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qulacs_table.png">
 </p>
