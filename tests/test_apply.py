@@ -79,11 +79,6 @@ two_qubit_param = [("CRZ", crz)]
 three_qubit = [("Toffoli", toffoli), ("CSWAP", CSWAP)]
 
 
-def reverse_state(state):
-    N = int(np.log2(len(state)))
-    return state.reshape([2] * N).T.flatten()
-
-
 @pytest.mark.parametrize("shots", [0])
 class TestStateApply:
     """Test application of PennyLane operations to state simulators."""
@@ -101,8 +96,6 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
-
         assert np.allclose(res, expected, **tol)
 
     def test_identity_basis_state(self, device, tol):
@@ -118,8 +111,6 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
-
         assert np.allclose(res, expected, **tol)
 
     def test_qubit_state_vector(self, init_state, device, tol):
@@ -175,47 +166,13 @@ class TestStateApply:
         expected = np.abs(func(theta) @ state) ** 2
         assert np.allclose(res, expected, **tol)
 
-    def test_rotation(self, init_state, device, tol):
-        """Test three axis rotation gate"""
-        dev = device(1)
-        state = init_state(1)
-
-        a = 0.542
-        b = 1.3432
-        c = -0.654
-
-        dev.apply("QubitStateVector", [0], [state])
-        dev.apply("Rot", [0], [a, b, c])
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(rot(a, b, c) @ state) ** 2
-
-        assert np.allclose(res, expected, **tol)
-
-    @pytest.mark.parametrize("name,mat", two_qubit)
-    def test_two_qubit_no_parameters(self, init_state, device, name, mat, tol):
-        """Test PauliX application"""
-        dev = device(2)
-        state = init_state(2)
-
-        dev.apply("QubitStateVector", [0, 1], [state])
-        dev.apply(name, [0, 1], [])
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(mat @ state) ** 2
-        assert np.allclose(res, expected, **tol)
-
     @pytest.mark.parametrize("mat", [U, U2])
     def test_qubit_unitary(self, init_state, device, mat, tol):
         N = int(np.log2(len(mat)))
         dev = device(N)
-        state = init_state(N)
+        state = np.array((2**N)*[0])
+        state[0] = 1
 
-        dev.apply("QubitStateVector", list(range(N)), [state])
         dev.apply("QubitUnitary", list(range(N)), [mat])
         dev._obs_queue = []
         dev.pre_measure()
@@ -236,9 +193,9 @@ class TestStateApply:
     @pytest.mark.parametrize("name, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, device, name, mat, tol):
         dev = device(3)
-        state = init_state(3)
+        state = np.array((2**3)*[0])
+        state[0] = 1
 
-        dev.apply("QubitStateVector", [0, 1, 2], [state])
         dev.apply("QubitUnitary", [0, 1, 2], [mat])
         dev._obs_queue = []
         dev.pre_measure()
@@ -349,24 +306,6 @@ class TestHardwareApply:
         expected = np.abs(func(theta) @ state) ** 2
         assert np.allclose(res, expected, **tol)
 
-    def test_rotation(self, init_state, device, tol):
-        """Test three axis rotation gate"""
-        dev = device(1)
-        state = init_state(1)
-
-        a = 0.542
-        b = 1.3432
-        c = -0.654
-
-        dev.apply("QubitStateVector", [0], [state])
-        dev.apply("Rot", [0], [a, b, c])
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = np.fromiter(dev.probabilities().values(), dtype=np.float64)
-        expected = np.abs(rot(a, b, c) @ state) ** 2
-        assert np.allclose(res, expected, **tol)
-
     @pytest.mark.parametrize("name,mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, device, name, mat, tol):
         """Test PauliX application"""
@@ -386,9 +325,9 @@ class TestHardwareApply:
     def test_qubit_unitary(self, init_state, device, mat, tol):
         N = int(np.log2(len(mat)))
         dev = device(N)
-        state = init_state(N)
+        state = np.array(2**N*[0])
+        state[0] = 1
 
-        dev.apply("QubitStateVector", list(range(N)), [state])
         dev.apply("QubitUnitary", list(range(N)), [mat])
         dev._obs_queue = []
         dev.pre_measure()
@@ -409,9 +348,9 @@ class TestHardwareApply:
     @pytest.mark.parametrize("name, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, device, name, mat, tol):
         dev = device(3)
-        state = init_state(3)
+        state = np.array(2**3*[0])
+        state[0] = 1
 
-        dev.apply("QubitStateVector", [0, 1, 2], [state])
         dev.apply("QubitUnitary", [0, 1, 2], [mat])
         dev._obs_queue = []
         dev.pre_measure()

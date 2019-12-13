@@ -127,6 +127,8 @@ class QulacsDevice(Device):
         self._first_operation = True
 
     def apply(self, operation, wires, par):
+
+        wires.reverse()
         if operation == 'BasisState' and not self._first_operation:
             raise DeviceError(
                 'Operation {} cannot be used after other Operations have already been applied '
@@ -145,7 +147,7 @@ class QulacsDevice(Device):
                 raise ValueError('Basis state must prepare all qubits.')
 
             basis_state = 0
-            for bit in reversed(par[0]):
+            for bit in par[0]:
                 basis_state = (basis_state << 1) | bit
 
             self._state.set_computational_basis(basis_state)
@@ -155,12 +157,6 @@ class QulacsDevice(Device):
 
             unitary_gate = gate.DenseMatrix(wires, par[0])
             self._circuit.add_gate(unitary_gate)
-        elif operation == 'Rot':
-            self._circuit.add_gate(gate.merge([
-                gate.RZ(wires[0], par[0]),
-                gate.RY(wires[0], par[1]),
-                gate.RZ(wires[0], par[2])
-            ]))
         elif operation in ('CRZ', 'Toffoli', 'CSWAP'):
             mapped_operation = self._operations_map[operation]
             if callable(mapped_operation):
@@ -171,6 +167,8 @@ class QulacsDevice(Device):
             dense_gate = gate.DenseMatrix(wires, gate_matrix)
             self._circuit.add_gate(dense_gate)
         else:
+            print(operation)
+            print(self._circuit)
             mapped_operation = self._operations_map[operation]
             self._circuit.add_gate(mapped_operation(*wires, *par))
 

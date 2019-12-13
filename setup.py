@@ -18,7 +18,6 @@ setup(
         'pennylane>=0.5.0',
         'numpy',
         'scipy',
-        'qulacs'
     ],
     packages=['pennylane_qulacs'],
     entry_points={
