@@ -125,10 +125,14 @@ class QulacsDevice(Device):
 
         self._circuit = QuantumCircuit(wires)
         self._first_operation = True
+        self.wires = wires
 
     def apply(self, operation, wires, par):
+        reversed_list = list(range(self.wires))
+        reversed_list.reverse()
+        wires = [reversed_list[wire] for wire in wires]
+        print(wires)
 
-        wires.reverse()
         if operation == 'BasisState' and not self._first_operation:
             raise DeviceError(
                 'Operation {} cannot be used after other Operations have already been applied '
@@ -167,8 +171,6 @@ class QulacsDevice(Device):
             dense_gate = gate.DenseMatrix(wires, gate_matrix)
             self._circuit.add_gate(dense_gate)
         else:
-            print(operation)
-            print(self._circuit)
             mapped_operation = self._operations_map[operation]
             self._circuit.add_gate(mapped_operation(*wires, *par))
 
@@ -191,8 +193,11 @@ class QulacsDevice(Device):
         dense_gate = gate.DenseMatrix(wires, A)
         dense_gate.update_quantum_state(self._state)
 
+        #print('Bra and state, then expectation: ')
+        #print(bra)
+        #print(self._state)
         expectation = inner_product(bra, self._state)
-
+        #print(expectation)
         return expectation.real
 
     def probabilities(self):
