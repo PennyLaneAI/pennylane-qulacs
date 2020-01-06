@@ -74,21 +74,16 @@ class TestExpval:
 
         dev = device(2)
         dev.apply("RY", wires=[0], par=[theta])
-        #print(dev.state)
-        #dev.apply("RY", wires=[1], par=[phi])
-        #print(dev.state)
-        #dev.apply("CNOT", wires=[0, 1], par=[])
+        dev.apply("RY", wires=[1], par=[phi])
+        dev.apply("CNOT", wires=[0, 1], par=[])
 
         O = qml.PauliX
         name = "PauliX"
 
         dev._obs_queue = [O(wires=[0], do_queue=False), O(wires=[1], do_queue=False)]
         dev.pre_measure()
-        print(dev.state)
 
         res = np.array([dev.expval(name, [0], []), dev.expval(name, [1], [])])
-        # print(dev.state)
-        print(np.array([np.sin(theta) * np.sin(phi), np.sin(phi)]))
         assert np.allclose(res, np.array([np.sin(theta) * np.sin(phi), np.sin(phi)]), **tol)
 
     def test_pauliy_expectation(self, device, shots, tol):

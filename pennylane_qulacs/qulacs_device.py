@@ -127,11 +127,15 @@ class QulacsDevice(Device):
         self._first_operation = True
         self.wires = wires
 
-    def apply(self, operation, wires, par):
+    def reverse_wires(self, wires):
         reversed_list = list(range(self.wires))
         reversed_list.reverse()
-        wires = [reversed_list[wire] for wire in wires]
-        print(wires)
+        return [reversed_list[wire] for wire in wires]
+
+
+    def apply(self, operation, wires, par):
+        wires = self.reverse_wires(wires)
+        par = -1 * np.array(par)
 
         if operation == 'BasisState' and not self._first_operation:
             raise DeviceError(
@@ -182,6 +186,7 @@ class QulacsDevice(Device):
         self._circuit.update_quantum_state(self._state)
 
     def expval(self, observable, wires, par):
+        wires = self.reverse_wires(wires)
         bra = self._state.copy()
 
         if isinstance(observable, list):
@@ -193,11 +198,7 @@ class QulacsDevice(Device):
         dense_gate = gate.DenseMatrix(wires, A)
         dense_gate.update_quantum_state(self._state)
 
-        #print('Bra and state, then expectation: ')
-        #print(bra)
-        #print(self._state)
         expectation = inner_product(bra, self._state)
-        #print(expectation)
         return expectation.real
 
     def probabilities(self):
