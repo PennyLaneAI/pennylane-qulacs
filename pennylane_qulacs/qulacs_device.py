@@ -4,7 +4,7 @@ import itertools
 from scipy.linalg import block_diag
 from collections import OrderedDict
 
-from pennylane import Device, DeviceError
+from pennylane import QubitDevice, DeviceError
 
 import qulacs.gate as gate
 from qulacs import Observable, QuantumCircuit, QuantumState
@@ -61,7 +61,7 @@ def hermitian(*args):
     return A
 
 
-class QulacsDevice(Device):
+class QulacsDevice(QubitDevice):
     """Qulacs device"""
     name = 'Qulacs device'
     short_name = 'qulacs.simulator'
@@ -81,7 +81,6 @@ class QulacsDevice(Device):
         'Toffoli': toffoli,
         'CSWAP': CSWAP,
         'CRZ': crz,
-        'Rot': None,
         'SWAP': gate.SWAP,
         'CNOT': gate.CNOT,
         'CZ': gate.CZ,
@@ -109,8 +108,8 @@ class QulacsDevice(Device):
     operations = _operations_map.keys()
     observables = _observable_map.keys()
 
-    def __init__(self, wires, gpu=False, **kwargs):
-        super().__init__(wires=wires)
+    def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
+        super().__init__(wires=wires, shots=shots, analytic=analytic)
 
         if gpu:
             if not GPU_SUPPORTED:
@@ -126,8 +125,14 @@ class QulacsDevice(Device):
         self._circuit = QuantumCircuit(wires)
         self._first_operation = True
 
-    def apply(self, operation, wires, par):
-        if operation == 'BasisState' and not self._first_operation:
+    def apply(self, operation):
+
+        # Reverting the wire numbering such that it adheres to qulacs
+        wires = [self.num_wires-wire-1 for wire in operation.wires]
+
+        # Negating the parameters such that it adheres to qulacs
+        par = np.negative(operation.parameters)
+        if operation.name == 'BasisState' and not self._first_operation:
             raise DeviceError(
                 'Operation {} cannot be used after other Operations have already been applied '
                 'on a {} device.'.format(operation, self.short_name)
@@ -135,12 +140,12 @@ class QulacsDevice(Device):
 
         self._first_operation = False
 
-        if operation == 'QubitStateVector':
+        if operation.name == 'QubitStateVector':
             if len(par[0]) != 2**len(wires):
                 raise ValueError('State vector must be of length 2**wires.')
 
             self._state.load(par[0])
-        elif operation == 'BasisState':
+        elif operation.name == 'BasisState':
             if len(par[0]) != len(wires):
                 raise ValueError('Basis state must prepare all qubits.')
 
@@ -149,20 +154,16 @@ class QulacsDevice(Device):
                 basis_state = (basis_state << 1) | bit
 
             self._state.set_computational_basis(basis_state)
-        elif operation == 'QubitUnitary':
+        elif operation.name == 'QubitUnitary':
             if len(par[0]) != 2 ** len(wires):
                 raise ValueError('Unitary matrix must be of shape (2**wires, 2**wires).')
 
             unitary_gate = gate.DenseMatrix(wires, par[0])
             self._circuit.add_gate(unitary_gate)
-        elif operation == 'Rot':
-            self._circuit.add_gate(gate.merge([
-                gate.RZ(wires[0], par[0]),
-                gate.RY(wires[0], par[1]),
-                gate.RZ(wires[0], par[2])
-            ]))
-        elif operation in ('CRZ', 'Toffoli', 'CSWAP'):
-            mapped_operation = self._operations_map[operation]
+            unitary_gate.update_quantum_state(self._state)
+
+        elif operation.name in ('CRZ', 'Toffoli', 'CSWAP'):
+            mapped_operation = self._operations_map[operation.name]
             if callable(mapped_operation):
                 gate_matrix = mapped_operation(*par)
             else:
@@ -170,33 +171,22 @@ class QulacsDevice(Device):
 
             dense_gate = gate.DenseMatrix(wires, gate_matrix)
             self._circuit.add_gate(dense_gate)
+            dense_gate.update_quantum_state(self._state)
         else:
-            mapped_operation = self._operations_map[operation]
+            mapped_operation = self._operations_map[operation.name]
             self._circuit.add_gate(mapped_operation(*wires, *par))
+            mapped_operation(*wires, *par).update_quantum_state(self._state)
 
     @property
     def state(self):
         return self._state.get_vector()
 
+    # TODO: remove this (upcoming execute() PR)
     def pre_measure(self):
-        self._circuit.update_quantum_state(self._state)
+        self.generate_samples()
 
-    def expval(self, observable, wires, par):
-        bra = self._state.copy()
 
-        if isinstance(observable, list):
-            A = self._get_tensor_operator_matrix(observable, par)
-            wires = [item for sublist in wires for item in sublist]
-        else:
-            A = self._get_operator_matrix(observable, par)
-
-        dense_gate = gate.DenseMatrix(wires, A)
-        dense_gate.update_quantum_state(self._state)
-
-        expectation = inner_product(bra, self._state)
-
-        return expectation.real
-
+    # TODO: need to rewire in statistics!!
     def probabilities(self):
         states = itertools.product(range(2), repeat=self.num_wires)
         probs = np.abs(self.state)**2
@@ -207,13 +197,3 @@ class QulacsDevice(Device):
         self._state.set_zero_state()
         self._circuit = QuantumCircuit(self.num_wires)
 
-    def _get_operator_matrix(self, operation, par):
-        A = self._observable_map[operation]
-        if not callable(A):
-            return A
-
-        return A(*par)
-
-    def _get_tensor_operator_matrix(self, obs, par):
-        ops = [self._get_operator_matrix(o, p) for o, p in zip(obs, par)]
-        return functools.reduce(np.kron, ops)
