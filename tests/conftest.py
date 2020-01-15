@@ -13,6 +13,9 @@
 # limitations under the License.
 import numpy as np
 import pytest
+import os
+
+import pennylane as qml
 
 from pennylane_qulacs.qulacs_device import QulacsDevice
 
@@ -57,19 +60,13 @@ shortnames = [d.short_name for d in analytic_devices + hw_devices]
 # ==========================================================
 # pytest fixtures
 
-@pytest.fixture
-def tol(shots):
-    """Numerical tolerance to be used in tests."""
-    if shots == 0:
-        # analytic expectation values can be computed,
-        # so we can generally use a smaller tolerance
-        return {"atol": 0.01, "rtol": 0}
 
-    # for non-zero shots, there will be additional
-    # noise and stochastic effects; will need to increase
-    # the tolerance
-    return {"atol": 0.05, "rtol": 0.1}
+TOL = 1e-3
 
+@pytest.fixture(scope="session")
+def tol():
+    """Numerical tolerance for equality tests."""
+    return float(os.environ.get("TOL", TOL))
 
 @pytest.fixture
 def init_state(scope="session"):
@@ -94,3 +91,25 @@ def device(request, shots):
         return device(wires=n, shots=shots)
 
     return _device
+
+@pytest.fixture(scope="session")
+def qulacs_simulator(n_subsystems):
+    return qml.device('qulacs.simulator', wires=n_subsystems)
+
+
+@pytest.fixture(scope="function")
+def qulacs_simulator_1_wire():
+    return qml.device('qulacs.simulator', wires=1)
+
+
+@pytest.fixture(scope="function")
+def qulacs_simulator_2_wires():
+    return qml.device('qulacs.simulator', wires=2)
+
+
+@pytest.fixture(scope="function")
+def qulacs_simulator_3_wires():
+    return qml.device('qulacs.simulator', wires=3)
+
+
+
