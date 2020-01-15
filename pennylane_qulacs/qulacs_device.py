@@ -71,10 +71,11 @@ class QulacsDevice(QubitDevice):
 
     _capabilities = {
         'model': 'qubit',
-        'tensor_observables': True
+        'tensor_observables': True,
+        "inverse_operations": True
     }
 
-    _operations_map = {
+    QULACS_OPERATION_MAP = {
         'QubitStateVector': None,
         'BasisState': None,
         'QubitUnitary': None,
@@ -96,6 +97,13 @@ class QulacsDevice(QubitDevice):
         'PauliZ': gate.Z,
         'Hadamard': gate.H
     }
+
+    # Separate dictionary for the inverses as the operations dictionary needs
+    # to be invertable for the conversion functionality to work
+    QULACS_OPERATION_INVERSES_MAP = {k + ".inv": v for k, v in QULACS_OPERATION_MAP.items()}
+
+    _operation_map = {**QULACS_OPERATION_MAP, **QULACS_OPERATION_INVERSES_MAP}
+
     _observable_map = {
         'PauliX': X,
         'PauliY': Y,
@@ -105,8 +113,10 @@ class QulacsDevice(QubitDevice):
         'Hermitian': hermitian
     }
 
-    operations = _operations_map.keys()
+    operations = _operation_map.keys()
     observables = _observable_map.keys()
+
+
 
     def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
@@ -163,7 +173,7 @@ class QulacsDevice(QubitDevice):
             unitary_gate.update_quantum_state(self._state)
 
         elif operation.name in ('CRZ', 'Toffoli', 'CSWAP'):
-            mapped_operation = self._operations_map[operation.name]
+            mapped_operation = self._operation_map[operation.name]
             if callable(mapped_operation):
                 gate_matrix = mapped_operation(*par)
             else:
@@ -173,7 +183,7 @@ class QulacsDevice(QubitDevice):
             self._circuit.add_gate(dense_gate)
             dense_gate.update_quantum_state(self._state)
         else:
-            mapped_operation = self._operations_map[operation.name]
+            mapped_operation = self._operation_map[operation.name]
             self._circuit.add_gate(mapped_operation(*wires, *par))
             mapped_operation(*wires, *par).update_quantum_state(self._state)
 
@@ -184,14 +194,6 @@ class QulacsDevice(QubitDevice):
     # TODO: remove this (upcoming execute() PR)
     def pre_measure(self):
         self.generate_samples()
-
-
-    # TODO: need to rewire in statistics!!
-    def probabilities(self):
-        states = itertools.product(range(2), repeat=self.num_wires)
-        probs = np.abs(self.state)**2
-
-        return OrderedDict(zip(states, probs))
 
     def reset(self):
         self._state.set_zero_state()
