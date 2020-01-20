@@ -27,10 +27,7 @@ pip install .
 ```
 For GPU support:
 ```
-https://github.com/kareem1925/pennylane-qulacs.git
-cd pennylane-qulacs
-git checkout GPU_support
-python setup_gpy.py install
+pip install git+https://github.com/kareem1925/pennylane-qulacs@GPU_support
 ```
 
 # Benchmarks
