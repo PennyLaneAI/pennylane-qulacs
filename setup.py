@@ -1,5 +1,5 @@
 import re
-mport os
+import os
 from setuptools import setup
 
 
