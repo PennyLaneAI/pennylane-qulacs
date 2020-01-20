@@ -25,6 +25,13 @@ git clone https://github.com/soudy/pennylane-qulacs
 cd pennylane-qulacs
 pip install .
 ```
+For GPU support:
+```
+git clone https://github.com/soudy/pennylane-qulacs
+cd pennylane-qulacs
+git checkout GPU_support
+python setup_gpy.py install
+```
 
 # Benchmarks
 We ran a 100 executions of 4 layer quantum neural network [strongly entangling layer](https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayer.html) and compared the runtimes between CPU and GPU.
