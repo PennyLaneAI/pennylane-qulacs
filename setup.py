@@ -1,5 +1,5 @@
 import re
-
+mport os
 from setuptools import setup
 
 
@@ -18,7 +18,7 @@ setup(
         'pennylane>=0.5.0',
         'numpy',
         'scipy',
-        'qulacs'
+        ('qulacs-gpu' if os.path.exists('/proc/driver/nvidia/version') else 'qulacs')
     ],
     packages=['pennylane_qulacs'],
     entry_points={
