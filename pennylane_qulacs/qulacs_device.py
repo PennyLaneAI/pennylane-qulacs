@@ -1,14 +1,11 @@
 import numpy as np
-import functools
-import itertools
+
 from scipy.linalg import block_diag
-from collections import OrderedDict
 
 from pennylane import QubitDevice, DeviceError
 
 import qulacs.gate as gate
-from qulacs import Observable, QuantumCircuit, QuantumState
-from qulacs.state import inner_product
+from qulacs import QuantumCircuit, QuantumState
 
 from . import __version__
 
@@ -74,7 +71,7 @@ class QulacsDevice(QubitDevice):
     short_name = 'qulacs.simulator'
     pennylane_requires = '>=0.5.0'
     version = __version__
-    author = 'Steven Oud'
+    author = 'Steven Oud and Xanadu'
 
     _capabilities = {
         'model': 'qubit',
@@ -94,9 +91,9 @@ class QulacsDevice(QubitDevice):
         'CNOT': gate.CNOT,
         'CZ': gate.CZ,
         'S': gate.S,
-        'Sdg': gate.Sdag,
+        'S.inv': gate.Sdag,
         'T': gate.T,
-        'Tdg': gate.Tdag,
+        'T.inv': gate.Tdag,
         'RX': gate.RX,
         'RY': gate.RY,
         'RZ': gate.RZ,
@@ -105,6 +102,7 @@ class QulacsDevice(QubitDevice):
         'PauliY': gate.Y,
         'PauliZ': gate.Z,
         'Hadamard': gate.H
+#        'PhaseShift': gate.
     }
 
     _observable_map = {
@@ -119,8 +117,6 @@ class QulacsDevice(QubitDevice):
     operations = _operation_map.keys()
     observables = _observable_map.keys()
 
-
-
     def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
 
@@ -131,20 +127,20 @@ class QulacsDevice(QubitDevice):
                     'Please install "qulacs-gpu" to use GPU simulation.'
                 )
 
-            self._state = QuantumStateGpu(wires)
+            self._state = QuantumStateGpu(self.num_wires)
         else:
-            self._state = QuantumState(wires)
+            self._state = QuantumState(self.num_wires)
 
-        self._circuit = QuantumCircuit(wires)
+        self._circuit = QuantumCircuit(self.num_wires)
         self._first_operation = True
 
     def apply(self, operation):
 
-        # Reverting the wire numbering such that it adheres to qulacs
-        wires = [self.num_wires-wire-1 for wire in operation.wires]
+        # revert the wire numbering such that it adheres to qulacs
+        wires = operation.wires.tolist()[::-1]
 
         par = operation.parameters
-        if operation.name in {'BasisState','QubitStateVector'} and not self._first_operation:
+        if operation.name in {'BasisState', 'QubitStateVector'} and not self._first_operation:
             raise DeviceError(
                 'Operation {} cannot be used after other Operations have already been applied '
                 'on a {} device.'.format(operation.name, self.short_name)
@@ -159,21 +155,28 @@ class QulacsDevice(QubitDevice):
                 raise ValueError('State vector must be of length 2**wires.')
             if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
                 raise ValueError("Sum of amplitudes-squared does not equal one.")
-
+            # call qulac's state initialization
             self._state.load(par[0])
-        elif operation.name == 'BasisState':
-            n_basis_state = len(par[0])
 
-            if not set(par[0]).issubset({0, 1}):
+        elif operation.name == 'BasisState':
+
+            bits = par[0]
+            # reorder
+            bits = bits[::-1]
+
+            n_basis_state = len(bits)
+
+            if not set(bits).issubset({0, 1}):
                 raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
             if n_basis_state != len(wires):
                 raise ValueError("BasisState parameter and wires must be of equal length.")
 
             basis_state = 0
-            for bit in par[0]:
+            for bit in bits:
                 basis_state = (basis_state << 1) | bit
-
+            # call qulac's basis state initialization
             self._state.set_computational_basis(basis_state)
+
         elif operation.name == 'QubitUnitary':
             if len(par[0]) != 2 ** len(wires):
                 raise ValueError('Unitary matrix must be of shape (2**wires, 2**wires).')
@@ -181,6 +184,7 @@ class QulacsDevice(QubitDevice):
             unitary_gate = gate.DenseMatrix(wires, par[0])
             self._circuit.add_gate(unitary_gate)
             unitary_gate.update_quantum_state(self._state)
+
         elif operation.name == 'Rot':
 
             # Negating the parameters such that it adheres to qulacs
@@ -207,8 +211,8 @@ class QulacsDevice(QubitDevice):
             dense_gate = gate.DenseMatrix(wires, gate_matrix)
             self._circuit.add_gate(dense_gate)
             gate.DenseMatrix(wires, gate_matrix).update_quantum_state(self._state)
-        else:
 
+        else:
             # Negating the parameters such that it adheres to qulacs
             par = np.negative(operation.parameters)
 
@@ -216,13 +220,23 @@ class QulacsDevice(QubitDevice):
             self._circuit.add_gate(mapped_operation(*wires, *par))
             mapped_operation(*wires, *par).update_quantum_state(self._state)
 
+    def analytic_probability(self, wires=None):
+
+        if self._state is None:
+            return None
+
+        wires = wires or range(self.num_wires)
+
+        # 0,1 means that the qubit is observed, and 2 means no measurement.
+        measured_values = [1 if w in wires else 2 for w in range(self.num_wires)]
+
+        prob = self.get_marginal_probability(measured_values=measured_values)
+
+        return prob
+
     @property
     def state(self):
         return self._state.get_vector()
-
-    # TODO: remove this (upcoming execute() PR)
-    def pre_measure(self):
-        self.generate_samples()
 
     def reset(self):
         self._first_operation = True

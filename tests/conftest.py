@@ -94,7 +94,7 @@ def device(request, shots):
 
 @pytest.fixture(scope="session")
 def qulacs_simulator(n_subsystems):
-    return qml.device('qulacs.simulator', wires=n_subsystems)
+    return qml.device('qulacs.simulator', wires=n_subsystems, analytic=True)
 
 
 @pytest.fixture(scope="function")
