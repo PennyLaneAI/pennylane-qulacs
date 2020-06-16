@@ -32,7 +32,7 @@ dist:
 
 .PHONY : clean
 clean:
-	rm -rf pennylane_cirq/__pycache__
+	rm -rf pennylane_qulacs/__pycache__
 	rm -rf tests/__pycache__
 	rm -rf dist
 	rm -rf build
