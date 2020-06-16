@@ -30,7 +30,7 @@ Features
 * Support for all PennyLane core functionality
 
 Benchmarks
-============
+==========
 
 We ran a 100 executions of 4 layer quantum neural 
 network [strongly entangling layer](https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayer.html) 
