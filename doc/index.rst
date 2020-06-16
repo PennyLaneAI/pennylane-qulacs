@@ -14,7 +14,7 @@ PennyLane-Qulacs Plugin
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
 
-Once Pennylane-Qulacs is installed, the provided Qulacs devices can be accessed straight
+Once PennyLane-Qulacs is installed, the provided Qulacs devices can be accessed straight
 away in PennyLane, without the need to import any additional packages.
 
 Devices
