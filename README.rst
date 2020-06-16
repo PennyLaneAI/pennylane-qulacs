@@ -1,7 +1,7 @@
 PennyLane-Qulacs Plugin
 ######################
 
-.. image:: https://github.com/XanaduAI/pennylane-cirq/blob/master/doc/_static/puzzle_qulacs.png?raw=true
+.. image:: https://github.com/XanaduAI/pennylane-qulacs/blob/master/doc/_static/puzzle_qulacs.png?raw=true
     :align: center
     :width: 200px
     :target: javascript:void(0);
