@@ -133,7 +133,7 @@ Authors
 
 PennyLane-Qulacs is the work of `many contributors <https://github.com/XanaduAI/pennylane-qulacs/graphs/contributors>`__.
 
-If you are doing research using PennyLane and PennyLane-Cirq, please cite `our paper <https://arxiv.org/abs/1811.04968>`__:
+If you are doing research using PennyLane and PennyLane-Qulacs, please cite `our paper <https://arxiv.org/abs/1811.04968>`__:
 
     Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, M. Sohaib Alam, Shahnawaz Ahmed,
     Juan Miguel Arrazola, Carsten Blank, Alain Delgado, Soran Jahangiri, Keri McKiernan, Johannes Jakob Meyer,
