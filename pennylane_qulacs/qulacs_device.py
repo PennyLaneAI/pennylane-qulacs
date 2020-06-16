@@ -67,7 +67,7 @@ class QulacsDevice(Device):
     short_name = 'qulacs.simulator'
     pennylane_requires = '>=0.5.0'
     version = __version__
-    author = 'Steven Oud'
+    author = 'Steven Oud and Xanadu'
 
     _capabilities = {
         'model': 'qubit',

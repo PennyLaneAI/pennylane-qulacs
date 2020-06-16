@@ -6,7 +6,7 @@ from setuptools import setup
 with open('./pennylane_qulacs/__init__.py') as f:
     version, = re.findall('__version__ = \'(.*)\'', f.read())
 
-with open('README.md', 'r') as f:
+with open('README.rst', 'r') as f:
     long_description = f.read()
 
 setup(
