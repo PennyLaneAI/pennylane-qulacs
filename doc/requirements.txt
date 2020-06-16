@@ -1,0 +1,5 @@
+sphinxcontrib-bibtex
+pygments-github-lexers
+qulacs
+pennylane
+sphinx-automodapi
