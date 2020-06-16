@@ -35,7 +35,7 @@ Benchmarks
 ==========
 
 We ran a 100 executions of 4 layer quantum neural 
-network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayer.html>`_
+network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayers.html>`_
 and compared the runtimes between CPU and GPU.
 
 .. image:: https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png
