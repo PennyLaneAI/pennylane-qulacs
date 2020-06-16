@@ -40,12 +40,16 @@ To run the qulacs device simulations on a GPU, set the custom ``qpu`` argument t
 
 .. note::
 
-    For GPU support, you need to have the ``qulacs-gpu`` version installed. Check the
+    For GPU support, you need to have the ``qulacs-gpu`` version installed, including its dependencies. Check the
     `Qulacs documentation <http://docs.qulacs.org/en/latest/intro/1_install.html>`_  for details.
+
+    If you create the device with ``gpu=True`` but you do not have ``qulacs-gpu`` installed you will get an error
+    ``GPU not supported with installed version of qulacs.``.
+
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~
 
 The ``qulacs.simulator`` device supports all PennyLane
-`operations and observables <https://pennylane.readthedocs.io/en/stable/introduction/operations.html>`_, except from:
+`operations and observables <https://pennylane.readthedocs.io/en/stable/introduction/operations.html>`_:
 

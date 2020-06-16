@@ -32,6 +32,10 @@ Currently, PennyLane-Qulacs provides one Qulacs device for PennyLane:
         <div style='clear:both'></div>
         </br>
 
+.. include:: ../README.rst
+  :start-after:	benchmarks-start-inclusion-marker-do-not-remove
+  :end-before: benchmarks-end-inclusion-marker-do-not-remove
+
 Tutorials
 ~~~~~~~~~
 
