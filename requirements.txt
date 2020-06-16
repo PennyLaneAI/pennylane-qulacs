@@ -1,0 +1,3 @@
+pennylane>=0.9
+qulacs
+numpy~=1.16
