@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7d5bba96-3592-422d-ba08-b2f211c5e8d2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/doc/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/logo_new.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/pennylane.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/puzzle_cirq.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/xanadu_gallery.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_static/xanadu_x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/base.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/class.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary/module.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary_core/base.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary_core/class.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/_templates/autosummary_core/module.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/code.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/conf.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/devices/simulator.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/directives.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/index.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/installation.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/support.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/comments.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/footer.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/globaltoc.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/header.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/layout.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/localtoc.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/logo-text.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/search.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/searchbox.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/sourcelink.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/css/nanoscroller.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/jquery.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/jquery.min.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/js/bootstrap.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/js/bootstrap.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/js/jquery.nanoscroller.js.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/js/nanoscroller.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/tomorrow.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/tomorrow_night.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/static/xanadu.css_t" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/xanadu_theme/theme.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1dDMkpXvIrdY0vougbPTm44oraX" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/doc" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/doc" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7d5bba96-3592-422d-ba08-b2f211c5e8d2" name="Default Changelist" comment="" />
+      <created>1591955356539</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1591955356539</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1591955409306">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591955409306" />
+    <state x="482" y="187" key="SettingsEditor" timestamp="1592307485528">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="482" y="187" key="SettingsEditor/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1592307485528" />
+  </component>
+</project>
