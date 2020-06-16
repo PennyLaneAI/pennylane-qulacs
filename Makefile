@@ -7,8 +7,8 @@ TESTRUNNER := -m pytest tests
 .PHONY: help
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  install            to install PennyLane-Cirq"
-	@echo "  wheel              to build the PennyLane-Cirq wheel"
+	@echo "  install            to install PennyLane-Qulacs"
+	@echo "  wheel              to build the PennyLane-Qulacs wheel"
 	@echo "  dist               to package the source distribution"
 	@echo "  clean              to delete all temporary, cache, and build files"
 	@echo "  clean-docs         to delete all built documentation"
