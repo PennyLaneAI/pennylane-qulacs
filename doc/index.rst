@@ -39,7 +39,7 @@ Currently, PennyLane-Qulacs provides one Qulacs device for PennyLane:
 Tutorials
 ~~~~~~~~~
 
-To see the PennyLane-Cirq plugin in action, you can use any of the qubit based `demos
+To see the PennyLane-Qulacs plugin in action, you can use any of the qubit based `demos
 from the PennyLane documentation <https://pennylane.ai/qml/demonstrations.html>`_, for example
 the tutorial on `qubit rotation <https://pennylane.ai/qml/demos/tutorial_qubit_rotation.html>`_,
 and simply replace ``'default.qubit'`` with the ``'qulacs.simulator'`` device:
