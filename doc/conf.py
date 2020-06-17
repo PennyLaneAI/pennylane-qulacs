@@ -221,6 +221,27 @@ html_sidebars = {
 # implements a search results scorer. If empty, the default will be used.
 # html_search_scorer = 'scorer.js'
 
+import sys, os, re
+from unittest.mock import MagicMock
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('_ext'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), 'doc'))
+
+
+class Mock(MagicMock):
+    __name__ = 'foo'
+
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+
+sys.modules["qulacs"] = Mock(__version__="0.1.9")
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
@@ -246,7 +267,7 @@ html_theme_options = {
     # "disqus_comments_shortname": "pennylane-1",
 
     # Set you GA account ID to enable tracking
-    "google_analytics_account": "UA-130507810-2",
+    # "google_analytics_account": "UA-130507810-2",
 
     # Path to a touch icon
     "touch_icon": "logo_new.png",
