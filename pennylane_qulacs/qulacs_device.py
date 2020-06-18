@@ -170,7 +170,7 @@ class QulacsDevice(QubitDevice):
 
         for i, op in enumerate(operations):
             # revert the wire numbering such that it adheres to qulacs
-            wires = op.wires.tolist()[::-1]
+            wires = op.wires[::-1]
             par = op.parameters
 
             if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
@@ -268,4 +268,3 @@ class QulacsDevice(QubitDevice):
     def reset(self):
         self._state.set_zero_state()
         self._circuit = QuantumCircuit(self.num_wires)
-
