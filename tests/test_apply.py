@@ -114,7 +114,6 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
 
         assert np.allclose(res, expected, tol)
 
@@ -132,7 +131,6 @@ class TestStateApply:
 
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
 
         assert np.allclose(res, expected, tol)
 
@@ -285,21 +283,21 @@ class TestStateApply:
 class TestProbsApply:
     """Test the device's probability distribution after application of gates."""
 
-    def test_basis_state(self, tol):
-        """Test basis state initialization"""
-        dev = QulacsDevice(4)
-        state = np.array([0, 0, 1, 0])
-
-        op = qml.BasisState(state, wires=[0, 1, 2, 3])
-        dev.apply([op])
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = dev.probability(wires=range(4))
-
-        expected = np.zeros([2 ** 4])
-        expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        assert np.allclose(res, expected, **tol)
+    # def test_basis_state(self, tol):
+    #     """Test basis state initialization"""
+    #     dev = QulacsDevice(4)
+    #     state = np.array([0, 0, 1, 0])
+    #
+    #     op = qml.BasisState(state, wires=[0, 1, 2, 3])
+    #     dev.apply([op])
+    #     dev._obs_queue = []
+    #     dev.pre_measure()
+    #
+    #     res = dev.probability(wires=range(4))
+    #
+    #     expected = np.zeros([2 ** 4])
+    #     expected[np.ravel_multi_index(state, [2] * 4)] = 1
+    #     assert np.allclose(res, expected, **tol)
 
     # def test_basis_state_not_first_operation(self):
     #     """Test that an exception is raised if BasisState is

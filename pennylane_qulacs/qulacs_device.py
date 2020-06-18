@@ -105,6 +105,7 @@ class QulacsDevice(QubitDevice):
     pennylane_requires = ">=0.5.0"
     version = __version__
     author = "Steven Oud and Xanadu"
+    gpu_supported = GPU_SUPPORTED
 
     _capabilities = {
         "model": "qubit",
@@ -154,7 +155,7 @@ class QulacsDevice(QubitDevice):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
 
         if gpu:
-            if not GPU_SUPPORTED:
+            if not QulacsDevice.gpu_supported:
                 raise DeviceError(
                     "GPU not supported with installed version of qulacs. "
                     "Please install 'qulacs-gpu' to use GPU simulation."
@@ -250,23 +251,36 @@ class QulacsDevice(QubitDevice):
                 mapped_operation(*wires, *par).update_quantum_state(self._state)
 
     def analytic_probability(self, wires=None):
-
+        """Return the (marginal) analytic probability of each computational basis state."""
         if self._state is None:
             return None
 
         wires = wires or range(self.num_wires)
-        # turn into "mask" indicating measures wires
-        # 0,1 means that the qubit is observed, and 2 means no measurement.
-        measured_values = [1 if w in wires else 2 for w in range(self.num_wires)]
-        prob = self._state.get_marginal_probability(measured_values)
-
+        # reverse order of wires
+        wires = wires[::1]
+        all_probs = self._abs(self.state) ** 2
+        prob = self.marginal_prob(all_probs, wires)
         return prob
 
     @property
     def state(self):
-        return self._state.get_vector()
+        return self._reverse_state(self._state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
         self._circuit = QuantumCircuit(self.num_wires)
+
+    def _reverse_state(self, state_vector):
+        """Reverse the qubit order for a vector of amplitudes.
+
+        Args:
+            state_vector (iterable[complex]): vector containing the amplitudes
+
+        Returns:
+            list[complex]
+        """
+        state_vector = np.array(state_vector)
+        N = int(np.log2(len(state_vector)))
+        reversed_state = state_vector.reshape([2] * N).T.flatten()
+        return list(reversed_state)
 
