@@ -20,7 +20,7 @@ from pennylane_qulacs.qulacs_device import QulacsDevice
 from qulacs import QuantumState, QuantumCircuit
 
 
-class TestUnits:
+class TestDeviceUnits:
     """Unit tests for the plugin."""
 
     @pytest.mark.parametrize("num_wires, shots, analytic",
