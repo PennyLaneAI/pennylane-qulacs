@@ -170,7 +170,7 @@ class QulacsDevice(QubitDevice):
 
         for i, op in enumerate(operations):
             # revert the wire numbering such that it adheres to qulacs
-            wires = op.wires.tolist()[::-1]
+            wires = op.wires[::-1]
             par = op.parameters
 
             if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
@@ -255,9 +255,10 @@ class QulacsDevice(QubitDevice):
             return None
 
         wires = wires or range(self.num_wires)
+        # turn into "mask" indicating measures wires
         # 0,1 means that the qubit is observed, and 2 means no measurement.
         measured_values = [1 if w in wires else 2 for w in range(self.num_wires)]
-        prob = self._state.get_marginal_probability(measured_values=measured_values)
+        prob = self._state.get_marginal_probability(measured_values)
 
         return prob
 

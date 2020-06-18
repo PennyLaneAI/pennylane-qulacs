@@ -42,22 +42,6 @@ A = np.array([[1.02789352, 1.61296440 - 0.3498192j],
 
 
 # ==========================================================
-# PennyLane devices
-
-# List of all devices that support analytic expectation value
-# computation. This generally includes statevector/wavefunction simulators.
-analytic_devices = [QulacsDevice]
-
-# List of all devices that do *not* support analytic expectation
-# value computation. This generally includes hardware devices
-# and hardware simulators.
-hw_devices = []
-
-# List of all device shortnames
-shortnames = [d.short_name for d in analytic_devices + hw_devices]
-
-
-# ==========================================================
 # pytest fixtures
 
 
@@ -77,39 +61,5 @@ def init_state(scope="session"):
         return state
 
     return _init_state
-
-
-@pytest.fixture(params=analytic_devices+hw_devices)
-def device(request, shots):
-    """Fixture to initialize and return a PennyLane device"""
-    device = request.param
-
-    if device not in analytic_devices and shots == 0:
-        pytest.skip("Hardware simulators do not support analytic mode")
-
-    def _device(n):
-        return device(wires=n, shots=shots)
-
-    return _device
-
-@pytest.fixture(scope="session")
-def qulacs_simulator(n_subsystems):
-    return qml.device('qulacs.simulator', wires=n_subsystems, analytic=True)
-
-
-@pytest.fixture(scope="function")
-def qulacs_simulator_1_wire():
-    return qml.device('qulacs.simulator', wires=1)
-
-
-@pytest.fixture(scope="function")
-def qulacs_simulator_2_wires():
-    return qml.device('qulacs.simulator', wires=2)
-
-
-@pytest.fixture(scope="function")
-def qulacs_simulator_3_wires():
-    return qml.device('qulacs.simulator', wires=3)
-
 
 
