@@ -76,6 +76,21 @@ toffoli = np.diag([1 for i in range(8)])
 toffoli[0:2, 0:2] = np.array([[0, 1], [1, 0]])
 
 
+def _reverse_state(state_vector):
+    """Reverse the qubit order for a vector of amplitudes.
+
+    Args:
+        state_vector (iterable[complex]): vector containing the amplitudes
+
+    Returns:
+        list[complex]
+    """
+    state_vector = np.array(state_vector)
+    N = int(np.log2(len(state_vector)))
+    reversed_state = state_vector.reshape([2] * N).T.flatten()
+    return list(reversed_state)
+
+
 def hermitian(*args):
     r"""Input validation for an arbitary Hermitian expectation.
     Args:
@@ -117,10 +132,9 @@ class QulacsDevice(QubitDevice):
         "QubitStateVector": None,
         "BasisState": None,
         "QubitUnitary": None,
-        # TODO: test Toffolis functioning
-        #"Toffoli": toffoli,
-        #"CSWAP": CSWAP,
-        #"CRZ": crz,
+        "Toffoli": toffoli,
+        "CSWAP": CSWAP,
+        "CRZ": crz,
         "SWAP": gate.SWAP,
         "CNOT": gate.CNOT,
         "CZ": gate.CZ,
@@ -135,8 +149,9 @@ class QulacsDevice(QubitDevice):
         "PauliX": gate.X,
         "PauliY": gate.Y,
         "PauliZ": gate.Z,
-        "Hadamard": gate.H
-#        "PhaseShift": gate.
+        "Hadamard": gate.H,
+        # TODO: Does the device have a phase shift?
+       # "PhaseShift": gate.
     }
 
     _observable_map = {
@@ -145,7 +160,7 @@ class QulacsDevice(QubitDevice):
         "PauliZ": Z,
         "Hadamard": H,
         "Identity": I,
-        #"Hermitian": hermitian
+        "Hermitian": hermitian
     }
 
     operations = _operation_map.keys()
@@ -183,7 +198,8 @@ class QulacsDevice(QubitDevice):
             if op.name == "QubitStateVector":
                 input_state = par[0]
                 # translate from PennyLane to Qulacs wire order
-                input_state = self._reverse_state(input_state)
+                # TOdo: is that correct?
+                input_state = _reverse_state(input_state)
 
                 if len(input_state) != 2**len(wires):
                     raise ValueError("State vector must be of length 2**wires.")
@@ -213,7 +229,7 @@ class QulacsDevice(QubitDevice):
                 if len(par[0]) != 2 ** len(wires):
                     raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-                # TODO: reorder entries of unitary!
+                # TODO: reorder entries of unitary?
                 unitary_gate = gate.DenseMatrix(wires, par[0])
                 self._circuit.add_gate(unitary_gate)
                 unitary_gate.update_quantum_state(self._state)
@@ -267,23 +283,9 @@ class QulacsDevice(QubitDevice):
 
     @property
     def state(self):
-        return self._reverse_state(self._state.get_vector())
+        # TODO: Check if reversing the state makes sense here?
+        return _reverse_state(self._state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
         self._circuit = QuantumCircuit(self.num_wires)
-
-    def _reverse_state(self, state_vector):
-        """Reverse the qubit order for a vector of amplitudes.
-
-        Args:
-            state_vector (iterable[complex]): vector containing the amplitudes
-
-        Returns:
-            list[complex]
-        """
-        state_vector = np.array(state_vector)
-        N = int(np.log2(len(state_vector)))
-        reversed_state = state_vector.reshape([2] * N).T.flatten()
-        return list(reversed_state)
-

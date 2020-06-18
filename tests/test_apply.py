@@ -80,23 +80,17 @@ single_qubit_param = [
 two_qubit = [
     (qml.CNOT(wires=[0, 1]), CNOT),
     (qml.SWAP(wires=[0, 1]), SWAP),
-    #(qml.CZ(wires=[0, 1]), CZ)
+    (qml.CZ(wires=[0, 1]), CZ)
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
-#    (qml.CRZ(0, wires=[0, 1]), crz)
+    (qml.CRZ(0, wires=[0, 1]), crz)
 ]
 # list of all three-qubit gates
 three_qubit = [
-#    (qml.Toffoli(wires=[0, 1, 2]), toffoli),
-#    (qml.CSWAP(wires=[0, 1, 2]), CSWAP)
+    (qml.Toffoli(wires=[0, 1, 2]), toffoli),
+    (qml.CSWAP(wires=[0, 1, 2]), CSWAP)
     ]
-
-
-def reverse_state(state):
-    state = np.array(state)
-    N = int(np.log2(len(state)))
-    return state.reshape([2] * N).T.flatten()
 
 
 class TestStateApply:
@@ -196,75 +190,75 @@ class TestStateApply:
 
         assert np.allclose(res, expected, tol)
 
-    # @pytest.mark.parametrize("op,mat", two_qubit)
-    # def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
-    #     """Test PauliX application"""
-    #     dev = QulacsDevice(2)
-    #     state = init_state(2)
-    #
-    #     dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
-    #     dev._obs_queue = []
-    #     dev.pre_measure()
-    #
-    #     res = np.abs(reverse_state(dev.state)) ** 2
-    #     expected = np.abs(mat @ state) ** 2
-    #     assert np.allclose(res, expected, tol)
+    @pytest.mark.parametrize("op,mat", two_qubit)
+    def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
+        """Test PauliX application"""
+        dev = QulacsDevice(2)
+        state = init_state(2)
 
-    # # @pytest.mark.parametrize("mat", [U, U2])
-    # # def test_qubit_unitary(self, init_state, mat, tol):
-    # #     """Test QubitUnitary application"""
-    # #
-    # #     N = int(np.log2(len(mat)))
-    # #     dev = QulacsDevice(N)
-    # #     state = init_state(N)
-    # #
-    # #     op = qml.QubitUnitary(mat, wires=list(range(N)))
-    # #     dev.apply(qml.QubitStateVector(state, wires=list(range(N))))
-    # #     dev.apply(op)
-    # #     dev._obs_queue = []
-    # #     dev.pre_measure()
-    # #
-    # #     res = np.abs(dev.state) ** 2
-    # #     expected = np.abs(mat @ state) ** 2
-    # #     assert np.allclose(res, expected, tol)
-    #
-    # def test_invalid_qubit_state_unitary(self):
-    #     """Test that an exception is raised if the
-    #     unitary matrix is the wrong size"""
-    #     dev = QulacsDevice(2)
-    #     state = np.array([[0, 123.432], [-0.432, 023.4]])
-    #     op = qml.QubitUnitary(state, wires=[0, 1])
-    #
-    #     with pytest.raises(ValueError, match=r"Unitary matrix must be of shape"):
-    #         dev.apply([op])
-    #
-    # @pytest.mark.parametrize("op, mat", three_qubit)
-    # def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
-    #     dev = QulacsDevice(3)
-    #     state = init_state(3)
-    #
-    #     dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
-    #     dev._obs_queue = []
-    #     dev.pre_measure()
-    #
-    #     res = np.abs(dev.state) ** 2
-    #     expected = np.abs(mat @ state) ** 2
-    #     assert np.allclose(res, expected, tol)
-    #
-    # @pytest.mark.parametrize("theta", [0.5432, -0.232])
-    # @pytest.mark.parametrize("op,func", two_qubit_param)
-    # def test_two_qubit_parameters(self, init_state, op, func, theta, tol):
-    #     """Test parametrized two qubit gates application"""
-    #     dev = QulacsDevice(2)
-    #     state = init_state(2)
-    #
-    #     op.params = [theta]
-    #     dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
-    #
-    #     dev._obs_queue = []
-    #     dev.pre_measure()
-    #
-    #     res = np.abs(dev.state) ** 2
-    #     expected = np.abs(func(theta) @ state) ** 2
-    #     assert np.allclose(res, expected, **tol)
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
+        dev._obs_queue = []
+        dev.pre_measure()
+
+        res = np.abs(dev.state) ** 2
+        expected = np.abs(mat @ state) ** 2
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("mat", [U, U2])
+    def test_qubit_unitary(self, init_state, mat, tol):
+        """Test QubitUnitary application"""
+
+        N = int(np.log2(len(mat)))
+        dev = QulacsDevice(N)
+        state = init_state(N)
+
+        op = qml.QubitUnitary(mat, wires=list(range(N)))
+        dev.apply(qml.QubitStateVector(state, wires=list(range(N))))
+        dev.apply(op)
+        dev._obs_queue = []
+        dev.pre_measure()
+
+        res = np.abs(dev.state) ** 2
+        expected = np.abs(mat @ state) ** 2
+        assert np.allclose(res, expected, tol)
+
+    def test_invalid_qubit_state_unitary(self):
+        """Test that an exception is raised if the
+        unitary matrix is the wrong size"""
+        dev = QulacsDevice(2)
+        state = np.array([[0, 123.432], [-0.432, 023.4]])
+        op = qml.QubitUnitary(state, wires=[0, 1])
+
+        with pytest.raises(ValueError, match=r"Unitary matrix must be of shape"):
+            dev.apply([op])
+
+    @pytest.mark.parametrize("op, mat", three_qubit)
+    def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
+        dev = QulacsDevice(3)
+        state = init_state(3)
+
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
+        dev._obs_queue = []
+        dev.pre_measure()
+
+        res = np.abs(dev.state) ** 2
+        expected = np.abs(mat @ state) ** 2
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("op,func", two_qubit_param)
+    def test_two_qubit_parameters(self, init_state, op, func, theta, tol):
+        """Test parametrized two qubit gates application"""
+        dev = QulacsDevice(2)
+        state = init_state(2)
+
+        op.params = [theta]
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
+
+        dev._obs_queue = []
+        dev.pre_measure()
+
+        res = np.abs(dev.state) ** 2
+        expected = np.abs(func(theta) @ state) ** 2
+        assert np.allclose(res, expected, **tol)
 
