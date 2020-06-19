@@ -57,8 +57,9 @@ Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 
-# Swapping the order of the target and control qubits due to qulacs ordering
-CSWAP = block_diag(SWAP, I, I)
+# create a CSWAP with reversed ordering
+CSWAP = np.diag([1 for i in range(8)])
+CSWAP[[3, 5]] = CSWAP[[5, 3]]
 
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
@@ -71,9 +72,23 @@ crz = lambda theta: np.array(
         [0, 0, 0, np.exp(1j * theta / 2)],
     ]
 )
-# Swapping the order of the target and control qubits due to qulacs ordering
+
+# create a CSWAP with reversed ordering
 toffoli = np.diag([1 for i in range(8)])
-toffoli[0:2, 0:2] = np.array([[0, 1], [1, 0]])
+toffoli[[3, 7]] = toffoli[[7, 3]]
+
+
+def _reverse_state(state_vector):
+    """Reverse the qubit order for a vector of amplitudes.
+    Args:
+        state_vector (iterable[complex]): vector containing the amplitudes
+    Returns:
+        list[complex]
+    """
+    state_vector = np.array(state_vector)
+    N = int(np.log2(len(state_vector)))
+    reversed_state = state_vector.reshape([2] * N).T.flatten()
+    return list(reversed_state)
 
 
 def hermitian(*args):
@@ -105,6 +120,7 @@ class QulacsDevice(QubitDevice):
     pennylane_requires = ">=0.5.0"
     version = __version__
     author = "Steven Oud and Xanadu"
+    gpu_supported = GPU_SUPPORTED
 
     _capabilities = {
         "model": "qubit",
@@ -116,10 +132,9 @@ class QulacsDevice(QubitDevice):
         "QubitStateVector": None,
         "BasisState": None,
         "QubitUnitary": None,
-        # TODO: test Toffolis functioning
-        #"Toffoli": toffoli,
-        #"CSWAP": CSWAP,
-        #"CRZ": crz,
+        "Toffoli": toffoli,
+        "CSWAP": CSWAP,
+        "CRZ": crz,
         "SWAP": gate.SWAP,
         "CNOT": gate.CNOT,
         "CZ": gate.CZ,
@@ -154,7 +169,7 @@ class QulacsDevice(QubitDevice):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
 
         if gpu:
-            if not GPU_SUPPORTED:
+            if not QulacsDevice.gpu_supported:
                 raise DeviceError(
                     "GPU not supported with installed version of qulacs. "
                     "Please install 'qulacs-gpu' to use GPU simulation."
@@ -167,10 +182,8 @@ class QulacsDevice(QubitDevice):
         self._circuit = QuantumCircuit(self.num_wires)
 
     def apply(self, operations):
-
         for i, op in enumerate(operations):
-            # revert the wire numbering such that it adheres to qulacs
-            wires = op.wires[::-1]
+            wires = op.wires
             par = op.parameters
 
             if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
@@ -181,17 +194,17 @@ class QulacsDevice(QubitDevice):
 
             if op.name == "QubitStateVector":
                 input_state = par[0]
+                input_state = _reverse_state(input_state)
 
                 if len(input_state) != 2**len(wires):
                     raise ValueError("State vector must be of length 2**wires.")
                 if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
                     raise ValueError("Sum of amplitudes-squared does not equal one.")
                 # call qulac"s state initialization
-                self._state.load(par[0])
+                self._state.load(input_state)
 
             elif op.name == "BasisState":
-
-                # reorder
+                # translate from PennyLane to Qulacs wire order
                 bits = par[0][::-1]
                 n_basis_state = len(bits)
 
@@ -203,21 +216,27 @@ class QulacsDevice(QubitDevice):
                 basis_state = 0
                 for bit in bits:
                     basis_state = (basis_state << 1) | bit
-                # call qulac"s basis state initialization
+
+                # call qulac's basis state initialization
                 self._state.set_computational_basis(basis_state)
 
             elif op.name == "QubitUnitary":
+
                 if len(par[0]) != 2 ** len(wires):
                     raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
+                # either reverse wires (or change par[0]; harder)
+                wires = wires[::-1]
                 unitary_gate = gate.DenseMatrix(wires, par[0])
                 self._circuit.add_gate(unitary_gate)
                 unitary_gate.update_quantum_state(self._state)
 
             elif op.name == "Rot":
-
                 # Negating the parameters such that it adheres to qulacs
                 par = np.negative(op.parameters)
+
+                if len(wires) != 1:
+                    raise ValueError("Rotation gate can only be applied on a single wire.")
 
                 self._circuit.add_gate(gate.RZ(wires[0], par[0]))
                 gate.RZ(wires[0], par[0]).update_quantum_state(self._state)
@@ -228,15 +247,13 @@ class QulacsDevice(QubitDevice):
 
             elif op.name in ("CRZ", "Toffoli", "CSWAP"):
                 mapped_operation = self._operation_map[op.name]
-                if callable(mapped_operation):
 
+                if callable(mapped_operation):
                     gate_matrix = mapped_operation(*par)
                 else:
-                    # basis_states = np.array(list(itertools.product([0, 1], repeat=len(wires))))
-                    # perm = np.ravel_multi_index(basis_states[:, np.argsort(np.argsort(wires))].T, [2] * len(wires))
-
                     gate_matrix = mapped_operation
 
+                # gate_matrix is already in correct order => no wire-reversal needed
                 dense_gate = gate.DenseMatrix(wires, gate_matrix)
                 self._circuit.add_gate(dense_gate)
                 gate.DenseMatrix(wires, gate_matrix).update_quantum_state(self._state)
@@ -246,24 +263,24 @@ class QulacsDevice(QubitDevice):
                 par = np.negative(op.parameters)
 
                 mapped_operation = self._operation_map[op.name]
+                # mapped_operation is already in correct order => no wire-reversal needed
                 self._circuit.add_gate(mapped_operation(*wires, *par))
                 mapped_operation(*wires, *par).update_quantum_state(self._state)
 
     def analytic_probability(self, wires=None):
-
+        """Return the (marginal) analytic probability of each computational basis state."""
         if self._state is None:
             return None
 
         wires = wires or range(self.num_wires)
-        # 0,1 means that the qubit is observed, and 2 means no measurement.
-        measured_values = [1 if w in wires else 2 for w in range(self.num_wires)]
-        prob = self._state.get_marginal_probability(measured_values=measured_values)
 
+        all_probs = self._abs(self.state) ** 2
+        prob = self.marginal_prob(all_probs, wires)
         return prob
 
     @property
     def state(self):
-        return self._state.get_vector()
+        return _reverse_state(self._state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
