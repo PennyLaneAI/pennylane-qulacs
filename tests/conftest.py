@@ -61,5 +61,3 @@ def init_state(scope="session"):
         return state
 
     return _init_state
-
-

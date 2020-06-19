@@ -76,5 +76,3 @@ class TestDeviceUnits:
         expected[0] = 1.
         assert np.allclose(dev._state.get_vector(), expected)
         assert QuantumCircuit(4).calculate_depth() == 0
-
-
