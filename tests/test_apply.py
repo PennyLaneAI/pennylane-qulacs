@@ -213,8 +213,7 @@ class TestStateApply:
         state = init_state(N)
 
         op = qml.QubitUnitary(mat, wires=list(range(N)))
-        dev.apply(qml.QubitStateVector(state, wires=list(range(N))))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -260,5 +259,5 @@ class TestStateApply:
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
-        assert np.allclose(res, expected, **tol)
+        assert np.allclose(res, expected, tol)
 
