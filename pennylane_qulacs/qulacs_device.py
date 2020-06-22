@@ -211,6 +211,7 @@ class QulacsDevice(QubitDevice):
                 )
 
             if op.name == "QubitStateVector":
+                input_state = par[0]
                 input_state = _reverse_state(input_state)
 
                 if len(input_state) != 2**len(wires):
@@ -221,7 +222,6 @@ class QulacsDevice(QubitDevice):
                 self._state.load(input_state)
 
             elif op.name == "BasisState":
-
                 # translate from PennyLane to Qulacs wire order
                 bits = par[0][::-1]
                 n_basis_state = len(bits)
@@ -245,7 +245,6 @@ class QulacsDevice(QubitDevice):
 
                 # either reverse wires (or change par[0]; harder)
                 wires = wires[::-1]
-
                 unitary_gate = gate.DenseMatrix(wires, par[0])
                 self._circuit.add_gate(unitary_gate)
                 unitary_gate.update_quantum_state(self._state)
@@ -292,6 +291,7 @@ class QulacsDevice(QubitDevice):
             return None
 
         wires = wires or range(self.num_wires)
+        
         all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
         return prob
