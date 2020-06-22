@@ -211,7 +211,6 @@ class QulacsDevice(QubitDevice):
                 )
 
             if op.name == "QubitStateVector":
-                input_state = par[0]
                 input_state = _reverse_state(input_state)
 
                 if len(input_state) != 2**len(wires):
@@ -222,6 +221,7 @@ class QulacsDevice(QubitDevice):
                 self._state.load(input_state)
 
             elif op.name == "BasisState":
+
                 # translate from PennyLane to Qulacs wire order
                 bits = par[0][::-1]
                 n_basis_state = len(bits)

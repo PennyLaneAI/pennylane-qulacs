@@ -190,7 +190,7 @@ class TestStateApply:
 
         assert np.allclose(res, expected, tol)
 
-    @pytest.mark.parametrize("op,mat", two_qubit)
+    @pytest.mark.parametrize("op, mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
         dev = QulacsDevice(2)
@@ -260,4 +260,3 @@ class TestStateApply:
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
         assert np.allclose(res, expected, tol)
-
