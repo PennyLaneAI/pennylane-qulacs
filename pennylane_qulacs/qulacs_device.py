@@ -169,7 +169,17 @@ class QulacsDevice(QubitDevice):
        # "PhaseShift": gate.
     }
 
+    _observable_map = {
+        "PauliX": X,
+        "PauliY": Y,
+        "PauliZ": Z,
+        "Hadamard": H,
+        "Identity": I,
+        #"Hermitian": hermitian
+    }
+
     operations = _operation_map.keys()
+    observables = _observable_map.keys()
 
     def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
@@ -189,9 +199,16 @@ class QulacsDevice(QubitDevice):
 
     def apply(self, operations, **kwargs):
 
-        for op in operations:
+        for i, op in enumerate(operations):
             wires = op.wires
             par = op.parameters
+
+            # TODO: Do we need this here? Doesn't it get checked in the qnode?
+            if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
+                raise DeviceError(
+                    "Operation {} cannot be used after other Operations have already been applied "
+                    "on a {} device.".format(op, self.short_name)
+                )
 
             if op.name == "QubitStateVector":
                 input_state = par[0]
