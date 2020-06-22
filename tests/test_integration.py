@@ -38,12 +38,11 @@ class TestIntegration:
 
         @qml.qnode(dev)
         def circuit():
-            qml.RX(theta, wires=[0])
-            qml.RX(phi, wires=[1]).inv()
-            qml.CNOT(wires=[0, 1])
-            return qml.expval(qml.PauliX(wires=0)), qml.expval(qml.PauliZ(wires=1))
+            qml.RY(theta, wires=[0])
+            qml.RY(phi, wires=[1])
+            qml.CNOT(wires=[0, 1]).inv()
+            return qml.expval(qml.PauliX(wires=0)), qml.expval(qml.PauliX(wires=1))
 
         res = circuit()
-        assert np.allclose(
-            res, np.array([np.cos(theta), np.cos(theta) * np.cos(-phi)]), atol=1e-8
-        )
+        expected = np.array([np.sin(theta) * np.sin(phi), np.sin(phi)])
+        assert np.allclose(res, expected, atol=1e-8)
