@@ -91,21 +91,6 @@ def _reverse_state(state_vector):
     return list(reversed_state)
 
 
-def _reverse_state(state_vector):
-    """Reverse the qubit order for a vector of amplitudes.
-
-    Args:
-        state_vector (iterable[complex]): vector containing the amplitudes
-
-    Returns:
-        list[complex]
-    """
-    state_vector = np.array(state_vector)
-    N = int(np.log2(len(state_vector)))
-    reversed_state = state_vector.reshape([2] * N).T.flatten()
-    return list(reversed_state)
-
-
 def hermitian(*args):
     r"""Input validation for an arbitary Hermitian expectation.
     Args:
@@ -291,7 +276,7 @@ class QulacsDevice(QubitDevice):
             return None
 
         wires = wires or range(self.num_wires)
-        
+
         all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
         return prob
