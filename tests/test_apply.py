@@ -72,7 +72,7 @@ single_qubit = [
 
 # list of all parametrized single-qubit gates
 single_qubit_param = [
-#    (qml.PhaseShift(0, wires=0), phase_shift),
+  # (qml.PhaseShift(0, wires=0), phase_shift),
     (qml.RX(0, wires=0), rx),
     (qml.RY(0, wires=0), ry),
     (qml.RZ(0, wires=0), rz)]
@@ -80,59 +80,40 @@ single_qubit_param = [
 two_qubit = [
     (qml.CNOT(wires=[0, 1]), CNOT),
     (qml.SWAP(wires=[0, 1]), SWAP),
-    (qml.CZ(wires=[0, 1]), CZ)]
+    (qml.CZ(wires=[0, 1]), CZ)
+]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
-#    (qml.CRZ(0, wires=[0, 1]), crz)
+    (qml.CRZ(0, wires=[0, 1]), crz)
 ]
 # list of all three-qubit gates
 three_qubit = [
-#    (qml.Toffoli(wires=[0, 1, 2]), toffoli),
-#    (qml.CSWAP(wires=[0, 1, 2]), CSWAP)
+    (qml.Toffoli(wires=[0, 1, 2]), toffoli),
+    (qml.CSWAP(wires=[0, 1, 2]), CSWAP)
     ]
 
 
-def reverse_state(state):
-    N = int(np.log2(len(state)))
-    return state.reshape([2] * N).T.flatten()
-
-
 class TestStateApply:
-    """Test application of PennyLane operations to state simulators."""
+    """Test the device's state after application of gates."""
 
-    def test_basis_state(self, tol):
+    @pytest.mark.parametrize("state", [np.array([0, 0, 1, 0]),
+                                       np.array([0, 0, 1, 0]),
+                                       np.array([1, 0, 1, 0]),
+                                       np.array([1, 1, 1, 1])]
+                             )
+    def test_basis_state(self, state, tol):
         """Test basis state initialization"""
         dev = QulacsDevice(4)
-        state = np.array([0, 0, 1, 0])
 
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
-        dev.apply(op)
+        dev.apply([op])
         dev._obs_queue = []
         dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
-
+        # compute expected probabilities
         expected = np.zeros([2 ** 4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
-
-        assert np.allclose(res, expected, tol)
-
-    def test_identity_basis_state(self, tol):
-        """Test basis state initialization if identity"""
-        dev = QulacsDevice(4)
-        state = np.array([1, 0, 0, 0])
-
-        op = qml.BasisState(state, wires=[0, 1, 2, 3])
-        dev.apply(op)
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = np.abs(dev.state) ** 2
-
-        expected = np.zeros([2 ** 4])
-        expected[np.ravel_multi_index(state, [2] * 4)] = 1
-        expected = reverse_state(expected)
 
         assert np.allclose(res, expected, tol)
 
@@ -142,7 +123,7 @@ class TestStateApply:
         state = init_state(1)
 
         op = qml.QubitStateVector(state, wires=[0])
-        dev.apply(op)
+        dev.apply([op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -158,7 +139,7 @@ class TestStateApply:
 
         with pytest.raises(ValueError, match=r"State vector must be of length 2\*\*wires"):
             op = qml.QubitStateVector(state, wires=[0, 1])
-            dev.apply(op)
+            dev.apply([op])
 
     @pytest.mark.parametrize("op,mat", single_qubit)
     def test_single_qubit_no_parameters(self, init_state, op, mat, tol):
@@ -166,8 +147,7 @@ class TestStateApply:
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        dev.apply(qml.QubitStateVector(state, wires=[0]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -183,8 +163,7 @@ class TestStateApply:
         state = init_state(1)
 
         op.params = [theta]
-        dev.apply(qml.QubitStateVector(state, wires=[0]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -202,8 +181,7 @@ class TestStateApply:
         c = -0.654
 
         op = qml.Rot(a, b, c, wires=0)
-        dev.apply(qml.QubitStateVector(state, wires=[0]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -212,14 +190,13 @@ class TestStateApply:
 
         assert np.allclose(res, expected, tol)
 
-    @pytest.mark.parametrize("op,mat", two_qubit)
+    @pytest.mark.parametrize("op, mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
         dev = QulacsDevice(2)
         state = init_state(2)
 
-        dev.apply(qml.QubitStateVector(state, wires=[0, 1]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -227,23 +204,22 @@ class TestStateApply:
         expected = np.abs(mat @ state) ** 2
         assert np.allclose(res, expected, tol)
 
-    # @pytest.mark.parametrize("mat", [U, U2])
-    # def test_qubit_unitary(self, init_state, mat, tol):
-    #     """Test QubitUnitary application"""
-    #
-    #     N = int(np.log2(len(mat)))
-    #     dev = QulacsDevice(N)
-    #     state = init_state(N)
-    #
-    #     op = qml.QubitUnitary(mat, wires=list(range(N)))
-    #     dev.apply(qml.QubitStateVector(state, wires=list(range(N))))
-    #     dev.apply(op)
-    #     dev._obs_queue = []
-    #     dev.pre_measure()
-    #
-    #     res = np.abs(dev.state) ** 2
-    #     expected = np.abs(mat @ state) ** 2
-    #     assert np.allclose(res, expected, tol)
+    @pytest.mark.parametrize("mat", [U, U2])
+    def test_qubit_unitary(self, init_state, mat, tol):
+        """Test QubitUnitary application"""
+
+        N = int(np.log2(len(mat)))
+        dev = QulacsDevice(N)
+        state = init_state(N)
+
+        op = qml.QubitUnitary(mat, wires=list(range(N)))
+        dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
+        dev._obs_queue = []
+        dev.pre_measure()
+
+        res = np.abs(dev.state) ** 2
+        expected = np.abs(mat @ state) ** 2
+        assert np.allclose(res, expected, tol)
 
     def test_invalid_qubit_state_unitary(self):
         """Test that an exception is raised if the
@@ -253,15 +229,14 @@ class TestStateApply:
         op = qml.QubitUnitary(state, wires=[0, 1])
 
         with pytest.raises(ValueError, match=r"Unitary matrix must be of shape"):
-            dev.apply(op)
+            dev.apply([op])
 
     @pytest.mark.parametrize("op, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
         dev = QulacsDevice(3)
         state = init_state(3)
 
-        dev.apply(qml.QubitStateVector(state, wires=[0, 1, 2]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
         dev._obs_queue = []
         dev.pre_measure()
 
@@ -277,12 +252,11 @@ class TestStateApply:
         state = init_state(2)
 
         op.params = [theta]
-        dev.apply(qml.QubitStateVector(state, wires=[0, 1]))
-        dev.apply(op)
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
         dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
-        assert np.allclose(res, expected, **tol)
+        assert np.allclose(res, expected, tol)
