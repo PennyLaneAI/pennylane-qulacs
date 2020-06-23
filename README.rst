@@ -85,7 +85,7 @@ PennyLane-Qulacs requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.10
 * `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.10.1
 
 

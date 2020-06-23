@@ -65,32 +65,47 @@ single_qubit = [
     (qml.PauliZ(wires=0), Z),
     (qml.Hadamard(wires=0), H),
     (qml.S(wires=0), S),
-    (qml.S(wires=0).inv(), S.conj().T),
     (qml.T(wires=0), T),
+    (qml.PauliX(wires=0).inv(), X.conj().T),
+    (qml.PauliY(wires=0).inv(), Y.conj().T),
+    (qml.PauliZ(wires=0).inv(), Z.conj().T),
+    (qml.Hadamard(wires=0).inv(), H.conj().T),
+    (qml.S(wires=0).inv(), S.conj().T),
     (qml.T(wires=0).inv(), T.conj().T),
 ]
 
 # list of all parametrized single-qubit gates
 single_qubit_param = [
-  # (qml.PhaseShift(0, wires=0), phase_shift),
     (qml.RX(0, wires=0), rx),
     (qml.RY(0, wires=0), ry),
-    (qml.RZ(0, wires=0), rz)]
+    (qml.RZ(0, wires=0), rz),
+    (qml.PhaseShift(0, wires=0), phase_shift),
+    (qml.RX(0, wires=0).inv(), lambda theta: rx(-theta)),
+    (qml.RY(0, wires=0).inv(), lambda theta: ry(-theta)),
+    (qml.RZ(0, wires=0).inv(), lambda theta: rz(-theta)),
+    (qml.PhaseShift(0, wires=0).inv(), lambda theta: phase_shift(-theta)),
+]
 # list of all non-parametrized two-qubit gates
 two_qubit = [
     (qml.CNOT(wires=[0, 1]), CNOT),
     (qml.SWAP(wires=[0, 1]), SWAP),
-    (qml.CZ(wires=[0, 1]), CZ)
+    (qml.CZ(wires=[0, 1]), CZ),
+    (qml.CNOT(wires=[0, 1]).inv(), CNOT.conj().T),
+    (qml.SWAP(wires=[0, 1]).inv(), SWAP.conj().T),
+    (qml.CZ(wires=[0, 1]).inv(), CZ.conj().T)
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
-    (qml.CRZ(0, wires=[0, 1]), crz)
+    (qml.CRZ(0, wires=[0, 1]), crz),
+    (qml.CRZ(0, wires=[0, 1]).inv(), lambda theta: crz(-theta)),
 ]
 # list of all three-qubit gates
 three_qubit = [
     (qml.Toffoli(wires=[0, 1, 2]), toffoli),
-    (qml.CSWAP(wires=[0, 1, 2]), CSWAP)
-    ]
+    (qml.CSWAP(wires=[0, 1, 2]), CSWAP),
+    (qml.Toffoli(wires=[0, 1, 2]).inv(), toffoli.conj().T),
+    (qml.CSWAP(wires=[0, 1, 2]).inv(), CSWAP.conj().T),
+]
 
 
 class TestStateApply:

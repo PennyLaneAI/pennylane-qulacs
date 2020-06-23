@@ -60,6 +60,12 @@ SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
+phase_shift = lambda phi: np.array(
+    [
+        [1, 0],
+        [0, np.exp(1j * phi)]
+     ]
+)
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
@@ -91,7 +97,7 @@ class QulacsDevice(QubitDevice):
     """Qulacs device"""
     name = "Qulacs device"
     short_name = "qulacs.simulator"
-    pennylane_requires = ">=0.5.0"
+    pennylane_requires = ">=0.10.0"
     version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
@@ -123,7 +129,7 @@ class QulacsDevice(QubitDevice):
         "PauliZ": gate.Z,
         "Hadamard": gate.H,
         # TODO: Does the device have a phase shift?
-       # "PhaseShift": gate.
+        "PhaseShift": phase_shift
     }
 
     _observable_map = {
@@ -250,7 +256,7 @@ class QulacsDevice(QubitDevice):
                 self._circuit.add_gate(gate.RZ(wires[0], par[2]))
                 gate.RZ(wires[0], par[2]).update_quantum_state(self._state)
 
-            elif op.name == "CRZ":
+            elif op.name in ["CRZ", "PhaseShift"]:
                 if callable(mapped_operation):
                     gate_matrix = mapped_operation(*par)
                 else:
