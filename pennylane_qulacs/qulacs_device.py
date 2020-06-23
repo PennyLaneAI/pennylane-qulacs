@@ -149,8 +149,9 @@ class QulacsDevice(QubitDevice):
         "PauliX": gate.X,
         "PauliY": gate.Y,
         "PauliZ": gate.Z,
-        "Hadamard": gate.H
-#        "PhaseShift": gate.
+        "Hadamard": gate.H,
+        # TODO: Does the device have a phase shift?
+       # "PhaseShift": gate.
     }
 
     _observable_map = {
@@ -181,16 +182,26 @@ class QulacsDevice(QubitDevice):
 
         self._circuit = QuantumCircuit(self.num_wires)
 
-    def apply(self, operations):
-        for i, op in enumerate(operations):
+    def apply(self, operations, **kwargs):
+        rotations = kwargs.get("rotations", [])
+
+        self.apply_operations(operations)
+
+        # Rotating the state for measurement in the computational basis
+        self.apply_operations(rotations)
+
+    def apply_operations(self, operations):
+        """Apply the circuit operations to the state.
+
+        This method serves as an auxiliary method to :meth:`~.QulacsDevice.apply`.
+
+        Args:
+            operations (List[pennylane.Operation]): operations to be applied
+        """
+
+        for op in operations:
             wires = op.wires
             par = op.parameters
-
-            if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
-                raise DeviceError(
-                    "Operation {} cannot be used after other Operations have already been applied "
-                    "on a {} device.".format(op, self.short_name)
-                )
 
             if op.name == "QubitStateVector":
                 input_state = par[0]
