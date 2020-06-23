@@ -57,10 +57,6 @@ Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 
-# create a CSWAP with reversed ordering
-CSWAP = np.diag([1 for i in range(8)])
-CSWAP[[3, 5]] = CSWAP[[5, 3]]
-
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
@@ -72,10 +68,6 @@ crz = lambda theta: np.array(
         [0, 0, 0, np.exp(1j * theta / 2)],
     ]
 )
-
-# create a CSWAP with reversed ordering
-toffoli = np.diag([1 for i in range(8)])
-toffoli[[3, 7]] = toffoli[[7, 3]]
 
 
 def _reverse_state(state_vector):
@@ -132,16 +124,14 @@ class QulacsDevice(QubitDevice):
         "QubitStateVector": None,
         "BasisState": None,
         "QubitUnitary": None,
-        "Toffoli": toffoli,
-        "CSWAP": CSWAP,
+        "Toffoli": gate.TOFFOLI,
+        "CSWAP": gate.FREDKIN,
         "CRZ": crz,
         "SWAP": gate.SWAP,
         "CNOT": gate.CNOT,
         "CZ": gate.CZ,
         "S": gate.S,
-        "S.inv": gate.Sdag,
         "T": gate.T,
-        "T.inv": gate.Tdag,
         "RX": gate.RX,
         "RY": gate.RY,
         "RZ": gate.RZ,
@@ -149,8 +139,9 @@ class QulacsDevice(QubitDevice):
         "PauliX": gate.X,
         "PauliY": gate.Y,
         "PauliZ": gate.Z,
-        "Hadamard": gate.H
-#        "PhaseShift": gate.
+        "Hadamard": gate.H,
+        # TODO: Does the device have a phase shift?
+       # "PhaseShift": gate.
     }
 
     _observable_map = {
@@ -164,6 +155,9 @@ class QulacsDevice(QubitDevice):
 
     operations = _operation_map.keys()
     observables = _observable_map.keys()
+
+    # Add inverse gates to _operation_map
+    _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
 
     def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
         super().__init__(wires=wires, shots=shots, analytic=analytic)
@@ -181,16 +175,45 @@ class QulacsDevice(QubitDevice):
 
         self._circuit = QuantumCircuit(self.num_wires)
 
-    def apply(self, operations):
-        for i, op in enumerate(operations):
+    def apply(self, operations, **kwargs):
+        rotations = kwargs.get("rotations", [])
+
+        self.apply_operations(operations)
+
+        # Rotating the state for measurement in the computational basis
+        self.apply_operations(rotations)
+
+    def apply_operations(self, operations):
+        """Apply the circuit operations to the state.
+
+        This method serves as an auxiliary method to :meth:`~.QulacsDevice.apply`.
+
+        Args:
+            operations (List[pennylane.Operation]): operations to be applied
+        """
+
+        for op in operations:
             wires = op.wires
             par = op.parameters
 
-            if i > 0 and op.name in {"BasisState", "QubitStateVector"}:
-                raise DeviceError(
-                    "Operation {} cannot be used after other Operations have already been applied "
-                    "on a {} device.".format(op, self.short_name)
-                )
+            mapped_op = self._operation_map[op.name]
+            if op.name.endswith(".inv"):
+                # if an inverse variant of the operation exists
+                try:
+                    mapped_operation = getattr(gate, mapped_op.get_name() + "dag")
+                except AttributeError:
+                    # if the operation is hard-coded
+                    try:
+                        mapped_operation = np.conj(mapped_op).T
+                    except TypeError:
+                        # else redefine the operation as the inverse matrix
+                        mapped_operation = lambda *p: gate.DenseMatrix(
+                            wires, np.conj(
+                                mapped_op(*p).get_matrix()
+                            ).T
+                        )
+            else:
+                mapped_operation = mapped_op
 
             if op.name == "QubitStateVector":
                 input_state = par[0]
@@ -245,9 +268,7 @@ class QulacsDevice(QubitDevice):
                 self._circuit.add_gate(gate.RZ(wires[0], par[2]))
                 gate.RZ(wires[0], par[2]).update_quantum_state(self._state)
 
-            elif op.name in ("CRZ", "Toffoli", "CSWAP"):
-                mapped_operation = self._operation_map[op.name]
-
+            elif op.name == "CRZ":
                 if callable(mapped_operation):
                     gate_matrix = mapped_operation(*par)
                 else:
@@ -262,7 +283,6 @@ class QulacsDevice(QubitDevice):
                 # Negating the parameters such that it adheres to qulacs
                 par = np.negative(op.parameters)
 
-                mapped_operation = self._operation_map[op.name]
                 # mapped_operation is already in correct order => no wire-reversal needed
                 self._circuit.add_gate(mapped_operation(*wires, *par))
                 mapped_operation(*wires, *par).update_quantum_state(self._state)
