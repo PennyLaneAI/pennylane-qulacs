@@ -83,24 +83,6 @@ def _reverse_state(state_vector):
     return list(reversed_state)
 
 
-def hermitian(*args):
-    r"""Input validation for an arbitary Hermitian expectation.
-    Args:
-        args (array): square hermitian matrix
-    Returns:
-        array: square hermitian matrix
-    """
-    A = np.asarray(args[0])
-
-    if A.shape[0] != A.shape[1]:
-        raise ValueError("Expectation must be a square matrix.")
-
-    if not np.allclose(A, A.conj().T):
-        raise ValueError("Expectation must be Hermitian.")
-
-    return A
-
-
 # tolerance for numerical errors
 tolerance = 1e-10
 

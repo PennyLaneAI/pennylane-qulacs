@@ -62,7 +62,8 @@ Installation
 ============
 
 This plugin requires Python version 3.6 or above, as well as PennyLane
-and Qulacs. Installation of this plugin, as well as all dependencies, can be done using ``pip``:
+and Qulacs 0.1.10.1 or above. Installation of this plugin, as well as all dependencies,
+can be done using ``pip``:
 
 .. code-block:: bash
 
@@ -85,7 +86,7 @@ PennyLane-Qulacs requires the following libraries be installed:
 as well as the following Python packages:
 
 * `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
-* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.9
+* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.10.1
 
 
 If you currently do not have Python 3 installed, we recommend
