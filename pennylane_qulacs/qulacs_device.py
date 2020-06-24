@@ -137,7 +137,7 @@ class QulacsDevice(QubitDevice):
         "PauliZ": Z,
         "Hadamard": H,
         "Identity": I,
-        #"Hermitian": hermitian
+        "Hermitian": None
     }
 
     operations = _operation_map.keys()
@@ -242,7 +242,7 @@ class QulacsDevice(QubitDevice):
                 if len(par[0]) != 2 ** len(wires):
                     raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-                if op.name == "QubitUnitary.inv":
+                if op.name in ["QubitUnitary.inv", "Hermitian.inv"]:
                     par[0] = par[0].conj().T
 
                 # reverse wires (could also change par[0])
