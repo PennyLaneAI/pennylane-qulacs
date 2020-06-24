@@ -183,32 +183,9 @@ class QulacsDevice(QubitDevice):
             wires = op.wires
             par = op.parameters
 
-            mapped_op = self._operation_map[op.name]
-            if op.name.endswith(".inv") and mapped_op:
-                # if an inverse variant of the operation exists
-                try:
-                    mapped_operation = getattr(gate, mapped_op.get_name() + "dag")
-                except AttributeError:
-                    # if the operation is hard-coded
-                    try:
-                        if callable(mapped_op):
-                            mapped_operation = np.conj(mapped_op(*par)).T
-                        else:
-                            mapped_operation = np.conj(mapped_op).T
-                    except TypeError:
-                        # else, redefine the operation as the inverse matrix
-                        def mapped_operation(*p):
-                            # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
-                            g = mapped_op(*p).get_matrix()
-                            mat = reduce(np.kron, [I]*len(wires)).astype(complex)
-                            mat[-len(g):, -len(g):] = g
-
-                            # mat follows PL convention => reverse wire-order
-                            gate_mat = gate.DenseMatrix(wires[::-1], np.conj(mat).T)
-                            return gate_mat
-
-            else:
-                mapped_operation = mapped_op
+            mapped_operation = self._operation_map[op.name]
+            if op.name.endswith(".inv"):
+                mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
 
             if op.name in ["QubitStateVector", "QubitStateVector.inv"]:
                 input_state = par[0]
@@ -285,6 +262,36 @@ class QulacsDevice(QubitDevice):
                 # mapped_operation is already in correct order => no wire-reversal needed
                 self._circuit.add_gate(mapped_operation(*wires, *par))
                 mapped_operation(*wires, *par).update_quantum_state(self._state)
+
+    @staticmethod
+    def _get_inverse_operation(mapped_operation, wires, par):
+        """Return the inverse of an operation"""
+        if mapped_operation is None:
+            return mapped_operation
+
+        # if an inverse variant of the operation exists
+        try:
+            inverse_operation = getattr(gate, mapped_operation.get_name() + "dag")
+        except AttributeError:
+            # if the operation is hard-coded
+            try:
+                if callable(mapped_operation):
+                    inverse_operation = np.conj(mapped_operation(*par)).T
+                else:
+                    inverse_operation = np.conj(mapped_operation).T
+            except TypeError:
+                # else, redefine the operation as the inverse matrix
+                def inverse_operation(*p):
+                    # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
+                    g = mapped_operation(*p).get_matrix()
+                    mat = reduce(np.kron, [I]*len(wires)).astype(complex)
+                    mat[-len(g):, -len(g):] = g
+
+                    # mat follows PL convention => reverse wire-order
+                    gate_mat = gate.DenseMatrix(wires[::-1], np.conj(mat).T)
+                    return gate_mat
+
+        return inverse_operation
 
     def analytic_probability(self, wires=None):
         """Return the (marginal) analytic probability of each computational basis state."""
