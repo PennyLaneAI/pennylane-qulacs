@@ -271,8 +271,9 @@ class QulacsDevice(QubitDevice):
             return mapped_operation
 
         # if an inverse variant of the operation exists
-        inverse_operation = getattr(gate, mapped_operation.get_name() + "dag", None)
-        if inverse_operation is None:
+        try:
+            inverse_operation = getattr(gate, mapped_operation.get_name() + "dag")
+        except AttributeError:
             # if the operation is hard-coded
             try:
                 if callable(mapped_operation):
