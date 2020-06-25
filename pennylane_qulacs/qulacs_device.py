@@ -168,7 +168,8 @@ class QulacsDevice(QubitDevice):
         self.apply_operations(operations)
 
         # Rotating the state for measurement in the computational basis
-        self.apply_operations(rotations)
+        if rotations:
+            self.apply_operations(rotations)
 
     def apply_operations(self, operations):
         """Apply the circuit operations to the state.
