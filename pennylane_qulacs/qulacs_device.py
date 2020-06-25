@@ -168,82 +168,111 @@ class QulacsDevice(QubitDevice):
         """
 
         for i, op in enumerate(operations):
-
             if i > 0 and isinstance(op, (QubitStateVector, BasisState)):
                 raise DeviceError(
                     "Operation {} cannot be used after other Operations have already been applied "
                     "on a {} device.".format(op.name, self.short_name)
                 )
 
-            wires = op.wires
-            par = op.parameters
-
-            mapped_operation = self._operation_map[op.name]
-            if op.inverse:
-                mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
-
             if isinstance(op, QubitStateVector):
-                input_state = par[0]
-
-                if len(input_state) != 2**len(wires):
-                    raise ValueError("State vector must be of length 2**wires.")
-                if input_state.ndim != 1 or len(input_state) != 2 ** len(wires):
-                    raise ValueError("State vector must be of length 2**wires.")
-                if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
-                    raise ValueError("Sum of amplitudes-squared does not equal one.")
-
-                input_state = _reverse_state(input_state)
-
-                # call qulacs' state initialization
-                self._state.load(input_state)
-
+                self._apply_qubit_state_vector(op)
             elif isinstance(op, BasisState):
-                # translate from PennyLane to Qulacs wire order
-                bits = par[0][::-1]
-                n_basis_state = len(bits)
-
-                if not set(bits).issubset({0, 1}):
-                    raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
-                if n_basis_state != len(wires):
-                    raise ValueError("BasisState parameter and wires must be of equal length.")
-
-                basis_state = 0
-                for bit in bits:
-                    basis_state = (basis_state << 1) | bit
-
-                # call qulacs' basis state initialization
-                self._state.set_computational_basis(basis_state)
-
+                self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
-                if len(par[0]) != 2 ** len(wires):
-                    raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
-
-                if op.inverse:
-                    par[0] = par[0].conj().T
-
-                # reverse wires (could also change par[0])
-                unitary_gate = gate.DenseMatrix(wires[::-1], par[0])
-                self._circuit.add_gate(unitary_gate)
-                unitary_gate.update_quantum_state(self._state)
-
+                self._apply_qubit_unitary(op)
             elif isinstance(op, (CRZ, PhaseShift)):
-                if callable(mapped_operation):
-                    gate_matrix = mapped_operation(*par)
-                else:
-                    gate_matrix = mapped_operation
-
-                # gate_matrix is already in correct order => no wire-reversal needed
-                dense_gate = gate.DenseMatrix(wires, gate_matrix)
-                self._circuit.add_gate(dense_gate)
-                gate.DenseMatrix(wires, gate_matrix).update_quantum_state(self._state)
-
+                self._apply_matrix(op)
             else:
-                # Negating the parameters such that it adheres to qulacs
-                par = np.negative(op.parameters)
+                self._apply_gate(op)
 
-                # mapped_operation is already in correct order => no wire-reversal needed
-                self._circuit.add_gate(mapped_operation(*wires, *par))
-                mapped_operation(*wires, *par).update_quantum_state(self._state)
+    def _apply_qubit_state_vector(self, op):
+        """Initialize state with a state vector"""
+        wires = op.wires
+        input_state = op.parameters[0]
+
+        if len(input_state) != 2**len(wires):
+            raise ValueError("State vector must be of length 2**wires.")
+        if input_state.ndim != 1 or len(input_state) != 2 ** len(wires):
+            raise ValueError("State vector must be of length 2**wires.")
+        if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
+            raise ValueError("Sum of amplitudes-squared does not equal one.")
+
+        input_state = _reverse_state(input_state)
+
+        # call qulacs' state initialization
+        self._state.load(input_state)
+
+    def _apply_basis_state(self, op):
+        """Initialize a basis state"""
+        wires = op.wires
+        par = op.parameters
+
+        # translate from PennyLane to Qulacs wire order
+        bits = par[0][::-1]
+        n_basis_state = len(bits)
+
+        if not set(bits).issubset({0, 1}):
+            raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
+        if n_basis_state != len(wires):
+            raise ValueError("BasisState parameter and wires must be of equal length.")
+
+        basis_state = 0
+        for bit in bits:
+            basis_state = (basis_state << 1) | bit
+
+        # call qulacs' basis state initialization
+        self._state.set_computational_basis(basis_state)
+
+    def _apply_qubit_unitary(self, op):
+        """Apply unitary to state"""
+        wires = op.wires
+        par = op.parameters
+
+        if len(par[0]) != 2 ** len(wires):
+            raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
+
+        if op.inverse:
+            par[0] = par[0].conj().T
+
+        # reverse wires (could also change par[0])
+        unitary_gate = gate.DenseMatrix(wires[::-1], par[0])
+        self._circuit.add_gate(unitary_gate)
+        unitary_gate.update_quantum_state(self._state)
+
+    def _apply_matrix(self, op):
+        """Apply predefined gate-matrix to state (must follow qulacs convention)"""
+        wires = op.wires
+        par = op.parameters
+
+        mapped_operation = self._operation_map[op.name]
+        if op.inverse:
+            mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
+
+        if callable(mapped_operation):
+            gate_matrix = mapped_operation(*par)
+        else:
+            gate_matrix = mapped_operation
+
+        # gate_matrix is already in correct order => no wire-reversal needed
+        dense_gate = gate.DenseMatrix(wires, gate_matrix)
+        self._circuit.add_gate(dense_gate)
+        gate.DenseMatrix(wires, gate_matrix).update_quantum_state(self._state)
+
+    def _apply_gate(self, op):
+        """Apply native qulacs gate"""
+        wires = op.wires
+        par = op.parameters
+
+        mapped_operation = self._operation_map[op.name]
+        if op.inverse:
+            mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
+
+        # Negating the parameters such that it adheres to qulacs
+        par = np.negative(par)
+
+        # mapped_operation is already in correct order => no wire-reversal needed
+        self._circuit.add_gate(mapped_operation(*wires, *par))
+        mapped_operation(*wires, *par).update_quantum_state(self._state)
 
     @staticmethod
     def _get_inverse_operation(mapped_operation, wires, par):
