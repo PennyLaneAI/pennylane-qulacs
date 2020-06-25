@@ -20,7 +20,7 @@ import numpy as np
 from scipy.linalg import block_diag
 
 from pennylane import QubitDevice, DeviceError
-from pennylane.ops import BasisState, QubitStateVector
+from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState
@@ -182,7 +182,7 @@ class QulacsDevice(QubitDevice):
             if op.inverse:
                 mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
 
-            if op.name in ["QubitStateVector", "QubitStateVector.inv"]:
+            if isinstance(op, QubitStateVector):
                 input_state = par[0]
 
                 if len(input_state) != 2**len(wires):
@@ -197,7 +197,7 @@ class QulacsDevice(QubitDevice):
                 # call qulacs' state initialization
                 self._state.load(input_state)
 
-            elif op.name in ["BasisState", "BasisState.inv"]:
+            elif isinstance(op, BasisState):
                 # translate from PennyLane to Qulacs wire order
                 bits = par[0][::-1]
                 n_basis_state = len(bits)
@@ -214,11 +214,11 @@ class QulacsDevice(QubitDevice):
                 # call qulacs' basis state initialization
                 self._state.set_computational_basis(basis_state)
 
-            elif op.name in ["QubitUnitary", "QubitUnitary.inv"]:
+            elif isinstance(op, QubitUnitary):
                 if len(par[0]) != 2 ** len(wires):
                     raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-                if op.name in ["QubitUnitary.inv"]:
+                if op.inverse:
                     par[0] = par[0].conj().T
 
                 # reverse wires (could also change par[0])
@@ -226,7 +226,7 @@ class QulacsDevice(QubitDevice):
                 self._circuit.add_gate(unitary_gate)
                 unitary_gate.update_quantum_state(self._state)
 
-            elif op.name in ["CRZ", "CRZ.inv", "PhaseShift", "PhaseShift.inv"]:
+            elif isinstance(op, (CRZ, PhaseShift)):
                 if callable(mapped_operation):
                     gate_matrix = mapped_operation(*par)
                 else:
