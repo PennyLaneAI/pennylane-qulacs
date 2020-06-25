@@ -213,7 +213,7 @@ class QulacsDevice(QubitDevice):
                 for bit in bits:
                     basis_state = (basis_state << 1) | bit
 
-                # call qulac's basis state initialization
+                # call qulacs' basis state initialization
                 self._state.set_computational_basis(basis_state)
 
             elif op.name in ["QubitUnitary", "QubitUnitary.inv", "Hermitian", "Hermitian.inv"]:
