@@ -196,7 +196,7 @@ class QulacsDevice(QubitDevice):
                     raise ValueError("State vector must be of length 2**wires.")
                 if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
                     raise ValueError("Sum of amplitudes-squared does not equal one.")
-                # call qulac"s state initialization
+                # call qulacs' state initialization
                 self._state.load(input_state)
 
             elif op.name in ["BasisState", "BasisState.inv"]:
