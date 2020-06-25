@@ -47,7 +47,6 @@ phase_shift = lambda phi: np.array([[1, 0], [0, np.exp(1j * phi)]])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
-rot = lambda a, b, c: rz(c) @ (ry(b) @ rz(a))
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
@@ -184,25 +183,6 @@ class TestStateApply:
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
-        assert np.allclose(res, expected, tol)
-
-    def test_rotation(self, init_state, tol):
-        """Test three axis rotation gate"""
-        dev = QulacsDevice(1)
-        state = init_state(1)
-
-        a = 0.542
-        b = 1.3432
-        c = -0.654
-
-        op = qml.Rot(a, b, c, wires=0)
-        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
-        dev._obs_queue = []
-        dev.pre_measure()
-
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(rot(a, b, c) @ state) ** 2
-
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("op, mat", two_qubit)

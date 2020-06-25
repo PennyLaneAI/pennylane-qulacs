@@ -15,10 +15,13 @@ setup(
     version=version,
     long_description=long_description,
     install_requires=[
-        'pennylane>=0.5.0',
+        'pennylane>=0.10.0',
         'numpy',
         'scipy',
-        'qulacs'
+        'qulacs>=0.1.10.1'
+    ],
+    extras_require=[
+        'qulacs-gpu',
     ],
     packages=['pennylane_qulacs'],
     entry_points={

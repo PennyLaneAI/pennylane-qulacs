@@ -12,23 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Base device class for PennyLane-Qulacs
-======================================
-
-**Module name:** :mod:`pennylane_qulacs.qulacs_device`
-
-.. currentmodule:: pennylane_qulacs.qulacs_device
-
-This Device implements all the :class:`~pennylane.device.QubitDevice` methods,
-for using the Qulacs simulator as PennyLane device.
-
-Classes
--------
-
-.. autosummary::
-   QulacsDevice
-
-----
+Base device class for PennyLane-Qulacs.
 """
 from functools import reduce
 
@@ -87,7 +71,7 @@ def _reverse_state(state_vector):
     state_vector = np.array(state_vector)
     N = int(np.log2(len(state_vector)))
     reversed_state = state_vector.reshape([2] * N).T.flatten()
-    return list(reversed_state)
+    return reversed_state
 
 
 # tolerance for numerical errors
@@ -124,7 +108,6 @@ class QulacsDevice(QubitDevice):
         "RX": gate.RX,
         "RY": gate.RY,
         "RZ": gate.RZ,
-        "Rot": None,
         "PauliX": gate.X,
         "PauliY": gate.Y,
         "PauliZ": gate.Z,
@@ -163,10 +146,13 @@ class QulacsDevice(QubitDevice):
 
         self._circuit = QuantumCircuit(self.num_wires)
 
+        self._pre_rotated_state = self._state
+
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
 
         self.apply_operations(operations)
+        self._pre_rotated_state = self._state
 
         # Rotating the state for measurement in the computational basis
         if rotations:
@@ -193,17 +179,21 @@ class QulacsDevice(QubitDevice):
             par = op.parameters
 
             mapped_operation = self._operation_map[op.name]
-            if op.name.endswith(".inv"):
+            if op.inverse:
                 mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
 
             if op.name in ["QubitStateVector", "QubitStateVector.inv"]:
                 input_state = par[0]
-                input_state = _reverse_state(input_state)
 
                 if len(input_state) != 2**len(wires):
                     raise ValueError("State vector must be of length 2**wires.")
+                if input_state.ndim != 1 or len(input_state) != 2 ** len(wires):
+                    raise ValueError("State vector must be of length 2**wires.")
                 if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
                     raise ValueError("Sum of amplitudes-squared does not equal one.")
+
+                input_state = _reverse_state(input_state)
+
                 # call qulacs' state initialization
                 self._state.load(input_state)
 
@@ -224,34 +214,17 @@ class QulacsDevice(QubitDevice):
                 # call qulacs' basis state initialization
                 self._state.set_computational_basis(basis_state)
 
-            elif op.name in ["QubitUnitary", "QubitUnitary.inv", "Hermitian", "Hermitian.inv"]:
+            elif op.name in ["QubitUnitary", "QubitUnitary.inv"]:
                 if len(par[0]) != 2 ** len(wires):
                     raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-                if op.name in ["QubitUnitary.inv", "Hermitian.inv"]:
+                if op.name in ["QubitUnitary.inv"]:
                     par[0] = par[0].conj().T
 
                 # reverse wires (could also change par[0])
                 unitary_gate = gate.DenseMatrix(wires[::-1], par[0])
                 self._circuit.add_gate(unitary_gate)
                 unitary_gate.update_quantum_state(self._state)
-
-            elif op.name in ["Rot", "Rot.inv"]:
-                if len(wires) != 1:
-                    raise ValueError("Rotation gate can only be applied on a single wire.")
-
-                if op.name == "Rot.inv":
-                    par = par[::-1]
-                else:
-                    # Negating the parameters such that it adheres to qulacs
-                    par = np.negative(op.parameters)
-
-                self._circuit.add_gate(gate.RZ(wires[0], par[0]))
-                gate.RZ(wires[0], par[0]).update_quantum_state(self._state)
-                self._circuit.add_gate(gate.RY(wires[0], par[1]))
-                gate.RY(wires[0], par[1]).update_quantum_state(self._state)
-                self._circuit.add_gate(gate.RZ(wires[0], par[2]))
-                gate.RZ(wires[0], par[2]).update_quantum_state(self._state)
 
             elif op.name in ["CRZ", "CRZ.inv", "PhaseShift", "PhaseShift.inv"]:
                 if callable(mapped_operation):
@@ -279,8 +252,9 @@ class QulacsDevice(QubitDevice):
             return mapped_operation
 
         # if an inverse variant of the operation exists
-        inverse_operation = getattr(gate, mapped_operation.get_name() + "dag", None)
-        if inverse_operation is None:
+        try:
+            inverse_operation = getattr(gate, mapped_operation.get_name() + "dag")
+        except AttributeError:
             # if the operation is hard-coded
             try:
                 if callable(mapped_operation):
@@ -315,8 +289,10 @@ class QulacsDevice(QubitDevice):
 
     @property
     def state(self):
-        return _reverse_state(self._state.get_vector())
+        # returns the state after all operations are applied
+        return _reverse_state(self._pre_rotated_state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
+        self._pre_rotated_state = self._state
         self._circuit = QuantumCircuit(self.num_wires)
