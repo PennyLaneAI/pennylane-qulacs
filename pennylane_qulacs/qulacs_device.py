@@ -36,6 +36,7 @@ import numpy as np
 from scipy.linalg import block_diag
 
 from pennylane import QubitDevice, DeviceError
+from pennylane.ops import BasisState, QubitStateVector
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState
@@ -180,7 +181,14 @@ class QulacsDevice(QubitDevice):
             operations (List[pennylane.Operation]): operations to be applied
         """
 
-        for op in operations:
+        for i, op in enumerate(operations):
+
+            if i > 0 and isinstance(op, (QubitStateVector, BasisState)):
+                raise DeviceError(
+                    "Operation {} cannot be used after other Operations have already been applied "
+                    "on a {} device.".format(op.name, self.short_name)
+                )
+
             wires = op.wires
             par = op.parameters
 
@@ -279,6 +287,7 @@ class QulacsDevice(QubitDevice):
                     inverse_operation = np.conj(mapped_operation(*par)).T
                 else:
                     inverse_operation = np.conj(mapped_operation).T
+            # if mapped_operation is a qulacs.gate and np.conj is applied on it
             except TypeError:
                 # else, redefine the operation as the inverse matrix
                 def inverse_operation(*p):

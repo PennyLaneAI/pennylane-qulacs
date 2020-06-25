@@ -275,3 +275,59 @@ class TestStateApply:
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
         assert np.allclose(res, expected, tol)
+
+    def test_apply_errors_qubit_state_vector(self):
+        """Test that apply fails for incorrect state preparation."""
+        dev = QulacsDevice(1)
+
+        with pytest.raises(
+            ValueError,
+            match="Sum of amplitudes-squared does not equal one."
+        ):
+            dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
+
+        with pytest.raises(
+            ValueError,
+            match=r"State vector must be of length 2\*\*wires."
+        ):
+            p = np.array([1, 0, 1, 1, 0]) / np.sqrt(3)
+            dev.reset()
+            dev.apply([qml.QubitStateVector(p, wires=[0, 1])])
+
+        with pytest.raises(
+            qml.DeviceError,
+            match="Operation QubitStateVector cannot be used after other Operations have already been applied "
+                                  "on a qulacs.simulator device."
+        ):
+            dev.reset()
+            dev.apply([
+                qml.RZ(0.5, wires=[0]),
+                qml.QubitStateVector(np.array([0, 1, 0, 0]), wires=[0, 1])
+            ])
+
+    def test_apply_errors_basis_state(self):
+        """Test that apply fails for incorrect basis state preparation."""
+        dev = QulacsDevice(1)
+
+        with pytest.raises(
+            ValueError,
+            match="BasisState parameter must consist of 0 or 1 integers."
+        ):
+            dev.apply([qml.BasisState(np.array([-0.2, 4.2]), wires=[0, 1])])
+
+        with pytest.raises(
+            ValueError,
+            match="BasisState parameter and wires must be of equal length."
+        ):
+            dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
+
+        with pytest.raises(
+            qml.DeviceError,
+            match="Operation BasisState cannot be used after other Operations have already been applied "
+                                  "on a qulacs.simulator device."
+        ):
+            dev.reset()
+            dev.apply([
+                qml.RZ(0.5, wires=[0]),
+                qml.BasisState(np.array([1, 1]), wires=[0, 1])
+            ])
