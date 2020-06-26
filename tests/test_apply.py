@@ -122,7 +122,6 @@ class TestStateApply:
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         # compute expected probabilities
@@ -139,7 +138,6 @@ class TestStateApply:
         op = qml.QubitStateVector(state, wires=[0])
         dev.apply([op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(state) ** 2
@@ -163,7 +161,6 @@ class TestStateApply:
 
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(mat @ state) ** 2
@@ -179,7 +176,6 @@ class TestStateApply:
         op.params = [theta]
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
@@ -193,7 +189,6 @@ class TestStateApply:
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(mat @ state) ** 2
@@ -210,7 +205,6 @@ class TestStateApply:
         op = qml.QubitUnitary(mat, wires=list(range(N)))
         dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(mat @ state) ** 2
@@ -233,7 +227,6 @@ class TestStateApply:
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(mat @ state) ** 2
@@ -250,7 +243,6 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
-        dev.pre_measure()
 
         res = np.abs(dev.state) ** 2
         expected = np.abs(func(theta) @ state) ** 2
