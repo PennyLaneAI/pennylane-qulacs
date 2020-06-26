@@ -15,6 +15,7 @@
 Base device class for PennyLane-Qulacs.
 """
 from functools import reduce
+import math, cmath
 
 import numpy as np
 from scipy.linalg import block_diag
@@ -39,21 +40,21 @@ I = np.identity(2)
 X = np.array([[0, 1], [1, 0]])
 Y = np.array([[0, -1j], [1j, 0]])
 Z = np.array([[1, 0], [0, -1]])
-H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
+H = np.array([[1, 1], [1, -1]])/math.sqrt(2)
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 
 phase_shift = lambda phi: np.array(
     [
         [1, 0],
-        [0, np.exp(1j * phi)]
+        [0, cmath.exp(1j * phi)]
      ]
 )
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
         [0, 1, 0, 0],
-        [0, 0, np.exp(-1j * theta / 2), 0],
-        [0, 0, 0, np.exp(1j * theta / 2)],
+        [0, 0, cmath.exp(-1j * theta / 2), 0],
+        [0, 0, 0, cmath.exp(1j * theta / 2)],
     ]
 )
 
@@ -66,7 +67,7 @@ def _reverse_state(state_vector):
         list[complex]
     """
     state_vector = np.array(state_vector)
-    N = int(np.log2(len(state_vector)))
+    N = int(math.log2(len(state_vector)))
     reversed_state = state_vector.reshape([2] * N).T.flatten()
     return reversed_state
 
