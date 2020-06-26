@@ -18,11 +18,11 @@ setup(
         'pennylane>=0.10.0',
         'numpy',
         'scipy',
-        'qulacs>=0.1.10.1'
     ],
-    extras_require=[
-        'qulacs-gpu',
-    ],
+    extras_require={
+        "cpu": ["qulacs>=0.1.10.1"],
+        "gpu": ["qulacs-gpu>=0.1.10.1"],
+    },
     packages=['pennylane_qulacs'],
     entry_points={
         'pennylane.plugins': [
