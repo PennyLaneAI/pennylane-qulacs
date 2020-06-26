@@ -42,9 +42,6 @@ Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 
-rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
-ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
-rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
 phase_shift = lambda phi: np.array(
     [
         [1, 0],
