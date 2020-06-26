@@ -35,14 +35,6 @@ try:
 except ImportError:
     GPU_SUPPORTED = False
 
-
-I = np.identity(2)
-X = np.array([[0, 1], [1, 0]])
-Y = np.array([[0, -1j], [1j, 0]])
-Z = np.array([[1, 0], [0, -1]])
-H = np.array([[1, 1], [1, -1]])/math.sqrt(2)
-SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
-
 phase_shift = lambda phi: np.array(
     [
         [1, 0],
@@ -113,17 +105,8 @@ class QulacsDevice(QubitDevice):
         "PhaseShift": phase_shift
     }
 
-    _observable_map = {
-        "PauliX": X,
-        "PauliY": Y,
-        "PauliZ": Z,
-        "Hadamard": H,
-        "Identity": I,
-        "Hermitian": None
-    }
-
     operations = _operation_map.keys()
-    observables = _observable_map.keys()
+    observables = {"PauliX", "PauliY", "PauliZ", "Identity", "Hadamard", "Hermitian"}
 
     # Add inverse gates to _operation_map
     _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
@@ -294,7 +277,7 @@ class QulacsDevice(QubitDevice):
                 def inverse_operation(*p):
                     # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
                     g = mapped_operation(*p).get_matrix()
-                    mat = reduce(np.kron, [I]*len(wires)).astype(complex)
+                    mat = reduce(np.kron, [np.eye(2)]*len(wires)).astype(complex)
                     mat[-len(g):, -len(g):] = g
 
                     # mat follows PL convention => reverse wire-order
