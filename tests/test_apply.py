@@ -293,12 +293,12 @@ class TestStateApply:
         ):
             dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
 
+        dev.reset()
         with pytest.raises(
             qml.DeviceError,
             match="Operation BasisState cannot be used after other Operations have already been applied "
                                   "on a qulacs.simulator device."
         ):
-            dev.reset()
             dev.apply([
                 qml.RZ(0.5, wires=[0]),
                 qml.BasisState(np.array([1, 1]), wires=[0, 1])
