@@ -34,7 +34,7 @@ Features
 Benchmarks
 ==========
 
-We ran a 100 executions of 4 layer quantum neural 
+We ran a 100 executions of 4 layer quantum neural
 network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayers.html>`_
 and compared the runtimes between CPU and GPU.
 
@@ -62,18 +62,30 @@ Installation
 ============
 
 This plugin requires Python version 3.6 or above, as well as PennyLane
-and Qulacs. Installation of this plugin, as well as all dependencies, can be done using ``pip``:
+and Qulacs 0.1.10.1 or above. Installation of this plugin, as well as all dependencies,
+can be done using ``pip``:
 
 .. code-block:: bash
 
-    $ pip install pennylane-qulacs
+    $ pip install pennylane-qulacs[cpu]
+
+This will install the CPU version of Qulacs. To install the GPU version you need to run:
+
+.. code-block:: bash
+
+    $ pip install pennylane-qulacs[gpu]
+
+Without specifying either CPU or GPU, Qulacs will *not* be installed and must thus be installed manually
+via `pip install qulacs` or `pip install qulacs-gpu`.
 
 Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/XanaduAI/pennylane-qulacs>`__
 by navigating to the top directory and running:
 
 .. code-block:: bash
 
-	$ python setup.py install
+    $ python setup.py install
+
+Note that Qulacs must then also be installed separately.
 
 Dependencies
 ~~~~~~~~~~~~
@@ -84,8 +96,8 @@ PennyLane-Qulacs requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
-* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.9
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.10
+* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.10.1
 
 
 If you currently do not have Python 3 installed, we recommend

@@ -13,6 +13,9 @@
 # limitations under the License.
 import numpy as np
 import pytest
+import os
+
+import pennylane as qml
 
 from pennylane_qulacs.qulacs_device import QulacsDevice
 
@@ -39,40 +42,20 @@ A = np.array([[1.02789352, 1.61296440 - 0.3498192j],
 
 
 # ==========================================================
-# PennyLane devices
-
-# List of all devices that support analytic expectation value
-# computation. This generally includes statevector/wavefunction simulators.
-analytic_devices = [QulacsDevice]
-
-# List of all devices that do *not* support analytic expectation
-# value computation. This generally includes hardware devices
-# and hardware simulators.
-hw_devices = []
-
-# List of all device shortnames
-shortnames = [d.short_name for d in analytic_devices + hw_devices]
-
-
-# ==========================================================
 # pytest fixtures
 
-@pytest.fixture
-def tol(shots):
-    """Numerical tolerance to be used in tests."""
-    if shots == 0:
-        # analytic expectation values can be computed,
-        # so we can generally use a smaller tolerance
-        return {"atol": 0.01, "rtol": 0}
 
-    # for non-zero shots, there will be additional
-    # noise and stochastic effects; will need to increase
-    # the tolerance
-    return {"atol": 0.05, "rtol": 0.1}
+TOL = 1e-8
 
 
-@pytest.fixture
-def init_state(scope="session"):
+@pytest.fixture(scope="session")
+def tol():
+    """Numerical tolerance for equality tests."""
+    return float(os.environ.get("TOL", TOL))
+
+
+@pytest.fixture(scope="session")
+def init_state():
     """Fixture to create an n-qubit initial state"""
     def _init_state(n):
         state = np.random.random([2 ** n]) + np.random.random([2 ** n]) * 1j
@@ -80,17 +63,3 @@ def init_state(scope="session"):
         return state
 
     return _init_state
-
-
-@pytest.fixture(params=analytic_devices+hw_devices)
-def device(request, shots):
-    """Fixture to initialize and return a PennyLane device"""
-    device = request.param
-
-    if device not in analytic_devices and shots == 0:
-        pytest.skip("Hardware simulators do not support analytic mode")
-
-    def _device(n):
-        return device(wires=n, shots=shots)
-
-    return _device

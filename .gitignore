@@ -59,3 +59,6 @@ doc/_build/
 
 # PyBuilder
 target/
+
+# Pycharm 
+.idea
