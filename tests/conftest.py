@@ -45,15 +45,17 @@ A = np.array([[1.02789352, 1.61296440 - 0.3498192j],
 # pytest fixtures
 
 
-TOL = 1e-3
+TOL = 1e-8
+
 
 @pytest.fixture(scope="session")
 def tol():
     """Numerical tolerance for equality tests."""
     return float(os.environ.get("TOL", TOL))
 
-@pytest.fixture
-def init_state(scope="session"):
+
+@pytest.fixture(scope="session")
+def init_state():
     """Fixture to create an n-qubit initial state"""
     def _init_state(n):
         state = np.random.random([2 ** n]) + np.random.random([2 ** n]) * 1j
