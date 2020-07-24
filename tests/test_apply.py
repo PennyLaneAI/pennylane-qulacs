@@ -173,7 +173,7 @@ class TestStateApply:
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        op.params = [theta]
+        op.data = [theta]
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
 
@@ -239,7 +239,7 @@ class TestStateApply:
         dev = QulacsDevice(2)
         state = init_state(2)
 
-        op.params = [theta]
+        op.data = [theta]
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
