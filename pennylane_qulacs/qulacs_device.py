@@ -24,7 +24,7 @@ I = np.identity(2)
 X = np.array([[0, 1], [1, 0]])
 Y = np.array([[0, -1j], [1j, 0]])
 Z = np.array([[1, 0], [0, -1]])
-H = np.array([[1, 1], [1, -1]])/np.sqrt(2)
+H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 CSWAP = block_diag(I, I, SWAP)
 
@@ -53,57 +53,55 @@ def hermitian(*args):
     A = np.asarray(args[0])
 
     if A.shape[0] != A.shape[1]:
-        raise ValueError('Expectation must be a square matrix.')
+        raise ValueError("Expectation must be a square matrix.")
 
     if not np.allclose(A, A.conj().T):
-        raise ValueError('Expectation must be Hermitian.')
+        raise ValueError("Expectation must be Hermitian.")
 
     return A
 
 
 class QulacsDevice(Device):
     """Qulacs device"""
-    name = 'Qulacs device'
-    short_name = 'qulacs.simulator'
-    pennylane_requires = '>=0.5.0'
-    version = __version__
-    author = 'Steven Oud and Xanadu'
 
-    _capabilities = {
-        'model': 'qubit',
-        'tensor_observables': True
-    }
+    name = "Qulacs device"
+    short_name = "qulacs.simulator"
+    pennylane_requires = ">=0.5.0"
+    version = __version__
+    author = "Steven Oud and Xanadu"
+
+    _capabilities = {"model": "qubit", "tensor_observables": True}
 
     _operations_map = {
-        'QubitStateVector': None,
-        'BasisState': None,
-        'QubitUnitary': None,
-        'Toffoli': toffoli,
-        'CSWAP': CSWAP,
-        'CRZ': crz,
-        'Rot': None,
-        'SWAP': gate.SWAP,
-        'CNOT': gate.CNOT,
-        'CZ': gate.CZ,
-        'S': gate.S,
-        'Sdg': gate.Sdag,
-        'T': gate.T,
-        'Tdg': gate.Tdag,
-        'RX': gate.RX,
-        'RY': gate.RY,
-        'RZ': gate.RZ,
-        'PauliX': gate.X,
-        'PauliY': gate.Y,
-        'PauliZ': gate.Z,
-        'Hadamard': gate.H
+        "QubitStateVector": None,
+        "BasisState": None,
+        "QubitUnitary": None,
+        "Toffoli": toffoli,
+        "CSWAP": CSWAP,
+        "CRZ": crz,
+        "Rot": None,
+        "SWAP": gate.SWAP,
+        "CNOT": gate.CNOT,
+        "CZ": gate.CZ,
+        "S": gate.S,
+        "Sdg": gate.Sdag,
+        "T": gate.T,
+        "Tdg": gate.Tdag,
+        "RX": gate.RX,
+        "RY": gate.RY,
+        "RZ": gate.RZ,
+        "PauliX": gate.X,
+        "PauliY": gate.Y,
+        "PauliZ": gate.Z,
+        "Hadamard": gate.H,
     }
     _observable_map = {
-        'PauliX': X,
-        'PauliY': Y,
-        'PauliZ': Z,
-        'Hadamard': H,
-        'Identity': I,
-        'Hermitian': hermitian
+        "PauliX": X,
+        "PauliY": Y,
+        "PauliZ": Z,
+        "Hadamard": H,
+        "Identity": I,
+        "Hermitian": hermitian,
     }
 
     operations = _operations_map.keys()
@@ -115,7 +113,7 @@ class QulacsDevice(Device):
         if gpu:
             if not GPU_SUPPORTED:
                 raise DeviceError(
-                    'GPU not supported with installed version of qulacs. '
+                    "GPU not supported with installed version of qulacs. "
                     'Please install "qulacs-gpu" to use GPU simulation.'
                 )
 
@@ -127,41 +125,45 @@ class QulacsDevice(Device):
         self._first_operation = True
 
     def apply(self, operation, wires, par):
-        if operation == 'BasisState' and not self._first_operation:
+        if operation == "BasisState" and not self._first_operation:
             raise DeviceError(
-                'Operation {} cannot be used after other Operations have already been applied '
-                'on a {} device.'.format(operation, self.short_name)
+                "Operation {} cannot be used after other Operations have already been applied "
+                "on a {} device.".format(operation, self.short_name)
             )
 
         self._first_operation = False
 
-        if operation == 'QubitStateVector':
-            if len(par[0]) != 2**len(wires):
-                raise ValueError('State vector must be of length 2**wires.')
+        if operation == "QubitStateVector":
+            if len(par[0]) != 2 ** len(wires):
+                raise ValueError("State vector must be of length 2**wires.")
 
             self._state.load(par[0])
-        elif operation == 'BasisState':
+        elif operation == "BasisState":
             if len(par[0]) != len(wires):
-                raise ValueError('Basis state must prepare all qubits.')
+                raise ValueError("Basis state must prepare all qubits.")
 
             basis_state = 0
             for bit in reversed(par[0]):
                 basis_state = (basis_state << 1) | bit
 
             self._state.set_computational_basis(basis_state)
-        elif operation == 'QubitUnitary':
+        elif operation == "QubitUnitary":
             if len(par[0]) != 2 ** len(wires):
-                raise ValueError('Unitary matrix must be of shape (2**wires, 2**wires).')
+                raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
             unitary_gate = gate.DenseMatrix(wires, par[0])
             self._circuit.add_gate(unitary_gate)
-        elif operation == 'Rot':
-            self._circuit.add_gate(gate.merge([
-                gate.RZ(wires[0], par[0]),
-                gate.RY(wires[0], par[1]),
-                gate.RZ(wires[0], par[2])
-            ]))
-        elif operation in ('CRZ', 'Toffoli', 'CSWAP'):
+        elif operation == "Rot":
+            self._circuit.add_gate(
+                gate.merge(
+                    [
+                        gate.RZ(wires[0], par[0]),
+                        gate.RY(wires[0], par[1]),
+                        gate.RZ(wires[0], par[2]),
+                    ]
+                )
+            )
+        elif operation in ("CRZ", "Toffoli", "CSWAP"):
             mapped_operation = self._operations_map[operation]
             if callable(mapped_operation):
                 gate_matrix = mapped_operation(*par)
@@ -199,7 +201,7 @@ class QulacsDevice(Device):
 
     def probabilities(self):
         states = itertools.product(range(2), repeat=self.num_wires)
-        probs = np.abs(self.state)**2
+        probs = np.abs(self.state) ** 2
 
         return OrderedDict(zip(states, probs))
 
