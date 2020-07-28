@@ -26,7 +26,7 @@ class TestIntegration:
 
         assert dev.num_wires == 2
         assert dev.shots == 2984
-        assert dev.short_name == 'qulacs.simulator'
+        assert dev.short_name == "qulacs.simulator"
         assert "model" in dev.__class__.capabilities()
 
     def test_expectation(self):

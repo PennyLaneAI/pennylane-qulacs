@@ -91,7 +91,7 @@ two_qubit = [
     (qml.CZ(wires=[0, 1]), CZ),
     (qml.CNOT(wires=[0, 1]).inv(), CNOT.conj().T),
     (qml.SWAP(wires=[0, 1]).inv(), SWAP.conj().T),
-    (qml.CZ(wires=[0, 1]).inv(), CZ.conj().T)
+    (qml.CZ(wires=[0, 1]).inv(), CZ.conj().T),
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
@@ -110,11 +110,15 @@ three_qubit = [
 class TestStateApply:
     """Test the device's state after application of gates."""
 
-    @pytest.mark.parametrize("state", [np.array([0, 0, 1, 0]),
-                                       np.array([0, 0, 1, 0]),
-                                       np.array([1, 0, 1, 0]),
-                                       np.array([1, 1, 1, 1])]
-                             )
+    @pytest.mark.parametrize(
+        "state",
+        [
+            np.array([0, 0, 1, 0]),
+            np.array([0, 0, 1, 0]),
+            np.array([1, 0, 1, 0]),
+            np.array([1, 1, 1, 1]),
+        ],
+    )
     def test_basis_state(self, state, tol):
         """Test basis state initialization"""
         dev = QulacsDevice(4)
@@ -252,16 +256,10 @@ class TestStateApply:
         """Test that apply fails for incorrect state preparation."""
         dev = QulacsDevice(1)
 
-        with pytest.raises(
-            ValueError,
-            match="Sum of amplitudes-squared does not equal one."
-        ):
+        with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
 
-        with pytest.raises(
-            ValueError,
-            match=r"State vector must be of length 2\*\*wires."
-        ):
+        with pytest.raises(ValueError, match=r"State vector must be of length 2\*\*wires."):
             p = np.array([1, 0, 1, 1, 0]) / np.sqrt(3)
             dev.reset()
             dev.apply([qml.QubitStateVector(p, wires=[0, 1])])
@@ -269,27 +267,24 @@ class TestStateApply:
         with pytest.raises(
             qml.DeviceError,
             match="Operation QubitStateVector cannot be used after other Operations have already been applied "
-                                  "on a qulacs.simulator device."
+            "on a qulacs.simulator device.",
         ):
             dev.reset()
-            dev.apply([
-                qml.RZ(0.5, wires=[0]),
-                qml.QubitStateVector(np.array([0, 1, 0, 0]), wires=[0, 1])
-            ])
+            dev.apply(
+                [qml.RZ(0.5, wires=[0]), qml.QubitStateVector(np.array([0, 1, 0, 0]), wires=[0, 1])]
+            )
 
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
         dev = QulacsDevice(1)
 
         with pytest.raises(
-            ValueError,
-            match="BasisState parameter must consist of 0 or 1 integers."
+            ValueError, match="BasisState parameter must consist of 0 or 1 integers."
         ):
             dev.apply([qml.BasisState(np.array([-0.2, 4.2]), wires=[0, 1])])
 
         with pytest.raises(
-            ValueError,
-            match="BasisState parameter and wires must be of equal length."
+            ValueError, match="BasisState parameter and wires must be of equal length."
         ):
             dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
 
@@ -297,9 +292,6 @@ class TestStateApply:
         with pytest.raises(
             qml.DeviceError,
             match="Operation BasisState cannot be used after other Operations have already been applied "
-                                  "on a qulacs.simulator device."
+            "on a qulacs.simulator device.",
         ):
-            dev.apply([
-                qml.RZ(0.5, wires=[0]),
-                qml.BasisState(np.array([1, 1]), wires=[0, 1])
-            ])
+            dev.apply([qml.RZ(0.5, wires=[0]), qml.BasisState(np.array([1, 1]), wires=[0, 1])])
