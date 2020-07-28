@@ -1,12 +1,30 @@
 PennyLane-Qulacs Plugin
 ######################
 
-.. image:: https://github.com/XanaduAI/pennylane-qulacs/blob/master/doc/_static/puzzle_qulacs.png?raw=true
-    :align: center
-    :width: 200px
-    :target: javascript:void(0);
 
-|
+.. image:: https://img.shields.io/github/workflow/status/PennyLaneAI/pennylane-qulacs/Tests/master?logo=github&style=flat-square
+    :alt: GitHub Workflow Status (branch)
+    :target: https://github.com/PennyLaneAI/pennylane-qulacs/actions?query=workflow%3ATests
+
+.. image:: https://img.shields.io/codecov/c/github/PennyLaneAI/pennylane-qulacs/master.svg?logo=codecov&style=flat-square
+    :alt: Codecov coverage
+    :target: https://codecov.io/gh/PennyLaneAI/pennylane-qulacs
+
+.. image:: https://img.shields.io/codefactor/grade/github/PennyLaneAI/pennylane-qulacs/master?logo=codefactor&style=flat-square
+    :alt: CodeFactor Grade
+    :target: https://www.codefactor.io/repository/github/pennylaneai/pennylane-qulacs
+
+.. image:: https://img.shields.io/readthedocs/pennylane-qulacs.svg?logo=read-the-docs&style=flat-square
+    :alt: Read the Docs
+    :target: https://pennylane-qulacs.readthedocs.io
+
+.. image:: https://img.shields.io/pypi/v/PennyLane-qulacs.svg?style=flat-square
+    :alt: PyPI
+    :target: https://pypi.org/project/PennyLane-qulacs
+
+.. image:: https://img.shields.io/pypi/pyversions/PennyLane-qulacs.svg?style=flat-square
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/PennyLane-qulacs
 
 .. header-start-inclusion-marker-do-not-remove
 
@@ -34,7 +52,7 @@ Features
 Benchmarks
 ==========
 
-We ran a 100 executions of 4 layer quantum neural
+We ran a 100 executions of 4 layer quantum neural 
 network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayers.html>`_
 and compared the runtimes between CPU and GPU.
 
@@ -62,30 +80,18 @@ Installation
 ============
 
 This plugin requires Python version 3.6 or above, as well as PennyLane
-and Qulacs 0.1.10.1 or above. Installation of this plugin, as well as all dependencies,
-can be done using ``pip``:
+and Qulacs. Installation of this plugin, as well as all dependencies, can be done using ``pip``:
 
 .. code-block:: bash
 
-    $ pip install pennylane-qulacs[cpu]
+    $ pip install pennylane-qulacs
 
-This will install the CPU version of Qulacs. To install the GPU version you need to run:
-
-.. code-block:: bash
-
-    $ pip install pennylane-qulacs[gpu]
-
-Without specifying either CPU or GPU, Qulacs will *not* be installed and must thus be installed manually
-via `pip install qulacs` or `pip install qulacs-gpu`.
-
-Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/XanaduAI/pennylane-qulacs>`__
+Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/PennyLaneAI/pennylane-qulacs>`__
 by navigating to the top directory and running:
 
 .. code-block:: bash
 
-    $ python setup.py install
-
-Note that Qulacs must then also be installed separately.
+	$ python setup.py install
 
 Dependencies
 ~~~~~~~~~~~~
@@ -96,8 +102,8 @@ PennyLane-Qulacs requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.10
-* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.10.1
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
+* `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.9
 
 
 If you currently do not have Python 3 installed, we recommend
@@ -143,7 +149,7 @@ or applications built on PennyLane.
 Authors
 =======
 
-PennyLane-Qulacs is the work of `many contributors <https://github.com/XanaduAI/pennylane-qulacs/graphs/contributors>`__.
+PennyLane-Qulacs is the work of `many contributors <https://github.com/PennyLaneAI/pennylane-qulacs/graphs/contributors>`__.
 
 If you are doing research using PennyLane and PennyLane-Qulacs, please cite `our paper <https://arxiv.org/abs/1811.04968>`__:
 
@@ -157,8 +163,8 @@ If you are doing research using PennyLane and PennyLane-Qulacs, please cite `our
 Support
 =======
 
-- **Source Code:** https://github.com/XanaduAI/pennylane-qulacs
-- **Issue Tracker:** https://github.com/XanaduAI/pennylane-qulacs/issues
+- **Source Code:** https://github.com/PennyLaneAI/pennylane-qulacs
+- **Issue Tracker:** https://github.com/PennyLaneAI/pennylane-qulacs/issues
 - **PennyLane Forum:** https://discuss.pennylane.ai
 
 If you are having issues, please let us know by posting the issue on our Github issue tracker, or
