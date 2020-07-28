@@ -23,10 +23,9 @@ from qulacs import QuantumState, QuantumCircuit
 class TestDeviceUnits:
     """Unit tests for the plugin."""
 
-    @pytest.mark.parametrize("num_wires, shots, analytic",
-                             [(1, 50, True),
-                              (2, 184, False),
-                              (3, 1, True)])
+    @pytest.mark.parametrize(
+        "num_wires, shots, analytic", [(1, 50, True), (2, 184, False), (3, 1, True)]
+    )
     def test_device_attributes(self, num_wires, shots, analytic):
         """Test that attributes are set as expected."""
         dev = QulacsDevice(wires=num_wires, shots=shots, analytic=analytic)
@@ -47,12 +46,15 @@ class TestDeviceUnits:
 
         monkeypatch.setattr(QulacsDevice, "gpu_supported", False)
 
-        with pytest.raises(qml.DeviceError, match="GPU not supported with installed version of qulacs"):
+        with pytest.raises(
+            qml.DeviceError, match="GPU not supported with installed version of qulacs"
+        ):
             QulacsDevice(3, gpu=True)
 
-    @pytest.mark.parametrize("wires, prob", [([0], [1., 0.]),
-                                             ([0, 1], [0., 1., 0., 0.]),
-                                             ([1, 3], [0., 0., 0., 1.])])
+    @pytest.mark.parametrize(
+        "wires, prob",
+        [([0], [1.0, 0.0]), ([0, 1], [0.0, 1.0, 0.0, 0.0]), ([1, 3], [0.0, 0.0, 0.0, 1.0])],
+    )
     def test_analytic_probability(self, wires, prob, tol):
         """Test the analytic_probability() function."""
         dev = QulacsDevice(4)
@@ -72,7 +74,7 @@ class TestDeviceUnits:
         dev.apply([op])
         dev.reset()
 
-        expected = [0.]*16
-        expected[0] = 1.
+        expected = [0.0] * 16
+        expected[0] = 1.0
         assert np.allclose(dev._state.get_vector(), expected)
         assert QuantumCircuit(4).calculate_depth() == 0
