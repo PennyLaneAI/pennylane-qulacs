@@ -35,12 +35,7 @@ try:
 except ImportError:
     GPU_SUPPORTED = False
 
-phase_shift = lambda phi: np.array(
-    [
-        [1, 0],
-        [0, cmath.exp(1j * phi)]
-     ]
-)
+phase_shift = lambda phi: np.array([[1, 0], [0, cmath.exp(1j * phi)]])
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
@@ -70,6 +65,7 @@ tolerance = 1e-10
 
 class QulacsDevice(QubitDevice):
     """Qulacs device"""
+
     name = "Qulacs device"
     short_name = "qulacs.simulator"
     pennylane_requires = ">=0.10.0"
@@ -77,11 +73,7 @@ class QulacsDevice(QubitDevice):
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
 
-    _capabilities = {
-        "model": "qubit",
-        "tensor_observables": True,
-        "inverse_operations": True
-    }
+    _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True}
 
     _operation_map = {
         "QubitStateVector": None,
@@ -102,7 +94,7 @@ class QulacsDevice(QubitDevice):
         "PauliY": gate.Y,
         "PauliZ": gate.Z,
         "Hadamard": gate.H,
-        "PhaseShift": phase_shift
+        "PhaseShift": phase_shift,
     }
 
     operations = _operation_map.keys()
@@ -171,7 +163,7 @@ class QulacsDevice(QubitDevice):
         wires = op.wires
         input_state = op.parameters[0]
 
-        if len(input_state) != 2**len(wires):
+        if len(input_state) != 2 ** len(wires):
             raise ValueError("State vector must be of length 2**wires.")
         if input_state.ndim != 1 or len(input_state) != 2 ** len(wires):
             raise ValueError("State vector must be of length 2**wires.")
@@ -277,8 +269,8 @@ class QulacsDevice(QubitDevice):
                 def inverse_operation(*p):
                     # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
                     g = mapped_operation(*p).get_matrix()
-                    mat = reduce(np.kron, [np.eye(2)]*len(wires)).astype(complex)
-                    mat[-len(g):, -len(g):] = g
+                    mat = reduce(np.kron, [np.eye(2)] * len(wires)).astype(complex)
+                    mat[-len(g) :, -len(g) :] = g
 
                     # mat follows PL convention => reverse wire-order
                     gate_mat = gate.DenseMatrix(wires[::-1], np.conj(mat).T)
