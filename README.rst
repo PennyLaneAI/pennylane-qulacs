@@ -1,12 +1,30 @@
 PennyLane-Qulacs Plugin
 ######################
 
-.. image:: https://github.com/XanaduAI/pennylane-qulacs/blob/master/doc/_static/puzzle_qulacs.png?raw=true
-    :align: center
-    :width: 200px
-    :target: javascript:void(0);
 
-|
+.. image:: https://img.shields.io/github/workflow/status/PennyLaneAI/pennylane-qulacs/Tests/master?logo=github&style=flat-square
+    :alt: GitHub Workflow Status (branch)
+    :target: https://github.com/PennyLaneAI/pennylane-qulacs/actions?query=workflow%3ATests
+
+.. image:: https://img.shields.io/codecov/c/github/PennyLaneAI/pennylane-qulacs/master.svg?logo=codecov&style=flat-square
+    :alt: Codecov coverage
+    :target: https://codecov.io/gh/PennyLaneAI/pennylane-qulacs
+
+.. image:: https://img.shields.io/codefactor/grade/github/PennyLaneAI/pennylane-qulacs/master?logo=codefactor&style=flat-square
+    :alt: CodeFactor Grade
+    :target: https://www.codefactor.io/repository/github/pennylaneai/pennylane-qulacs
+
+.. image:: https://img.shields.io/readthedocs/pennylane-qulacs.svg?logo=read-the-docs&style=flat-square
+    :alt: Read the Docs
+    :target: https://pennylane-qulacs.readthedocs.io
+
+.. image:: https://img.shields.io/pypi/v/PennyLane-qulacs.svg?style=flat-square
+    :alt: PyPI
+    :target: https://pypi.org/project/PennyLane-qulacs
+
+.. image:: https://img.shields.io/pypi/pyversions/PennyLane-qulacs.svg?style=flat-square
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/PennyLane-qulacs
 
 .. header-start-inclusion-marker-do-not-remove
 
@@ -68,7 +86,7 @@ and Qulacs. Installation of this plugin, as well as all dependencies, can be don
 
     $ pip install pennylane-qulacs
 
-Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/XanaduAI/pennylane-qulacs>`__
+Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/PennyLaneAI/pennylane-qulacs>`__
 by navigating to the top directory and running:
 
 .. code-block:: bash
@@ -131,7 +149,7 @@ or applications built on PennyLane.
 Authors
 =======
 
-PennyLane-Qulacs is the work of `many contributors <https://github.com/XanaduAI/pennylane-qulacs/graphs/contributors>`__.
+PennyLane-Qulacs is the work of `many contributors <https://github.com/PennyLaneAI/pennylane-qulacs/graphs/contributors>`__.
 
 If you are doing research using PennyLane and PennyLane-Qulacs, please cite `our paper <https://arxiv.org/abs/1811.04968>`__:
 
@@ -145,8 +163,8 @@ If you are doing research using PennyLane and PennyLane-Qulacs, please cite `our
 Support
 =======
 
-- **Source Code:** https://github.com/XanaduAI/pennylane-qulacs
-- **Issue Tracker:** https://github.com/XanaduAI/pennylane-qulacs/issues
+- **Source Code:** https://github.com/PennyLaneAI/pennylane-qulacs
+- **Issue Tracker:** https://github.com/PennyLaneAI/pennylane-qulacs/issues
 - **PennyLane Forum:** https://discuss.pennylane.ai
 
 If you are having issues, please let us know by posting the issue on our Github issue tracker, or
