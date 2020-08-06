@@ -72,7 +72,7 @@ jobs:
       - name: Install Plugin
         run: |
           python setup.py bdist_wheel
-          pip install dist/PennyLane*.whl
+          pip install dist/pennylane*.whl
 
       - name: Run tests
         run: |
