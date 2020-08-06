@@ -77,7 +77,7 @@ jobs:
       - name: Run tests
         run: |
           pl-device-test --device=qulacs.simulator --tb=short --skip-ops --analytic=True
-          pl-device-test --device=qulacs.simulator --tb=short --skip-ops --analytic=False --shots=10000
+          pl-device-test --device=qulacs.simulator --tb=short --skip-ops --analytic=False --shots=20000
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.0.7
