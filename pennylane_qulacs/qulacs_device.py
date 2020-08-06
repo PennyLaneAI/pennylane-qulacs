@@ -22,6 +22,7 @@ from scipy.linalg import block_diag
 
 from pennylane import QubitDevice, DeviceError
 from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift
+from pennylane.wires import Wires
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState
@@ -198,28 +199,31 @@ class QulacsDevice(QubitDevice):
 
     def _apply_qubit_unitary(self, op):
         """Apply unitary to state"""
-        wires = op.wires
+        # translate op wire labels to consecutive wire labels used by the device
+        device_wires = self.map_wires(op.wires)
         par = op.parameters
 
-        if len(par[0]) != 2 ** len(wires):
+        if len(par[0]) != 2 ** len(device_wires):
             raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
         if op.inverse:
             par[0] = par[0].conj().T
 
         # reverse wires (could also change par[0])
-        unitary_gate = gate.DenseMatrix(wires[::-1], par[0])
+        reverse_wire_labels = device_wires.tolist()[::-1]
+        unitary_gate = gate.DenseMatrix(reverse_wire_labels, par[0])
         self._circuit.add_gate(unitary_gate)
         unitary_gate.update_quantum_state(self._state)
 
     def _apply_matrix(self, op):
         """Apply predefined gate-matrix to state (must follow qulacs convention)"""
-        wires = op.wires
+        # translate op wire labels to consecutive wire labels used by the device
+        device_wires = self.map_wires(op.wires)
         par = op.parameters
 
         mapped_operation = self._operation_map[op.name]
         if op.inverse:
-            mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
+            mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
 
         if callable(mapped_operation):
             gate_matrix = mapped_operation(*par)
@@ -227,29 +231,32 @@ class QulacsDevice(QubitDevice):
             gate_matrix = mapped_operation
 
         # gate_matrix is already in correct order => no wire-reversal needed
-        dense_gate = gate.DenseMatrix(wires, gate_matrix)
+        dense_gate = gate.DenseMatrix(device_wires.labels, gate_matrix)
         self._circuit.add_gate(dense_gate)
-        gate.DenseMatrix(wires, gate_matrix).update_quantum_state(self._state)
+        gate.DenseMatrix(device_wires.labels, gate_matrix).update_quantum_state(self._state)
 
     def _apply_gate(self, op):
         """Apply native qulacs gate"""
-        wires = op.wires
+
+        # translate op wire labels to consecutive wire labels used by the device
+        device_wires = self.map_wires(op.wires)
         par = op.parameters
 
         mapped_operation = self._operation_map[op.name]
         if op.inverse:
-            mapped_operation = self._get_inverse_operation(mapped_operation, wires, par)
+            mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
 
         # Negating the parameters such that it adheres to qulacs
         par = np.negative(par)
 
         # mapped_operation is already in correct order => no wire-reversal needed
-        self._circuit.add_gate(mapped_operation(*wires, *par))
-        mapped_operation(*wires, *par).update_quantum_state(self._state)
+        self._circuit.add_gate(mapped_operation(*device_wires.labels, *par))
+        mapped_operation(*device_wires.labels, *par).update_quantum_state(self._state)
 
     @staticmethod
-    def _get_inverse_operation(mapped_operation, wires, par):
+    def _get_inverse_operation(mapped_operation, device_wires, par):
         """Return the inverse of an operation"""
+
         if mapped_operation is None:
             return mapped_operation
 
@@ -269,11 +276,12 @@ class QulacsDevice(QubitDevice):
                 def inverse_operation(*p):
                     # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
                     g = mapped_operation(*p).get_matrix()
-                    mat = reduce(np.kron, [np.eye(2)] * len(wires)).astype(complex)
+                    mat = reduce(np.kron, [np.eye(2)] * len(device_wires)).astype(complex)
                     mat[-len(g) :, -len(g) :] = g
 
                     # mat follows PL convention => reverse wire-order
-                    gate_mat = gate.DenseMatrix(wires[::-1], np.conj(mat).T)
+                    reverse_wire_labels = device_wires.tolist()[::-1]
+                    gate_mat = gate.DenseMatrix(reverse_wire_labels, np.conj(mat).T)
                     return gate_mat
 
         return inverse_operation
@@ -283,7 +291,8 @@ class QulacsDevice(QubitDevice):
         if self._state is None:
             return None
 
-        wires = wires or range(self.num_wires)
+        wires = wires or self.wires
+        wires = Wires(wires)
 
         all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
