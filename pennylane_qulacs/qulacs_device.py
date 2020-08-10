@@ -69,7 +69,7 @@ class QulacsDevice(QubitDevice):
 
     name = "Qulacs device"
     short_name = "qulacs.simulator"
-    pennylane_requires = ">=0.10.0"
+    pennylane_requires = ">=0.11.0"
     version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
@@ -290,9 +290,6 @@ class QulacsDevice(QubitDevice):
         """Return the (marginal) analytic probability of each computational basis state."""
         if self._state is None:
             return None
-
-        wires = wires or self.wires
-        wires = Wires(wires)
 
         all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
