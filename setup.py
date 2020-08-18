@@ -15,7 +15,7 @@ setup(
     version=version,
     long_description=long_description,
     install_requires=[
-        'pennylane>=0.10.0',
+        'pennylane>=0.11.0',
         'numpy',
         'scipy',
     ],
