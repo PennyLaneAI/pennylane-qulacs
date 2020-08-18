@@ -44,6 +44,7 @@ info = {
     },
     "description": "PennyLane plugin for Qulacs.",
     "long_description": open("README.rst").read(),
+    "long_description_content_type": "text/rst",
     "provides": ["pennylane_qulacs"],
     "install_requires": requirements,
     "extras_require": extra_requirements,

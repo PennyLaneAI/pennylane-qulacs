@@ -1,5 +1,5 @@
 PennyLane-Qulacs Plugin
-######################
+#######################
 
 
 .. image:: https://img.shields.io/github/workflow/status/PennyLaneAI/pennylane-qulacs/Tests/master?logo=github&style=flat-square
