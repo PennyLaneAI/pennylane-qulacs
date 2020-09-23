@@ -296,7 +296,6 @@ class QulacsDevice(QubitDevice):
         return prob
 
     def expval(self, observable):
-
         observable_map = {
             "PauliX": "X",
             "PauliY": "Y",
@@ -314,9 +313,8 @@ class QulacsDevice(QubitDevice):
                 observables = [observable_map[observable.name]]
 
             if None not in observables:
-                opp = " ".join(
-                    [f"{obs} {observable.wires.labels[i]}" for i, obs in enumerate(observables)]
-                )
+                applied_wires = self.map_wires(observable.wires).tolist()
+                opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
 
                 qulacs_observable.add_operator(1.0, opp)
                 return qulacs_observable.get_expectation_value(self._pre_rotated_state)
