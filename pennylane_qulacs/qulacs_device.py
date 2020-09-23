@@ -120,13 +120,13 @@ class QulacsDevice(QubitDevice):
 
         self._circuit = QuantumCircuit(self.num_wires)
 
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
 
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
 
         self.apply_operations(operations)
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
 
         # Rotating the state for measurement in the computational basis
         if rotations:
@@ -315,12 +315,12 @@ class QulacsDevice(QubitDevice):
 
             if None not in observables:
                 opp = " ".join(
-                    [f"{obs} {self.num_wires - observable.wires.labels[i]-1}"
+                    [f"{obs} {observable.wires.labels[i]}"
                      for i, obs in enumerate(observables)]
                 )
 
                 qulacs_observable.add_operator(1., opp)
-                return qulacs_observable.get_expectation_value(self._state)
+                return qulacs_observable.get_expectation_value(self._pre_rotated_state)
             else:
                 # exact expectation value
                 eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
@@ -333,9 +333,9 @@ class QulacsDevice(QubitDevice):
     @property
     def state(self):
         # returns the state after all operations are applied
-        return _reverse_state(self._pre_rotated_state.get_vector())
+        return _reverse_state(self._state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
         self._circuit = QuantumCircuit(self.num_wires)
