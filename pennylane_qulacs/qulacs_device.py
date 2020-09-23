@@ -303,7 +303,7 @@ class QulacsDevice(QubitDevice):
             "PauliZ": "Z",
             "Identity": "I",
             "Hadamard": None,
-            "Hermitian": None
+            "Hermitian": None,
         }
 
         if self.analytic:
@@ -315,17 +315,16 @@ class QulacsDevice(QubitDevice):
 
             if None not in observables:
                 opp = " ".join(
-                    [f"{obs} {observable.wires.labels[i]}"
-                     for i, obs in enumerate(observables)]
+                    [f"{obs} {observable.wires.labels[i]}" for i, obs in enumerate(observables)]
                 )
 
-                qulacs_observable.add_operator(1., opp)
+                qulacs_observable.add_operator(1.0, opp)
                 return qulacs_observable.get_expectation_value(self._pre_rotated_state)
-            else:
-                # exact expectation value
-                eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
-                prob = self.probability(wires=observable.wires)
-                return self._dot(eigvals, prob)
+
+            # exact expectation value
+            eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
+            prob = self.probability(wires=observable.wires)
+            return self._dot(eigvals, prob)
 
         # estimate the ev
         return np.mean(self.sample(observable))
