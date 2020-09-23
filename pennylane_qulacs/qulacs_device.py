@@ -25,7 +25,7 @@ from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, Phase
 from pennylane.wires import Wires
 
 import qulacs.gate as gate
-from qulacs import QuantumCircuit, QuantumState
+from qulacs import QuantumCircuit, QuantumState, Observable
 
 from . import __version__
 
@@ -294,6 +294,41 @@ class QulacsDevice(QubitDevice):
         all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
         return prob
+
+    def expval(self, observable):
+
+        observable_map = {
+            "PauliX": "X",
+            "PauliY": "Y",
+            "PauliZ": "Z",
+            "Identity": "I",
+            "Hadamard": None,
+            "Hermitian": None
+        }
+
+        if self.analytic:
+            qulacs_observable = Observable(self.num_wires)
+            if isinstance(observable.name, list):
+                observables = [observable_map[obs] for obs in observable.name]
+            else:
+                observables = [observable_map[observable.name]]
+
+            if None not in observables:
+                opp = " ".join(
+                    [f"{obs} {self.num_wires - observable.wires.labels[i]-1}"
+                     for i, obs in enumerate(observables)]
+                )
+
+                qulacs_observable.add_operator(1., opp)
+                return qulacs_observable.get_expectation_value(self._state)
+            else:
+                # exact expectation value
+                eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
+                prob = self.probability(wires=observable.wires)
+                return self._dot(eigvals, prob)
+
+        # estimate the ev
+        return np.mean(self.sample(observable))
 
     @property
     def state(self):
