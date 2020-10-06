@@ -17,7 +17,7 @@ import pytest
 import numpy as np
 import pennylane as qml
 from pennylane_qulacs.qulacs_device import QulacsDevice
-from qulacs import QuantumState, QuantumCircuit
+from qulacs import QuantumState, QuantumCircuit, Observable
 
 
 class TestDeviceUnits:
@@ -78,3 +78,27 @@ class TestDeviceUnits:
         expected[0] = 1.0
         assert np.allclose(dev._state.get_vector(), expected)
         assert QuantumCircuit(4).calculate_depth() == 0
+
+    @pytest.mark.parametrize("obs,args,wires,supported", [
+        (qml.PauliX, [], [0], True),
+        (qml.Hadamard, [], [0], False),
+        (qml.Hermitian, [
+            np.array([
+                [1.02789352, 1.61296440 - 0.3498192j],
+                [1.61296440 + 0.3498192j, 1.23920938 + 0j]
+            ])
+        ], [0], False),
+        (lambda wires: qml.PauliX(wires[0]) @ qml.Hadamard(wires[1]), [], [0, 1], False),
+        (lambda wires: qml.PauliZ(wires[0]) @ qml.PauliY(wires[1]), [], [0, 1], True)
+        ])
+    def test_expval_hadamard(self, obs, args, wires, supported, mocker):
+        """Test that QulacsDevice.expval() uses native calculations when possible"""
+        dev = QulacsDevice(4)
+
+        spy = mocker.spy(dev, "probability")
+        dev.expval(obs(*args, wires=wires))
+
+        if supported:
+            spy.assert_not_called()
+        else:
+            spy.assert_called_once()
