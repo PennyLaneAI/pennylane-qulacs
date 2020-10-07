@@ -98,8 +98,17 @@ class QulacsDevice(QubitDevice):
         "PhaseShift": phase_shift,
     }
 
+    _observable_map = {
+        "PauliX": "X",
+        "PauliY": "Y",
+        "PauliZ": "Z",
+        "Identity": "I",
+        "Hadamard": None,
+        "Hermitian": None,
+    }
+
     operations = _operation_map.keys()
-    observables = {"PauliX", "PauliY", "PauliZ", "Identity", "Hadamard", "Hermitian"}
+    observables = _observable_map.keys()
 
     # Add inverse gates to _operation_map
     _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
@@ -296,21 +305,12 @@ class QulacsDevice(QubitDevice):
         return prob
 
     def expval(self, observable):
-        observable_map = {
-            "PauliX": "X",
-            "PauliY": "Y",
-            "PauliZ": "Z",
-            "Identity": "I",
-            "Hadamard": None,
-            "Hermitian": None,
-        }
-
         if self.analytic:
             qulacs_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
-                observables = [observable_map[obs] for obs in observable.name]
+                observables = [self._observable_map[obs] for obs in observable.name]
             else:
-                observables = [observable_map[observable.name]]
+                observables = [self._observable_map[observable.name]]
 
             if None not in observables:
                 applied_wires = self.map_wires(observable.wires).tolist()
