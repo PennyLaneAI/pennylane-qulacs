@@ -25,7 +25,7 @@ from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, Phase
 from pennylane.wires import Wires
 
 import qulacs.gate as gate
-from qulacs import QuantumCircuit, QuantumState
+from qulacs import QuantumCircuit, QuantumState, Observable
 
 from . import __version__
 
@@ -98,8 +98,17 @@ class QulacsDevice(QubitDevice):
         "PhaseShift": phase_shift,
     }
 
+    _observable_map = {
+        "PauliX": "X",
+        "PauliY": "Y",
+        "PauliZ": "Z",
+        "Identity": "I",
+        "Hadamard": None,
+        "Hermitian": None,
+    }
+
     operations = _operation_map.keys()
-    observables = {"PauliX", "PauliY", "PauliZ", "Identity", "Hadamard", "Hermitian"}
+    observables = _observable_map.keys()
 
     # Add inverse gates to _operation_map
     _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
@@ -120,13 +129,13 @@ class QulacsDevice(QubitDevice):
 
         self._circuit = QuantumCircuit(self.num_wires)
 
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
 
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
 
         self.apply_operations(operations)
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
 
         # Rotating the state for measurement in the computational basis
         if rotations:
@@ -295,12 +304,35 @@ class QulacsDevice(QubitDevice):
         prob = self.marginal_prob(all_probs, wires)
         return prob
 
+    def expval(self, observable):
+        if self.analytic:
+            qulacs_observable = Observable(self.num_wires)
+            if isinstance(observable.name, list):
+                observables = [self._observable_map[obs] for obs in observable.name]
+            else:
+                observables = [self._observable_map[observable.name]]
+
+            if None not in observables:
+                applied_wires = self.map_wires(observable.wires).tolist()
+                opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
+
+                qulacs_observable.add_operator(1.0, opp)
+                return qulacs_observable.get_expectation_value(self._pre_rotated_state)
+
+            # exact expectation value
+            eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
+            prob = self.probability(wires=observable.wires)
+            return self._dot(eigvals, prob)
+
+        # estimate the ev
+        return np.mean(self.sample(observable))
+
     @property
     def state(self):
         # returns the state after all operations are applied
-        return _reverse_state(self._pre_rotated_state.get_vector())
+        return _reverse_state(self._state.get_vector())
 
     def reset(self):
         self._state.set_zero_state()
-        self._pre_rotated_state = self._state
+        self._pre_rotated_state = self._state.copy()
         self._circuit = QuantumCircuit(self.num_wires)
