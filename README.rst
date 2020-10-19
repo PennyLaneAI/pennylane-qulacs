@@ -100,6 +100,25 @@ directory and running:
 
     $ python setup.py install
 
+.. note::
+
+    Qulacs supports parallelized executions via OpenMP. To set the number of
+    threads to use during simulations you need to update the environment
+    variable ``OMP_NUM_THREADS``. It can be set using the UNIX command:
+
+    ``export OMP_NUM_THREADS = 8``
+
+    where 8 can be replaced by the number of threads that you wish to use. By
+    default Qulacs uses all available threads. To restore the default behaviour,
+    simply remove the environment variable. It can be done using the UNIX command:
+
+    ``unset OMP_NUM_THREADS``
+
+    For details, see the `OpenMP documentation page for OMP_NUM_THREADS
+    <https://www.openmp.org/spec-html/5.0/openmpse50.html>`__ or `here
+    <https://en.wikipedia.org/wiki/Environment_variable>`__ for more details on
+    using environment variables.
+
 Dependencies
 ~~~~~~~~~~~~
 
