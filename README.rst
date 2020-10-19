@@ -87,7 +87,7 @@ using ``pip``:
 
     $ pip install pennylane-qulacs["cpu"]
 
-Note that you need to include whether you want to install the CPU version
+Note that you need to include whether to install the CPU version
 (``pennylane-qulacs["cpu"]``) or the GPU version (``pennylane-qulacs["gpu"]``)
 of Qulacs for it to be installed correctly. Otherwise Qulacs will need to be
 installed separately.
