@@ -3,7 +3,7 @@
 ### Improvements
 
 * Speeds up the computation of expectation values by using native Qulacs methods.
-  [(#14)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/14)
+  [(#12)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/12)
 
 ### Documentation
 
