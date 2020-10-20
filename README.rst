@@ -52,7 +52,7 @@ Features
 Benchmarks
 ==========
 
-We ran a 100 executions of 4 layer quantum neural 
+We ran a 100 executions of 4 layer quantum neural
 network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayers.html>`_
 and compared the runtimes between CPU and GPU.
 
@@ -79,19 +79,49 @@ and compared the runtimes between CPU and GPU.
 Installation
 ============
 
-This plugin requires Python version 3.6 or above, as well as PennyLane
-and Qulacs. Installation of this plugin, as well as all dependencies, can be done using ``pip``:
+This plugin requires Python version 3.6 or above, as well as PennyLane and
+Qulacs. Installation of this plugin, as well as all dependencies, can be done
+using ``pip``:
 
 .. code-block:: bash
 
-    $ pip install pennylane-qulacs
+    $ pip install pennylane-qulacs["cpu"]
 
-Alternatively, you can install PennyLane-Qulacs from the `source code <https://github.com/PennyLaneAI/pennylane-qulacs>`__
-by navigating to the top directory and running:
+Note that you need to include whether to install the CPU version
+(``pennylane-qulacs["cpu"]``) or the GPU version (``pennylane-qulacs["gpu"]``)
+of Qulacs for it to be installed correctly. Otherwise Qulacs will need to be
+installed independently:
 
 .. code-block:: bash
 
-	$ python setup.py install
+    pip install qulacs pennylane-qulacs
+
+Alternatively, you can install PennyLane-Qulacs from the `source code
+<https://github.com/PennyLaneAI/pennylane-qulacs>`__ by navigating to the top
+directory and running:
+
+.. code-block:: bash
+
+    $ python setup.py install
+
+.. note::
+
+    Qulacs supports parallelized executions via OpenMP. To set the number of
+    threads to use during simulations you need to update the environment
+    variable ``OMP_NUM_THREADS``. It can be set using the UNIX command:
+
+    ``export OMP_NUM_THREADS = 8``
+
+    where 8 can be replaced by the number of threads that you wish to use. By
+    default Qulacs uses all available threads. To restore the default behaviour,
+    simply remove the environment variable. It can be done using the UNIX command:
+
+    ``unset OMP_NUM_THREADS``
+
+    See the `OpenMP documentation page for OMP_NUM_THREADS
+    <https://www.openmp.org/spec-html/5.0/openmpse50.html>`__ or `here
+    <https://en.wikipedia.org/wiki/Environment_variable>`__ for more details on
+    how to use environment variables.
 
 Dependencies
 ~~~~~~~~~~~~
