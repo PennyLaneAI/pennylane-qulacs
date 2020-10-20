@@ -118,10 +118,10 @@ directory and running:
 
     ``unset OMP_NUM_THREADS``
 
-    For details, see the `OpenMP documentation page for OMP_NUM_THREADS
+    See the `OpenMP documentation page for OMP_NUM_THREADS
     <https://www.openmp.org/spec-html/5.0/openmpse50.html>`__ or `here
     <https://en.wikipedia.org/wiki/Environment_variable>`__ for more details on
-    using environment variables.
+    how to use environment variables.
 
 Dependencies
 ~~~~~~~~~~~~
