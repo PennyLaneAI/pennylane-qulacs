@@ -90,7 +90,11 @@ using ``pip``:
 Note that you need to include whether to install the CPU version
 (``pennylane-qulacs["cpu"]``) or the GPU version (``pennylane-qulacs["gpu"]``)
 of Qulacs for it to be installed correctly. Otherwise Qulacs will need to be
-installed separately.
+installed independently:
+
+.. code-block:: bash
+
+    pip install qulacs pennylane-qulacs
 
 Alternatively, you can install PennyLane-Qulacs from the `source code
 <https://github.com/PennyLaneAI/pennylane-qulacs>`__ by navigating to the top
