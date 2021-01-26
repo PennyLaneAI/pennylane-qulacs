@@ -47,6 +47,8 @@ phase_shift = lambda phi: np.array([[1, 0], [0, np.exp(1j * phi)]])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
+
+# CRZ in the PennyLane convention
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
@@ -143,8 +145,8 @@ class TestStateApply:
         dev.apply([op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(state) ** 2
+        res = dev.state
+        expected = state
         assert np.allclose(res, expected, tol)
 
     def test_invalid_qubit_state_vector(self):
@@ -166,8 +168,8 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(mat @ state) ** 2
+        res = dev.state
+        expected = mat @ state
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
@@ -181,8 +183,8 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(func(theta) @ state) ** 2
+        res = dev.state
+        expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("op, mat", two_qubit)
@@ -194,8 +196,8 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(mat @ state) ** 2
+        res = dev.state
+        expected = mat @ state
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("mat", [U, U2])
@@ -210,8 +212,8 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(mat @ state) ** 2
+        res = dev.state
+        expected = mat @ state
         assert np.allclose(res, expected, tol)
 
     def test_invalid_qubit_state_unitary(self):
@@ -232,8 +234,8 @@ class TestStateApply:
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(mat @ state) ** 2
+        res = dev.state
+        expected = mat @ state
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
@@ -248,8 +250,8 @@ class TestStateApply:
 
         dev._obs_queue = []
 
-        res = np.abs(dev.state) ** 2
-        expected = np.abs(func(theta) @ state) ** 2
+        res = dev.state
+        expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
 
     def test_apply_errors_qubit_state_vector(self):

@@ -37,11 +37,15 @@ except ImportError:
     GPU_SUPPORTED = False
 
 phase_shift = lambda phi: np.array([[1, 0], [0, cmath.exp(1j * phi)]])
+
+# Multi-qubit gates are represented in the convention of Qulacs
+# E.g., for a controlled operation the first qubit is the target and the second
+# qubit is the control with consecutive wires
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, cmath.exp(-1j * theta / 2), 0],
+        [0, cmath.exp(-1j * theta / 2), 0, 0],
+        [0, 0, 1, 0],
         [0, 0, 0, cmath.exp(1j * theta / 2)],
     ]
 )
