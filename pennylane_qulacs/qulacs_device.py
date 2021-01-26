@@ -44,7 +44,7 @@ phase_shift = lambda phi: np.array([[1, 0], [0, cmath.exp(1j * phi)]])
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
-        [0,  cmath.exp(-1j * theta / 2), 0, 0],
+        [0, cmath.exp(-1j * theta / 2), 0, 0],
         [0, 0, 1, 0],
         [0, 0, 0, cmath.exp(1j * theta / 2)],
     ]
