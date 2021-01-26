@@ -38,9 +38,9 @@ except ImportError:
 
 phase_shift = lambda phi: np.array([[1, 0], [0, cmath.exp(1j * phi)]])
 
-# Multi-qubit gates are affected by the convention used by Qulacs
-# For a controlled operationd the first qubit is the target and the second
-# qubit is the control
+# Multi-qubit gates are represented in the convention of Qulacs
+# E.g., for a controlled operation the first qubit is the target and the second
+# qubit is the control with consecutive wires
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
