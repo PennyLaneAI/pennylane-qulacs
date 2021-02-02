@@ -1,18 +1,15 @@
-# Release 0.13.0
-
-### New features since last release
-
-## Breaking changes
-
-### Improvements
+# Release 0.14.0
 
 ## Bug fixes
 
-### Documentation
+* Adjusted the matrix for the `CRZ` operation used internally.
+  [(#18)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/18)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Theodor Isacsson, Antal Száva
 
 # Release 0.12.0
 
