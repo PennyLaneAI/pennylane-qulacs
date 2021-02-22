@@ -3,13 +3,6 @@ PennyLane-Qulacs Plugin
 
 :Release: |release|
 
-.. image:: _static/puzzle_qulacs.png
-    :align: center
-    :width: 70%
-    :target: javascript:void(0);
-
-|
-
 .. include:: ../README.rst
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
@@ -39,7 +32,26 @@ Currently, PennyLane-Qulacs provides one Qulacs device for PennyLane:
 Tutorials
 ~~~~~~~~~
 
-To see the PennyLane-Qulacs plugin in action, you can use any of the qubit based `demos
+
+Check out these demos to see the PennyLane-Qulacs plugin in action:
+
+.. raw:: html
+
+    <div class="row">
+
+.. demogalleryitem::
+    :name: Intro to QAOA
+    :figure: https://pennylane.ai/qml/_images/qaoa_layer.png
+    :link:  https://pennylane.ai/qml/demos/tutorial_qaoa_intro.html
+    :tooltip: Learn how to implement QAOA workflows with PennyLane
+
+
+.. raw:: html
+
+    </div></div><div style='clear:both'> <br/>
+
+
+You can use any of the qubit based `demos
 from the PennyLane documentation <https://pennylane.ai/qml/demonstrations.html>`_, for example
 the tutorial on `qubit rotation <https://pennylane.ai/qml/demos/tutorial_qubit_rotation.html>`_,
 and simply replace ``'default.qubit'`` with the ``'qulacs.simulator'`` device:
@@ -48,6 +60,10 @@ and simply replace ``'default.qubit'`` with the ``'qulacs.simulator'`` device:
 
     dev = qml.device('qulacs.simulator', wires=XXX)
 
+
+.. raw:: html
+
+    <br/>
 
 .. toctree::
    :maxdepth: 2
