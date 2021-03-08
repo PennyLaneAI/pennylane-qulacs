@@ -117,8 +117,8 @@ class QulacsDevice(QubitDevice):
     # Add inverse gates to _operation_map
     _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
 
-    def __init__(self, wires, shots=1000, analytic=True, gpu=False, **kwargs):
-        super().__init__(wires=wires, shots=shots, analytic=analytic)
+    def __init__(self, wires, shots=None, gpu=False, **kwargs):
+        super().__init__(wires=wires, shots=shots)
 
         if gpu:
             if not QulacsDevice.gpu_supported:
@@ -309,7 +309,7 @@ class QulacsDevice(QubitDevice):
         return prob
 
     def expval(self, observable):
-        if self.analytic:
+        if self.shots is None:
             qulacs_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
                 observables = [self._observable_map[obs] for obs in observable.name]
