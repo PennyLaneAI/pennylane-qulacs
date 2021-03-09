@@ -308,7 +308,7 @@ class QulacsDevice(QubitDevice):
         prob = self.marginal_prob(all_probs, wires)
         return prob
 
-    def expval(self, observable):
+    def expval(self, observable, **kwargs):
         if self.shots is None:
             qulacs_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
