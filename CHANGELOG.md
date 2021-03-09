@@ -4,6 +4,11 @@
 
 ### Breaking changes
 
+* Removed the `analytic` argument to reflect the shots refactor 
+  [shots refactor](https://github.com/PennyLaneAI/pennylane/pull/1079) in 
+  PennyLane.
+  [(#21)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/21)
+
 ### Improvements
 
 ### Documentation
@@ -13,6 +18,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Maria Schuld
 
 
 # Release 0.14.0
