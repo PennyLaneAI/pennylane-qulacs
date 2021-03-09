@@ -22,16 +22,16 @@ class TestIntegration:
 
     def test_load_device(self):
         """Test that the Qulacs device loads correctly."""
-        dev = QulacsDevice(2, shots=2984)
+        dev = QulacsDevice(2, shots=int(1e6))
 
         assert dev.num_wires == 2
-        assert dev.shots == 2984
+        assert dev.shots == int(1e6)
         assert dev.short_name == "qulacs.simulator"
         assert "model" in dev.__class__.capabilities()
 
     def test_expectation(self):
         """Test that expectation of a non-trivial circuit is correct."""
-        dev = QulacsDevice(2, shots=2984)
+        dev = QulacsDevice(2, shots=int(1e6))
 
         theta = 0.432
         phi = 0.123
@@ -45,4 +45,4 @@ class TestIntegration:
 
         res = circuit()
         expected = np.array([np.sin(-theta) * np.sin(phi), np.sin(phi)])
-        assert np.allclose(res, expected, atol=1e-8)
+        assert np.allclose(res, expected, atol=0.05)
