@@ -33,7 +33,6 @@ class TestDeviceUnits:
         assert dev.num_wires == num_wires
         assert dev.shots == shots
         assert dev._samples is None
-        assert dev.circuit_hash is None
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
         assert dev._capabilities["inverse_operations"]
