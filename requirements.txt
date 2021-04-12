@@ -1,3 +1,3 @@
-pennylane>=0.11
+git+https://github.com/PennyLaneAI/pennylane.git
 Qulacs>=0.1.10.1
 numpy~=1.16

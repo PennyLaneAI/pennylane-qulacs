@@ -21,7 +21,7 @@ with open("./pennylane_qulacs/__init__.py") as f:
 
 
 requirements = [
-    "pennylane>=0.11.0",
+    "pennylane @ git+https://github.com/PennyLaneAI/pennylane.git#egg=pennylane",
     "numpy",
     "scipy",
 ]

@@ -14,4 +14,4 @@
 """
 PennyLane-Qulacs plugin.
 """
-__version__ = "0.15.0-dev"
+__version__ = "0.15.0"
