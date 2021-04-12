@@ -1,19 +1,17 @@
-# Release 0.15.0-dev
-
-### New features since last release
+# Release 0.15.0
 
 ### Breaking changes
 
-### Improvements
-
-### Documentation
-
-### Bug fixes
+* Removed the `analytic` argument to reflect the [shots
+  refactor](https://github.com/PennyLaneAI/pennylane/pull/1079) in PennyLane. Analytic expectation
+  values can still be computed by setting `shots=None`.
+  [(#21)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/21)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
 
+Maria Schuld
 
 # Release 0.14.0
 

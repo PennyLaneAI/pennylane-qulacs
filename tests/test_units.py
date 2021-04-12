@@ -24,17 +24,15 @@ class TestDeviceUnits:
     """Unit tests for the plugin."""
 
     @pytest.mark.parametrize(
-        "num_wires, shots, analytic", [(1, 50, True), (2, 184, False), (3, 1, True)]
+        "num_wires, shots", [(1, None), (2, 184), (3, 1)]
     )
-    def test_device_attributes(self, num_wires, shots, analytic):
+    def test_device_attributes(self, num_wires, shots):
         """Test that attributes are set as expected."""
-        dev = QulacsDevice(wires=num_wires, shots=shots, analytic=analytic)
+        dev = QulacsDevice(wires=num_wires, shots=shots)
 
         assert dev.num_wires == num_wires
         assert dev.shots == shots
-        assert dev.analytic == analytic
         assert dev._samples is None
-        assert dev.circuit_hash is None
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
         assert dev._capabilities["inverse_operations"]
