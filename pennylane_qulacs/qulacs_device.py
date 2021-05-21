@@ -64,6 +64,26 @@ def _reverse_state(state_vector):
     return reversed_state
 
 
+def _transpose_state_for_wires(state_vector, wires):
+    """Transpose state vector if the wires are in non-consecutive order
+
+    Note, this also reverses the state, same as `_reverse_state()`.
+
+    Args:
+        state_vector (iterable[complex]): vector containing the amplitudes
+        wires (Wires): wires that get initialized in the state
+
+    Returns:
+        array[complex]: transposed array
+
+    """
+    wire_order = np.array(wires).argsort().argsort()[::-1]
+
+    N = int(math.log2(len(state_vector)))
+    transposed_vector = np.reshape(state_vector, [2] * N).transpose(*wire_order)
+    return transposed_vector.flatten()
+
+
 # tolerance for numerical errors
 tolerance = 1e-10
 
@@ -174,7 +194,7 @@ class QulacsDevice(QubitDevice):
 
     def _apply_qubit_state_vector(self, op):
         """Initialize state with a state vector"""
-        wires = op.wires
+        wires = self.map_wires(op.wires)
         input_state = op.parameters[0]
 
         if len(input_state) != 2 ** len(wires):
@@ -184,7 +204,7 @@ class QulacsDevice(QubitDevice):
         if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
             raise ValueError("Sum of amplitudes-squared does not equal one.")
 
-        input_state = _reverse_state(input_state)
+        input_state = _transpose_state_for_wires(input_state, wires)
 
         # call qulacs' state initialization
         self._state.load(input_state)

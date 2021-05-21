@@ -256,7 +256,7 @@ class TestStateApply:
 
     def test_apply_errors_qubit_state_vector(self):
         """Test that apply fails for incorrect state preparation."""
-        dev = QulacsDevice(1)
+        dev = QulacsDevice(2)
 
         with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])

@@ -6,6 +6,9 @@
 
 ### Bug fixes
 
+Fixes an issue when the wrong results are returned when passing non-consecutive wires to `QubitStateVector`.
+[(#25)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/25)
+
 ### Breaking changes
 
 ### Documentation
@@ -13,6 +16,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Theodor Isacsson
 
 # Release 0.15.0
 
