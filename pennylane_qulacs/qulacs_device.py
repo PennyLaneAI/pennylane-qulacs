@@ -223,7 +223,6 @@ class QulacsDevice(QubitDevice):
 
         # translate from PennyLane to Qulacs wire order
         bits = np.zeros(self.num_wires, dtype=int)
-        print(bits, wires)
         bits[wires] = par[0]
         bits = bits[::-1]
 
