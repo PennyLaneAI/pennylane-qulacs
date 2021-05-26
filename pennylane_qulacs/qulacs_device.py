@@ -216,15 +216,16 @@ class QulacsDevice(QubitDevice):
 
         n_basis_state = len(par[0])
 
-        # translate from PennyLane to Qulacs wire order
-        bits = np.zeros(self.num_wires, dtype=int)
-        bits[wires] = par[0]
-        bits = bits[::-1]
-
-        if not set(bits).issubset({0, 1}):
+        if not set(par[0]).issubset({0, 1}):
             raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
         if n_basis_state != len(wires):
             raise ValueError("BasisState parameter and wires must be of equal length.")
+
+        # translate from PennyLane to Qulacs wire order
+        bits = np.zeros(self.num_wires, dtype=int)
+        print(bits, wires)
+        bits[wires] = par[0]
+        bits = bits[::-1]
 
         basis_state = 0
         for bit in bits:
