@@ -6,8 +6,11 @@
 
 ### Bug fixes
 
-Fixes an issue when the wrong results are returned when passing non-consecutive wires to `QubitStateVector`.
-[(#25)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/25)
+* Fixed an issue when the wrong results are returned when passing non-consecutive wires to `QubitStateVector`.
+  [(#25)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/25)
+
+* Fixed issue when using a subset of wires with `BasisState`.
+  [(#26)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/26)
 
 ### Breaking changes
 
