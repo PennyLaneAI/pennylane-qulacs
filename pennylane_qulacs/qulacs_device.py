@@ -16,6 +16,7 @@ Base device class for PennyLane-Qulacs.
 """
 from functools import reduce
 import math, cmath
+import itertools as it
 
 import numpy as np
 from scipy.linalg import block_diag
@@ -62,26 +63,6 @@ def _reverse_state(state_vector):
     N = int(math.log2(len(state_vector)))
     reversed_state = state_vector.reshape([2] * N).T.flatten()
     return reversed_state
-
-
-def _transpose_state_for_wires(state_vector, wires):
-    """Transpose state vector if the wires are in non-consecutive order
-
-    Note, this also reverses the state, same as `_reverse_state()`.
-
-    Args:
-        state_vector (iterable[complex]): vector containing the amplitudes
-        wires (Wires): wires that get initialized in the state
-
-    Returns:
-        array[complex]: transposed array
-
-    """
-    wire_order = np.array(wires).argsort().argsort()[::-1]
-
-    N = int(math.log2(len(state_vector)))
-    transposed_vector = np.reshape(state_vector, [2] * N).transpose(*wire_order)
-    return transposed_vector.flatten()
 
 
 # tolerance for numerical errors
@@ -192,6 +173,23 @@ class QulacsDevice(QubitDevice):
             else:
                 self._apply_gate(op)
 
+    def _expand_state(self, state_vector, wires):
+        """Expands state vector to more wires"""
+        basis_states = np.array(list(it.product([0, 1], repeat=len(wires))))
+
+        # get basis states to alter on full set of qubits
+        unravelled_indices = np.zeros((2 ** len(wires), self.num_wires), dtype=int)
+        unravelled_indices[:, wires] = basis_states
+
+        # get indices for which the state is changed to input state vector elements
+        ravelled_indices = np.ravel_multi_index(unravelled_indices.T, [2] * self.num_wires)
+
+        state = np.zeros([2 ** self.num_wires], dtype=np.complex128)
+        state[ravelled_indices] = state_vector
+        state_vector = state.reshape([2] * self.num_wires)
+
+        return state_vector.flatten()
+
     def _apply_qubit_state_vector(self, op):
         """Initialize state with a state vector"""
         wires = self.map_wires(op.wires)
@@ -204,7 +202,9 @@ class QulacsDevice(QubitDevice):
         if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
             raise ValueError("Sum of amplitudes-squared does not equal one.")
 
-        input_state = _transpose_state_for_wires(input_state, wires)
+        if len(wires) != self.num_wires or sorted(wires) != wires:
+            input_state = self._expand_state(input_state, wires)
+        input_state = _reverse_state(input_state)
 
         # call qulacs' state initialization
         self._state.load(input_state)
@@ -214,14 +214,17 @@ class QulacsDevice(QubitDevice):
         wires = op.wires
         par = op.parameters
 
-        # translate from PennyLane to Qulacs wire order
-        bits = par[0][::-1]
-        n_basis_state = len(bits)
+        n_basis_state = len(par[0])
 
-        if not set(bits).issubset({0, 1}):
+        if not set(par[0]).issubset({0, 1}):
             raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
         if n_basis_state != len(wires):
             raise ValueError("BasisState parameter and wires must be of equal length.")
+
+        # translate from PennyLane to Qulacs wire order
+        bits = np.zeros(self.num_wires, dtype=int)
+        bits[wires] = par[0]
+        bits = bits[::-1]
 
         basis_state = 0
         for bit in bits:
