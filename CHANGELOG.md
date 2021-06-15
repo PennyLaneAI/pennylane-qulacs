@@ -1,9 +1,4 @@
-# Release 0.16.0-dev
-
-### New features
-
-### Improvements
-
+# Release 0.16.0
 ### Bug fixes
 
 * Fixed an issue where the wrong results are returned when passing non-consecutive wires to `QubitStateVector`.
@@ -11,10 +6,6 @@
 
 * Fixed issue where a state cannot be loaded into a Qulacs circuit when using a subset of wires with `BasisState`.
   [(#26)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/26)
-
-### Breaking changes
-
-### Documentation
 
 ### Contributors
 
