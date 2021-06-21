@@ -1,4 +1,10 @@
 # Release 0.16.0
+
+### Improvements
+
+* Adds the compatibility tag for Python 3.9.
+  [(#28)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/28)
+  
 ### Bug fixes
 
 * Fixed an issue where the wrong results are returned when passing non-consecutive wires to `QubitStateVector`.
@@ -11,7 +17,7 @@
 
 This release contains contributions from (in alphabetical order):
 
-Theodor Isacsson
+Theodor Isacsson, Romain Moyard
 
 # Release 0.15.0
 
