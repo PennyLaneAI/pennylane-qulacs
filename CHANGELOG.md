@@ -1,4 +1,7 @@
 # Release 0.16.0
+
+### Improvements
+
 * Adds the compatibility tag for Python 3.9.
   [(#28)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/28)
   
