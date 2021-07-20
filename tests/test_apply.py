@@ -262,12 +262,10 @@ class TestStateApply:
     def test_invalid_qubit_state_unitary(self):
         """Test that an exception is raised if the
         unitary matrix is the wrong size"""
-        dev = QulacsDevice(2)
         state = np.array([[0, 123.432], [-0.432, 023.4]])
-        op = qml.QubitUnitary(state, wires=[0, 1])
 
-        with pytest.raises(ValueError, match=r"Unitary matrix must be of shape"):
-            dev.apply([op])
+        with pytest.raises(ValueError, match=r"Input unitary must be of shape"):
+            qml.QubitUnitary(state, wires=[0, 1])
 
     @pytest.mark.parametrize("op, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
