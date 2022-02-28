@@ -184,7 +184,7 @@ class QulacsDevice(QubitDevice):
         # get indices for which the state is changed to input state vector elements
         ravelled_indices = np.ravel_multi_index(unravelled_indices.T, [2] * self.num_wires)
 
-        state = np.zeros([2 ** self.num_wires], dtype=np.complex128)
+        state = np.zeros([2**self.num_wires], dtype=np.complex128)
         state[ravelled_indices] = state_vector
         state_vector = state.reshape([2] * self.num_wires)
 
