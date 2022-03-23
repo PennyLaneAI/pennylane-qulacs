@@ -292,7 +292,7 @@ html_theme_options = {
     "table_header_border": "#19b37b",
     "download_button": "#19b37b",
     # gallery options
-    # "github_repo": "PennyLaneAI/PennyLane",
+    # "github_repo": "PennyLaneAI/PennyLane", 
     # "gallery_dirs": "tutorials",
 }
 
