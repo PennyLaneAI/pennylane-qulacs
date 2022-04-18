@@ -68,42 +68,16 @@ class QrackDevice(QubitDevice):
 
     _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True}
 
-    _operation_map = {
-        "QubitStateVector": None,
-        "BasisState": None,
-        "QubitUnitary": None,
-        "Toffoli": gate.TOFFOLI,
-        "CSWAP": gate.FREDKIN,
-        "CRZ": crz,
-        "SWAP": gate.SWAP,
-        "CNOT": gate.CNOT,
-        "CZ": gate.CZ,
-        "S": gate.S,
-        "T": gate.T,
-        "RX": gate.RX,
-        "RY": gate.RY,
-        "RZ": gate.RZ,
-        "PauliX": gate.X,
-        "PauliY": gate.Y,
-        "PauliZ": gate.Z,
-        "Hadamard": gate.H,
-        "PhaseShift": phase_shift,
-    }
-
     _observable_map = {
-        "PauliX": "X",
-        "PauliY": "Y",
-        "PauliZ": "Z",
-        "Identity": "I",
+        "PauliX": Pauli.PauliX,
+        "PauliY": Pauli.PauliY,
+        "PauliZ": Pauli.PauliZ,
+        "Identity": Pauli.PauliI,
         "Hadamard": None,
         "Hermitian": None,
     }
 
-    operations = _operation_map.keys()
     observables = _observable_map.keys()
-
-    # Add inverse gates to _operation_map
-    _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
 
     def __init__(self, wires, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
