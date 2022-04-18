@@ -27,32 +27,6 @@ from pyqrack import QrackSimulator, Pauli
 
 from . import __version__
 
-# Multi-qubit gates are represented in the convention of Qrack
-# E.g., for a controlled operation the first qubit is the target and the second
-# qubit is the control with consecutive wires
-crz = lambda theta: np.array(
-    [
-        [1, 0, 0, 0],
-        [0, cmath.exp(-1j * theta / 2), 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, cmath.exp(1j * theta / 2)],
-    ]
-)
-
-
-def _reverse_state(state_vector):
-    """Reverse the qubit order for a vector of amplitudes.
-    Args:
-        state_vector (iterable[complex]): vector containing the amplitudes
-    Returns:
-        list[complex]
-    """
-    state_vector = np.array(state_vector)
-    N = int(math.log2(len(state_vector)))
-    reversed_state = state_vector.reshape([2] * N).T.flatten()
-    return reversed_state
-
-
 # tolerance for numerical errors
 tolerance = 1e-10
 
@@ -156,7 +130,6 @@ class QrackDevice(QubitDevice):
 
         if len(wires) != self.num_wires or sorted(wires) != wires:
             input_state = self._expand_state(input_state, wires)
-        input_state = _reverse_state(input_state)
 
         # call qrack' state initialization
         self._state.load(input_state)
@@ -328,7 +301,7 @@ class QrackDevice(QubitDevice):
     @property
     def state(self):
         # returns the state after all operations are applied
-        return _reverse_state(self._state.get_vector())
+        return self._state.get_vector()
 
     def reset(self):
         self._state.reset_all()
