@@ -331,7 +331,7 @@ class QrackDevice(QubitDevice):
         return _reverse_state(self._state.get_vector())
 
     def reset(self):
-        self._state.set_zero_state()
+        self._state.reset_all()
 
         # Dealloc copy before creating a second copy.
         del self._pre_rotated_state
