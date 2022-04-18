@@ -84,15 +84,17 @@ class QrackDevice(QubitDevice):
 
         self._state = QrackSimulator(self.num_wires)
 
-        self._circuit = QuantumCircuit(self.num_wires)
-
-        self._pre_rotated_state = self._state.copy()
+        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
 
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
 
         self.apply_operations(operations)
-        self._pre_rotated_state = self._state.copy()
+
+        # Dealloc copy before creating a second copy.
+        del self._pre_rotated_state
+
+        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
 
         # Rotating the state for measurement in the computational basis
         if rotations:
@@ -199,7 +201,6 @@ class QrackDevice(QubitDevice):
         # reverse wires (could also change par[0])
         reverse_wire_labels = device_wires.tolist()[::-1]
         unitary_gate = gate.DenseMatrix(reverse_wire_labels, par[0])
-        self._circuit.add_gate(unitary_gate)
         unitary_gate.update_quantum_state(self._state)
 
     def _apply_gate(self, op):
@@ -331,5 +332,8 @@ class QrackDevice(QubitDevice):
 
     def reset(self):
         self._state.set_zero_state()
-        self._pre_rotated_state = self._state.copy()
-        self._circuit = QuantumCircuit(self.num_wires)
+
+        # Dealloc copy before creating a second copy.
+        del self._pre_rotated_state
+
+        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
