@@ -12,34 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Base device class for PennyLane-Qulacs.
+Base device class for PennyLane-Qrack.
 """
 from functools import reduce
 import math, cmath
-import itertools as it
 
 import numpy as np
-from scipy.linalg import block_diag
 
 from pennylane import QubitDevice, DeviceError
 from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift
 from pennylane.wires import Wires
 
-import qulacs.gate as gate
-from qulacs import QuantumCircuit, QuantumState, Observable
+from pyqrack import QrackSimulator, Pauli
 
 from . import __version__
 
-
-GPU_SUPPORTED = True
-try:
-    from qulacs import QuantumStateGpu
-except ImportError:
-    GPU_SUPPORTED = False
-
-phase_shift = lambda phi: np.array([[1, 0], [0, cmath.exp(1j * phi)]])
-
-# Multi-qubit gates are represented in the convention of Qulacs
+# Multi-qubit gates are represented in the convention of Qrack
 # E.g., for a controlled operation the first qubit is the target and the second
 # qubit is the control with consecutive wires
 crz = lambda theta: np.array(
@@ -69,15 +57,14 @@ def _reverse_state(state_vector):
 tolerance = 1e-10
 
 
-class QulacsDevice(QubitDevice):
-    """Qulacs device"""
+class QrackDevice(QubitDevice):
+    """Qrack device"""
 
-    name = "Qulacs device"
-    short_name = "qulacs.simulator"
+    name = "Qrack device"
+    short_name = "qrack.simulator"
     pennylane_requires = ">=0.11.0"
     version = __version__
-    author = "Steven Oud and Xanadu"
-    gpu_supported = GPU_SUPPORTED
+    author = "Daniel Strano, adapted from Steven Oud and Xanadu"
 
     _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True}
 
@@ -118,19 +105,10 @@ class QulacsDevice(QubitDevice):
     # Add inverse gates to _operation_map
     _operation_map.update({k + ".inv": v for k, v in _operation_map.items()})
 
-    def __init__(self, wires, shots=None, gpu=False, **kwargs):
+    def __init__(self, wires, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
-        if gpu:
-            if not QulacsDevice.gpu_supported:
-                raise DeviceError(
-                    "GPU not supported with installed version of qulacs. "
-                    "Please install 'qulacs-gpu' to use GPU simulation."
-                )
-
-            self._state = QuantumStateGpu(self.num_wires)
-        else:
-            self._state = QuantumState(self.num_wires)
+        self._state = QrackSimulator(self.num_wires)
 
         self._circuit = QuantumCircuit(self.num_wires)
 
@@ -149,7 +127,7 @@ class QulacsDevice(QubitDevice):
     def apply_operations(self, operations):
         """Apply the circuit operations to the state.
 
-        This method serves as an auxiliary method to :meth:`~.QulacsDevice.apply`.
+        This method serves as an auxiliary method to :meth:`~.QrackDevice.apply`.
 
         Args:
             operations (List[pennylane.Operation]): operations to be applied
@@ -168,8 +146,6 @@ class QulacsDevice(QubitDevice):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
                 self._apply_qubit_unitary(op)
-            elif isinstance(op, (CRZ, PhaseShift)):
-                self._apply_matrix(op)
             else:
                 self._apply_gate(op)
 
@@ -206,7 +182,7 @@ class QulacsDevice(QubitDevice):
             input_state = self._expand_state(input_state, wires)
         input_state = _reverse_state(input_state)
 
-        # call qulacs' state initialization
+        # call qrack' state initialization
         self._state.load(input_state)
 
     def _apply_basis_state(self, op):
@@ -221,7 +197,7 @@ class QulacsDevice(QubitDevice):
         if n_basis_state != len(wires):
             raise ValueError("BasisState parameter and wires must be of equal length.")
 
-        # translate from PennyLane to Qulacs wire order
+        # translate from PennyLane to Qrack wire order
         bits = np.zeros(self.num_wires, dtype=int)
         bits[wires] = par[0]
         bits = bits[::-1]
@@ -230,7 +206,7 @@ class QulacsDevice(QubitDevice):
         for bit in bits:
             basis_state = (basis_state << 1) | bit
 
-        # call qulacs' basis state initialization
+        # call qrack' basis state initialization
         self._state.set_computational_basis(basis_state)
 
     def _apply_qubit_unitary(self, op):
@@ -251,42 +227,61 @@ class QulacsDevice(QubitDevice):
         self._circuit.add_gate(unitary_gate)
         unitary_gate.update_quantum_state(self._state)
 
-    def _apply_matrix(self, op):
-        """Apply predefined gate-matrix to state (must follow qulacs convention)"""
-        # translate op wire labels to consecutive wire labels used by the device
-        device_wires = self.map_wires(op.wires)
-        par = op.parameters
-
-        mapped_operation = self._operation_map[op.name]
-        if op.inverse:
-            mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
-
-        if callable(mapped_operation):
-            gate_matrix = mapped_operation(*par)
-        else:
-            gate_matrix = mapped_operation
-
-        # gate_matrix is already in correct order => no wire-reversal needed
-        dense_gate = gate.DenseMatrix(device_wires.labels, gate_matrix)
-        self._circuit.add_gate(dense_gate)
-        gate.DenseMatrix(device_wires.labels, gate_matrix).update_quantum_state(self._state)
-
     def _apply_gate(self, op):
-        """Apply native qulacs gate"""
+        """Apply native qrack gate"""
 
         # translate op wire labels to consecutive wire labels used by the device
         device_wires = self.map_wires(op.wires)
         par = op.parameters
 
-        mapped_operation = self._operation_map[op.name]
-        if op.inverse:
-            mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
-
-        # Negating the parameters such that it adheres to qulacs
-        par = np.negative(par)
+        if op.name == "Toffoli" or op.name == "CNOT":
+            self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
+        elif op.name == "CSWAP":
+            self._state.mcswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
+        elif op.name == "CRZ":
+            if op.inverse:
+                par[0] = -par[0]
+            self._state.mcr(Pauli.PauliZ, math.pi * par[0], [device_wires.labels[:-1]], device_wires.labels[-1])
+        elif op.name == "SWAP":
+            self._state.swap(device_wires.labels[0], device_wires.labels[1])
+        elif op.name == "CZ":
+            self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
+        elif op.name == "S":
+            if op.inverse:
+                self._state.adjs(device_wires.labels[0])
+            else:
+                self._state.s(device_wires.labels[0])
+        elif op.name == "T":
+            if op.inverse:
+                self._state.adjt(device_wires.labels[0])
+            else:
+                self._state.t(device_wires.labels[0])
+        elif op.name == "RX":
+            if op.inverse:
+                par[0] = -par[0]
+            self._state.r(Pauli.PauliX, par[0], device_wires.labels[0])
+        elif op.name == "RY":
+            if op.inverse:
+                par[0] = -par[0]
+            self._state.r(Pauli.PauliY, par[0], device_wires.labels[0])
+        elif op.name == "RZ":
+            if op.inverse:
+                par[0] = -par[0]
+            self._state.r(Pauli.PauliZ, par[0], device_wires.labels[0])
+        elif op.name == "X":
+            self._state.x(device_wires.labels[0])
+        elif op.name == "Y":
+            self._state.y(device_wires.labels[0])
+        elif op.name == "Z":
+            self._state.z(device_wires.labels[0])
+        elif op.name == "H":
+            self._state.h(device_wires.labels[0])
+        elif op.name == "PhaseShift":
+            if op.inverse:
+                par[0] = -par[0]
+            self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
 
         # mapped_operation is already in correct order => no wire-reversal needed
-        self._circuit.add_gate(mapped_operation(*device_wires.labels, *par))
         mapped_operation(*device_wires.labels, *par).update_quantum_state(self._state)
 
     @staticmethod
@@ -306,7 +301,7 @@ class QulacsDevice(QubitDevice):
                     inverse_operation = np.conj(mapped_operation(*par)).T
                 else:
                     inverse_operation = np.conj(mapped_operation).T
-            # if mapped_operation is a qulacs.gate and np.conj is applied on it
+            # if mapped_operation is a qrack.gate and np.conj is applied on it
             except TypeError:
                 # else, redefine the operation as the inverse matrix
                 def inverse_operation(*p):
@@ -333,7 +328,7 @@ class QulacsDevice(QubitDevice):
 
     def expval(self, observable, **kwargs):
         if self.shots is None:
-            qulacs_observable = Observable(self.num_wires)
+            qrack_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
                 observables = [self._observable_map[obs] for obs in observable.name]
             else:
@@ -343,8 +338,8 @@ class QulacsDevice(QubitDevice):
                 applied_wires = self.map_wires(observable.wires).tolist()
                 opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
 
-                qulacs_observable.add_operator(1.0, opp)
-                return qulacs_observable.get_expectation_value(self._pre_rotated_state)
+                qrack_observable.add_operator(1.0, opp)
+                return qrack_observable.get_expectation_value(self._pre_rotated_state)
 
             # exact expectation value
             eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
