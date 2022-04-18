@@ -206,8 +206,9 @@ class QrackDevice(QubitDevice):
         for bit in bits:
             basis_state = (basis_state << 1) | bit
 
-        # call qrack' basis state initialization
-        self._state.set_computational_basis(basis_state)
+        for i in range(self.num_wires):
+            if ((basis_state >> i) & 1) != self._state.m(wires[i]):
+                self._state.x(wires[i])
 
     def _apply_qubit_unitary(self, op):
         """Apply unitary to state"""
