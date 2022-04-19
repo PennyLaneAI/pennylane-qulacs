@@ -301,7 +301,7 @@ class QrackDevice(QubitDevice):
     @property
     def state(self):
         # returns the state after all operations are applied
-        return self._state.get_vector()
+        return self._state.dump()
 
     def reset(self):
         self._state.reset_all()
