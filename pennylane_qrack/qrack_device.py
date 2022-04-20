@@ -110,8 +110,7 @@ class QrackDevice(QubitDevice):
                 )
 
             if isinstance(op, QubitStateVector):
-                # self._apply_qubit_state_vector(op)
-                raise NotImplementedError("Qrack does not yet support state vector initialization.")
+                self._apply_qubit_state_vector(op)
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
@@ -152,7 +151,7 @@ class QrackDevice(QubitDevice):
             input_state = self._expand_state(input_state, wires)
 
         # call qrack' state initialization
-        self._state.load(input_state)
+        self._state.in_ket(input_state)
 
     def _apply_basis_state(self, op):
         """Initialize a basis state"""
