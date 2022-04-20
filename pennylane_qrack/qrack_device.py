@@ -16,6 +16,7 @@ Base device class for PennyLane-Qrack.
 """
 from functools import reduce
 import math, cmath
+import itertools as it
 
 import numpy as np
 
@@ -248,9 +249,6 @@ class QrackDevice(QubitDevice):
             if op.inverse:
                 par[0] = -par[0]
             self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
-
-        # mapped_operation is already in correct order => no wire-reversal needed
-        mapped_operation(*device_wires.labels, *par).update_quantum_state(self._state)
 
     @staticmethod
     def _get_inverse_operation(mapped_operation, device_wires, par):

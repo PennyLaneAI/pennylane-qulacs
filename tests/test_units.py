@@ -73,7 +73,7 @@ class TestDeviceUnits:
 
         expected = [0.0] * 16
         expected[0] = 1.0
-        assert np.allclose(dev._state.get_vector(), expected)
+        assert np.allclose(dev._state.dump(), expected)
 
     @pytest.mark.parametrize("obs,args,wires,supported", [
         (qml.PauliX, [], [0], True),
