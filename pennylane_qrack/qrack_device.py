@@ -205,7 +205,7 @@ class QrackDevice(QubitDevice):
         if op.name == "Toffoli" or op.name == "CNOT":
             self._state.mcx(device_wires.labels[1:], device_wires.labels[0])
         elif op.name == "CSWAP":
-            self._state.mcswap(device_wires.labels[2:], device_wires.labels[0], device_wires.labels[1])
+            self._state.cswap(device_wires.labels[2:], device_wires.labels[0], device_wires.labels[1])
         elif op.name == "CRZ":
             if op.inverse:
                 par[0] = -par[0]
