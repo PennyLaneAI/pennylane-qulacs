@@ -38,15 +38,15 @@ class TestDeviceUnits:
         assert dev._capabilities["inverse_operations"]
         assert isinstance(dev._state, QrackSimulator)
 
-    def test_no_gpu_support(self, monkeypatch):
-        """Test that error thrown when gpu set to True but no gpu support found."""
-
-        monkeypatch.setattr(QrackDevice, "gpu_supported", False)
-
-        with pytest.raises(
-            qml.DeviceError, match="GPU not supported with installed version of qrack"
-        ):
-            QrackDevice(3, gpu=True)
+    # def test_no_gpu_support(self, monkeypatch):
+    #     """Test that error thrown when gpu set to True but no gpu support found."""
+    #
+    #     monkeypatch.setattr(QrackDevice, "gpu_supported", False)
+    #
+    #     with pytest.raises(
+    #         qml.DeviceError, match="GPU not supported with installed version of qrack"
+    #     ):
+    #         QrackDevice(3, gpu=True)
 
     @pytest.mark.parametrize(
         "wires, prob",
@@ -73,7 +73,10 @@ class TestDeviceUnits:
 
         expected = [0.0] * 16
         expected[0] = 1.0
-        assert np.allclose(dev._state.dump(), expected)
+        actual = dev._state.dump()
+        for i in range(16):
+            actual[i] = actual[i] * np.conjugate(actual[i])
+        assert np.allclose(actual, expected)
 
     @pytest.mark.parametrize("obs,args,wires,supported", [
         (qml.PauliX, [], [0], True),

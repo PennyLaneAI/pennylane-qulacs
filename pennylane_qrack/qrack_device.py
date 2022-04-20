@@ -175,9 +175,9 @@ class QrackDevice(QubitDevice):
         for bit in bits:
             basis_state = (basis_state << 1) | bit
 
-        for i in range(self.num_wires):
-            if ((basis_state >> i) & 1) != self._state.m(wires[i]):
-                self._state.x(wires[i])
+        for i in range(len(wires.labels)):
+            if ((basis_state >> i) & 1) != self._state.m(wires.labels[i]):
+                self._state.x(wires.labels[i])
 
     def _apply_qubit_unitary(self, op):
         """Apply unitary to state"""
@@ -204,17 +204,17 @@ class QrackDevice(QubitDevice):
         par = op.parameters
 
         if op.name == "Toffoli" or op.name == "CNOT":
-            self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
+            self._state.mcx(device_wires.labels[1:], device_wires.labels[0])
         elif op.name == "CSWAP":
-            self._state.mcswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
+            self._state.mcswap(device_wires.labels[2:], device_wires.labels[0], device_wires.labels[1])
         elif op.name == "CRZ":
             if op.inverse:
                 par[0] = -par[0]
-            self._state.mcr(Pauli.PauliZ, math.pi * par[0], [device_wires.labels[:-1]], device_wires.labels[-1])
+            self._state.mcr(Pauli.PauliZ, math.pi * par[0], [device_wires.labels[1:]], device_wires.labels[0])
         elif op.name == "SWAP":
             self._state.swap(device_wires.labels[0], device_wires.labels[1])
         elif op.name == "CZ":
-            self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
+            self._state.mcz(device_wires.labels[1:], device_wires.labels[0])
         elif op.name == "S":
             if op.inverse:
                 self._state.adjs(device_wires.labels[0])
