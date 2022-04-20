@@ -14,24 +14,24 @@
 """Tests that device integrates with PennyLane"""
 import numpy as np
 import pennylane as qml
-from pennylane_qulacs.qulacs_device import QulacsDevice
+from pennylane_qrack.qrack_device import QrackDevice
 
 
 class TestIntegration:
     """Some basic integration tests."""
 
     def test_load_device(self):
-        """Test that the Qulacs device loads correctly."""
-        dev = QulacsDevice(2, shots=int(1e6))
+        """Test that the Qrack device loads correctly."""
+        dev = QrackDevice(2, shots=int(1e6))
 
         assert dev.num_wires == 2
         assert dev.shots == int(1e6)
-        assert dev.short_name == "qulacs.simulator"
+        assert dev.short_name == "qrack.simulator"
         assert "model" in dev.__class__.capabilities()
 
     def test_expectation(self):
         """Test that expectation of a non-trivial circuit is correct."""
-        dev = QulacsDevice(2, shots=int(1e6))
+        dev = QrackDevice(2, shots=int(1e6))
 
         theta = 0.432
         phi = 0.123

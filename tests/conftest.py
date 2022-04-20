@@ -17,7 +17,7 @@ import os
 
 import pennylane as qml
 
-from pennylane_qulacs.qulacs_device import QulacsDevice
+from pennylane_qrack.qrack_device import QrackDevice
 
 
 np.random.seed(42)

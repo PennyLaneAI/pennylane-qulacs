@@ -16,7 +16,7 @@ import re
 from setuptools import setup
 
 
-with open("./pennylane_qulacs/__init__.py") as f:
+with open("./pennylane_qrack/__init__.py") as f:
     (version,) = re.findall('__version__ = "(.*)"', f.read())
 
 
@@ -27,25 +27,25 @@ requirements = [
 ]
 
 extra_requirements = {
-    "cpu": ["qulacs>=0.1.10.1"],
-    "gpu": ["qulacs-gpu>=0.1.10.1"],
+    "cpu": ["pyqrack>=0.11.5"],
+    "gpu": ["pyqrack>=0.11.5"],
 }
 
 info = {
-    "name": "pennylane-qulacs",
+    "name": "pennylane-qrack",
     "version": version,
-    "maintainer": "Xanadu Inc.",
-    "maintainer_email": "software@xanadu.ai",
-    "url": "http://xanadu.ai",
+    "maintainer": "vm6502q",
+    "maintainer_email": "stranoj@gmail.com",
+    "url": "http://github.com/vm6502q",
     "license": "Apache License 2.0",
-    "packages": ["pennylane_qulacs"],
+    "packages": ["pennylane_qrack"],
     "entry_points": {
-        "pennylane.plugins": ["qulacs.simulator = pennylane_qulacs.qulacs_device:QulacsDevice"]
+        "pennylane.plugins": ["qrack.simulator = pennylane_qrack.qrack_device:QrackDevice"]
     },
-    "description": "PennyLane plugin for Qulacs.",
+    "description": "PennyLane plugin for Qrack.",
     "long_description": open("README.rst").read(),
     "long_description_content_type": "text/x-rst",
-    "provides": ["pennylane_qulacs"],
+    "provides": ["pennylane_qrack"],
     "install_requires": requirements,
     "extras_require": extra_requirements,
 }

@@ -17,7 +17,7 @@ import pytest
 import numpy as np
 import pennylane as qml
 from scipy.linalg import block_diag
-from pennylane_qulacs.qulacs_device import QulacsDevice
+from pennylane_qrack.qrack_device import QrackDevice
 
 from conftest import U, U2, A
 
@@ -123,7 +123,7 @@ class TestStateApply:
     )
     def test_basis_state(self, state, tol):
         """Test basis state initialization"""
-        dev = QulacsDevice(4)
+        dev = QrackDevice(4)
 
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
@@ -149,7 +149,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op_wires", [[0, 1], [1, 0], [2, 0]])
     def test_basis_state_on_wires_subset(self, state, device_wires, op_wires, tol):
         """Test basis state initialization on a subset of device wires"""
-        dev = QulacsDevice(device_wires)
+        dev = QrackDevice(device_wires)
 
         op = qml.BasisState(state, wires=op_wires)
         dev.apply([op])
@@ -165,7 +165,7 @@ class TestStateApply:
 
     def test_qubit_state_vector(self, init_state, tol):
         """Test QubitStateVector application"""
-        dev = QulacsDevice(1)
+        dev = QrackDevice(1)
         state = init_state(1)
 
         op = qml.QubitStateVector(state, wires=[0])
@@ -180,7 +180,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
     def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, tol):
         """Test QubitStateVector application on a subset of device wires"""
-        dev = QulacsDevice(device_wires)
+        dev = QrackDevice(device_wires)
         state = init_state(len(op_wires))
 
         op = qml.QubitStateVector(state, wires=op_wires)
@@ -195,7 +195,7 @@ class TestStateApply:
     def test_invalid_qubit_state_vector(self):
         """Test that an exception is raised if the state
         vector is the wrong size"""
-        dev = QulacsDevice(2)
+        dev = QrackDevice(2)
         state = np.array([0, 123.432])
 
         with pytest.raises(ValueError, match=r"State vector must be of length 2\*\*wires"):
@@ -205,7 +205,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,mat", single_qubit)
     def test_single_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
-        dev = QulacsDevice(1)
+        dev = QrackDevice(1)
         state = init_state(1)
 
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
@@ -219,7 +219,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", single_qubit_param)
     def test_single_qubit_parameters(self, init_state, op, func, theta, tol):
         """Test PauliX application"""
-        dev = QulacsDevice(1)
+        dev = QrackDevice(1)
         state = init_state(1)
 
         op.data = [theta]
@@ -233,7 +233,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op, mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
-        dev = QulacsDevice(2)
+        dev = QrackDevice(2)
         state = init_state(2)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
@@ -248,7 +248,7 @@ class TestStateApply:
         """Test QubitUnitary application"""
 
         N = int(np.log2(len(mat)))
-        dev = QulacsDevice(N)
+        dev = QrackDevice(N)
         state = init_state(N)
 
         op = qml.QubitUnitary(mat, wires=list(range(N)))
@@ -269,7 +269,7 @@ class TestStateApply:
 
     @pytest.mark.parametrize("op, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
-        dev = QulacsDevice(3)
+        dev = QrackDevice(3)
         state = init_state(3)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
@@ -283,7 +283,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", two_qubit_param)
     def test_two_qubit_parameters(self, init_state, op, func, theta, tol):
         """Test parametrized two qubit gates application"""
-        dev = QulacsDevice(2)
+        dev = QrackDevice(2)
         state = init_state(2)
 
         op.data = [theta]
@@ -297,7 +297,7 @@ class TestStateApply:
 
     def test_apply_errors_qubit_state_vector(self):
         """Test that apply fails for incorrect state preparation."""
-        dev = QulacsDevice(2)
+        dev = QrackDevice(2)
 
         with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
@@ -310,7 +310,7 @@ class TestStateApply:
         with pytest.raises(
             qml.DeviceError,
             match="Operation QubitStateVector cannot be used after other Operations have already been applied "
-            "on a qulacs.simulator device.",
+            "on a qrack.simulator device.",
         ):
             dev.reset()
             dev.apply(
@@ -319,7 +319,7 @@ class TestStateApply:
 
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
-        dev = QulacsDevice(1)
+        dev = QrackDevice(1)
 
         with pytest.raises(
             ValueError, match="BasisState parameter must consist of 0 or 1 integers."
@@ -335,7 +335,7 @@ class TestStateApply:
         with pytest.raises(
             qml.DeviceError,
             match="Operation BasisState cannot be used after other Operations have already been applied "
-            "on a qulacs.simulator device.",
+            "on a qrack.simulator device.",
         ):
             dev.apply([qml.RZ(0.5, wires=[0]), qml.BasisState(np.array([1, 1]), wires=[0, 1])])
 
@@ -355,7 +355,7 @@ class TestStateApply:
 )
 def test_expand_state(state, op_wires, device_wires, expected, tol):
     """Test that the expand_state method works as expected."""
-    dev = QulacsDevice(device_wires)
+    dev = QrackDevice(device_wires)
     res = dev._expand_state(state, op_wires)
 
     assert np.allclose(res, expected, tol)

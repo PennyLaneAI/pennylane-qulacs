@@ -52,6 +52,24 @@ class QrackDevice(QubitDevice):
     }
 
     observables = _observable_map.keys()
+    operations = {
+        "Toffoli",
+        "CSWAP",
+        "CRZ",
+        "SWAP",
+        "CNOT",
+        "CZ",
+        "S",
+        "T",
+        "RX",
+        "RY",
+        "RZ",
+        "PauliX",
+        "PauliY",
+        "PauliZ",
+        "Hadamard",
+        "PhaseShift"
+    }
 
     def __init__(self, wires, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
@@ -91,7 +109,8 @@ class QrackDevice(QubitDevice):
                 )
 
             if isinstance(op, QubitStateVector):
-                self._apply_qubit_state_vector(op)
+                # self._apply_qubit_state_vector(op)
+                raise NotImplementedError("Qrack does not yet support state vector initialization.")
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
@@ -277,7 +296,6 @@ class QrackDevice(QubitDevice):
 
     def expval(self, observable, **kwargs):
         if self.shots is None:
-            qrack_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
                 observables = [self._observable_map[obs] for obs in observable.name]
             else:
@@ -287,8 +305,7 @@ class QrackDevice(QubitDevice):
                 applied_wires = self.map_wires(observable.wires).tolist()
                 opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
 
-                qrack_observable.add_operator(1.0, opp)
-                return qrack_observable.get_expectation_value(self._pre_rotated_state)
+                return self._pre_rotated_state.measure_pauli(observables, list(range(self.num_wires)))
 
             # exact expectation value
             eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)

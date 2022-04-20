@@ -16,8 +16,8 @@ import pytest
 
 import numpy as np
 import pennylane as qml
-from pennylane_qulacs.qulacs_device import QulacsDevice
-from qulacs import QuantumState, QuantumCircuit, Observable
+from pennylane_qrack.qrack_device import QrackDevice
+from pyqrack import QrackSimulator
 
 
 class TestDeviceUnits:
@@ -28,7 +28,7 @@ class TestDeviceUnits:
     )
     def test_device_attributes(self, num_wires, shots):
         """Test that attributes are set as expected."""
-        dev = QulacsDevice(wires=num_wires, shots=shots)
+        dev = QrackDevice(wires=num_wires, shots=shots)
 
         assert dev.num_wires == num_wires
         assert dev.shots == shots
@@ -36,18 +36,17 @@ class TestDeviceUnits:
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
         assert dev._capabilities["inverse_operations"]
-        assert isinstance(dev._state, QuantumState)
-        assert isinstance(dev._circuit, QuantumCircuit)
+        assert isinstance(dev._state, QrackSimulator)
 
     def test_no_gpu_support(self, monkeypatch):
         """Test that error thrown when gpu set to True but no gpu support found."""
 
-        monkeypatch.setattr(QulacsDevice, "gpu_supported", False)
+        monkeypatch.setattr(QrackDevice, "gpu_supported", False)
 
         with pytest.raises(
-            qml.DeviceError, match="GPU not supported with installed version of qulacs"
+            qml.DeviceError, match="GPU not supported with installed version of qrack"
         ):
-            QulacsDevice(3, gpu=True)
+            QrackDevice(3, gpu=True)
 
     @pytest.mark.parametrize(
         "wires, prob",
@@ -55,7 +54,7 @@ class TestDeviceUnits:
     )
     def test_analytic_probability(self, wires, prob, tol):
         """Test the analytic_probability() function."""
-        dev = QulacsDevice(4)
+        dev = QrackDevice(4)
         state = np.array((0, 1, 0, 1))
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
@@ -66,7 +65,7 @@ class TestDeviceUnits:
 
     def test_reset(self, tol):
         """Test the reset() function."""
-        dev = QulacsDevice(4)
+        dev = QrackDevice(4)
         state = np.array((0, 1, 0, 1))
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
@@ -75,7 +74,6 @@ class TestDeviceUnits:
         expected = [0.0] * 16
         expected[0] = 1.0
         assert np.allclose(dev._state.get_vector(), expected)
-        assert QuantumCircuit(4).calculate_depth() == 0
 
     @pytest.mark.parametrize("obs,args,wires,supported", [
         (qml.PauliX, [], [0], True),
@@ -90,8 +88,8 @@ class TestDeviceUnits:
         (lambda wires: qml.PauliZ(wires[0]) @ qml.PauliY(wires[1]), [], [0, 1], True)
         ])
     def test_expval_hadamard(self, obs, args, wires, supported, mocker):
-        """Test that QulacsDevice.expval() uses native calculations when possible"""
-        dev = QulacsDevice(4)
+        """Test that QrackDevice.expval() uses native calculations when possible"""
+        dev = QrackDevice(4)
 
         spy = mocker.spy(dev, "probability")
         dev.expval(obs(*args, wires=wires))
