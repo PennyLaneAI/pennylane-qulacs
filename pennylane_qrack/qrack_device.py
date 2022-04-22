@@ -17,6 +17,7 @@ Base device class for PennyLane-Qrack.
 from collections import OrderedDict
 from functools import reduce
 import cmath, math
+import os
 import itertools as it
 
 import numpy as np
@@ -255,13 +256,14 @@ class QrackDevice(QubitDevice):
         all_probs = _reverse_state(self._abs(self.state) ** 2)
         prob = self.marginal_prob(all_probs, wires)
 
-        tot_prob = 0
-        for p in prob:
-            tot_prob = tot_prob + p
+        if (not "QRACK_FPPOW" in os.environ) or (6 > int(os.environ.get('QRACK_FPPOW'))):
+            tot_prob = 0
+            for p in prob:
+                tot_prob = tot_prob + p
 
-        if tot_prob != 1.:
-            for i in range(len(prob)):
-                prob[i] = prob[i] / tot_prob
+            if tot_prob != 1.:
+                for i in range(len(prob)):
+                    prob[i] = prob[i] / tot_prob
 
         return prob
 
