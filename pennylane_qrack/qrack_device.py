@@ -158,19 +158,19 @@ class QrackDevice(QubitDevice):
     def _apply_basis_state(self, op):
         """Initialize a basis state"""
         wires = op.wires
-        par = op.parameters
+        par = op.parameters[0]
+        wire_count = len(wires)
+        n_basis_state = len(par)
 
-        n_basis_state = len(par[0])
-
-        if not set(par[0]).issubset({0, 1}):
+        if not set(par).issubset({0, 1}):
             raise ValueError("BasisState parameter must consist of 0 or 1 integers.")
-        if n_basis_state != len(wires):
+        if n_basis_state != wire_count:
             raise ValueError("BasisState parameter and wires must be of equal length.")
 
-        wire_count = len(wires.labels)
         for i in range(wire_count):
-            if ((par[0][wire_count - (i + 1)]) & 1) != self._state.m(wires.labels[i]):
-                self._state.x(wires.labels[i])
+            index = (self.num_wires - 1) - wires.labels[i]
+            if par[i] != self._state.m(index):
+                self._state.x(index)
 
     def _apply_gate(self, op):
         """Apply native qrack gate"""
