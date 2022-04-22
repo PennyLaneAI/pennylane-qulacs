@@ -65,7 +65,7 @@ or applications built on PennyLane.
 Authors
 =======
 
-PennyLane-Qrack has been directly adapted from PennyLane-Qulacs, by Daniel Strano. PennyLane-Qulacs is the work of `many contributors <https://github.com/PennyLaneAI/pennylane-qulacs/graphs/contributors>`__.
+PennyLane-Qrack has been directly adapted by Daniel Strano from PennyLane-Qulacs. PennyLane-Qulacs is the work of `many contributors <https://github.com/PennyLaneAI/pennylane-qulacs/graphs/contributors>`__.
 
 If you are doing research using PennyLane and PennyLane-Qulacs, please cite `their paper <https://arxiv.org/abs/1811.04968>`__:
 
