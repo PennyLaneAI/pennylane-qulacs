@@ -165,17 +165,9 @@ class QrackDevice(QubitDevice):
         if n_basis_state != len(wires):
             raise ValueError("BasisState parameter and wires must be of equal length.")
 
-        # translate from PennyLane to Qrack wire order
-        bits = np.zeros(self.num_wires, dtype=int)
-        bits[wires] = par[0]
-        bits = bits[::-1]
-
-        basis_state = 0
-        for bit in bits:
-            basis_state = (basis_state << 1) | bit
-
-        for i in range(len(wires.labels)):
-            if ((basis_state >> i) & 1) != self._state.m(wires.labels[i]):
+        wire_count = len(wires.labels)
+        for i in range(wire_count):
+            if ((par[0][wire_count - (i + 1)]) & 1) != self._state.m(wires.labels[i]):
                 self._state.x(wires.labels[i])
 
     def _apply_qubit_unitary(self, op):
