@@ -198,52 +198,54 @@ class QrackDevice(QubitDevice):
         device_wires = self.map_wires(op.wires)
         par = op.parameters
 
-        if op.name == "Toffoli" or op.name == "CNOT":
-            self._state.mcx(device_wires.labels[1:], device_wires.labels[0])
-        elif op.name == "CSWAP":
-            self._state.cswap(device_wires.labels[2:], device_wires.labels[0], device_wires.labels[1])
+        if op.name == "Toffoli" or op.name == "Toffoli.inv" or op.name == "CNOT" or op.name == "CNOT.inv":
+            self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
+        elif op.name == "CSWAP" or op.name == "CSWAP.inv":
+            self._state.cswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
         elif op.name == "CRZ":
-            if op.inverse:
-                par[0] = -par[0]
-            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[1:], device_wires.labels[0])
-        elif op.name == "SWAP":
+            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
+        elif op.name == "CRZ.inv":
+            self._state.mcr(Pauli.PauliZ, -par[0], device_wires.labels[:-1], device_wires.labels[-1])
+        elif op.name == "SWAP" or op.name == "SWAP.inv":
             self._state.swap(device_wires.labels[0], device_wires.labels[1])
-        elif op.name == "CZ":
-            self._state.mcz(device_wires.labels[1:], device_wires.labels[0])
+        elif op.name == "CZ" or op.name == "CZ.inv":
+            self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
         elif op.name == "S":
-            if op.inverse:
-                self._state.adjs(device_wires.labels[0])
-            else:
-                self._state.s(device_wires.labels[0])
+            self._state.s(device_wires.labels[0])
+        elif op.name == "S.inv":
+            self._state.adjs(device_wires.labels[0])
         elif op.name == "T":
-            if op.inverse:
-                self._state.adjt(device_wires.labels[0])
-            else:
-                self._state.t(device_wires.labels[0])
+            self._state.t(device_wires.labels[0])
+        elif op.name == "T.inv":
+            self._state.adjt(device_wires.labels[0])
         elif op.name == "RX":
-            if op.inverse:
-                par[0] = -par[0]
             self._state.r(Pauli.PauliX, par[0], device_wires.labels[0])
+        elif op.name == "RX.inv":
+            self._state.r(Pauli.PauliX, -par[0], device_wires.labels[0])
         elif op.name == "RY":
-            if op.inverse:
-                par[0] = -par[0]
             self._state.r(Pauli.PauliY, par[0], device_wires.labels[0])
+        elif op.name == "RY.inv":
+            self._state.r(Pauli.PauliY, -par[0], device_wires.labels[0])
         elif op.name == "RZ":
-            if op.inverse:
-                par[0] = -par[0]
             self._state.r(Pauli.PauliZ, par[0], device_wires.labels[0])
-        elif op.name == "X":
+        elif op.name == "RZ.inv":
+            self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[0])
+        elif op.name == "PauliX" or op.name == "PauliX.inv":
             self._state.x(device_wires.labels[0])
-        elif op.name == "Y":
+        elif op.name == "PauliY" or op.name == "PauliY.inv":
             self._state.y(device_wires.labels[0])
-        elif op.name == "Z":
+        elif op.name == "PauliZ" or op.name == "PauliZ.inv":
             self._state.z(device_wires.labels[0])
-        elif op.name == "H":
+        elif op.name == "Hadamard" or op.name == "Hadamard.inv":
             self._state.h(device_wires.labels[0])
         elif op.name == "PhaseShift":
-            if op.inverse:
-                par[0] = -par[0]
             self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
+        elif op.name == "PhaseShift.inv":
+            self._state.mtrx([1, 0, 0, cmath.exp(1j * -par[0])], device_wires.labels[0])
+        else:
+            raise DeviceError(
+                "Operation {} is not supported on a {} device.".format(op.name, self.short_name)
+            )
 
     def analytic_probability(self, wires=None):
         """Return the (marginal) analytic probability of each computational basis state."""
@@ -252,6 +254,15 @@ class QrackDevice(QubitDevice):
 
         all_probs = _reverse_state(self._abs(self.state) ** 2)
         prob = self.marginal_prob(all_probs, wires)
+
+        tot_prob = 0
+        for p in prob:
+            tot_prob = tot_prob + p
+
+        if tot_prob != 1.:
+            for i in range(len(prob)):
+                prob[i] = prob[i] / tot_prob
+
         return prob
 
     def expval(self, observable, **kwargs):

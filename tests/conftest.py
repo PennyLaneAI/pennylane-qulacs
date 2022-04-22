@@ -45,7 +45,7 @@ A = np.array([[1.02789352, 1.61296440 - 0.3498192j], [1.61296440 + 0.3498192j, 1
 # pytest fixtures
 
 
-TOL = 1e-6
+TOL = 1e-5
 
 
 @pytest.fixture(scope="session")
