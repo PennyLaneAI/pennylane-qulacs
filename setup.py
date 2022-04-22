@@ -24,12 +24,8 @@ requirements = [
     "pennylane>=0.15",
     "numpy",
     "scipy",
+    "pyqrack>=0.12.1"
 ]
-
-extra_requirements = {
-    "cpu": ["pyqrack>=0.11.5"],
-    "gpu": ["pyqrack>=0.11.5"],
-}
 
 info = {
     "name": "pennylane-qrack",
@@ -46,8 +42,7 @@ info = {
     "long_description": open("README.rst").read(),
     "long_description_content_type": "text/x-rst",
     "provides": ["pennylane_qrack"],
-    "install_requires": requirements,
-    "extras_require": extra_requirements,
+    "install_requires": requirements
 }
 
 classifiers = [
