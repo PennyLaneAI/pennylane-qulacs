@@ -15,7 +15,7 @@
 Base device class for PennyLane-Qrack.
 """
 from functools import reduce
-import math, cmath
+import cmath
 import itertools as it
 
 import numpy as np
@@ -114,7 +114,9 @@ class QrackDevice(QubitDevice):
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
-                self._apply_qubit_unitary(op)
+                raise DeviceError(
+                    "Operation {} is not supported on a {} device.".format(op.name, self.short_name)
+                )
             else:
                 self._apply_gate(op)
 
@@ -170,23 +172,6 @@ class QrackDevice(QubitDevice):
             if ((par[0][wire_count - (i + 1)]) & 1) != self._state.m(wires.labels[i]):
                 self._state.x(wires.labels[i])
 
-    def _apply_qubit_unitary(self, op):
-        """Apply unitary to state"""
-        # translate op wire labels to consecutive wire labels used by the device
-        device_wires = self.map_wires(op.wires)
-        par = op.parameters
-
-        if len(par[0]) != 2 ** len(device_wires):
-            raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
-
-        if op.inverse:
-            par[0] = par[0].conj().T
-
-        # reverse wires (could also change par[0])
-        reverse_wire_labels = device_wires.tolist()[::-1]
-        unitary_gate = gate.DenseMatrix(reverse_wire_labels, par[0])
-        unitary_gate.update_quantum_state(self._state)
-
     def _apply_gate(self, op):
         """Apply native qrack gate"""
 
@@ -201,7 +186,7 @@ class QrackDevice(QubitDevice):
         elif op.name == "CRZ":
             if op.inverse:
                 par[0] = -par[0]
-            self._state.mcr(Pauli.PauliZ, math.pi * par[0], [device_wires.labels[1:]], device_wires.labels[0])
+            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[1:], device_wires.labels[0])
         elif op.name == "SWAP":
             self._state.swap(device_wires.labels[0], device_wires.labels[1])
         elif op.name == "CZ":
@@ -240,39 +225,6 @@ class QrackDevice(QubitDevice):
             if op.inverse:
                 par[0] = -par[0]
             self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
-
-    @staticmethod
-    def _get_inverse_operation(mapped_operation, device_wires, par):
-        """Return the inverse of an operation"""
-
-        if mapped_operation is None:
-            return mapped_operation
-
-        # if an inverse variant of the operation exists
-        try:
-            inverse_operation = getattr(gate, mapped_operation.get_name() + "dag")
-        except AttributeError:
-            # if the operation is hard-coded
-            try:
-                if callable(mapped_operation):
-                    inverse_operation = np.conj(mapped_operation(*par)).T
-                else:
-                    inverse_operation = np.conj(mapped_operation).T
-            # if mapped_operation is a qrack.gate and np.conj is applied on it
-            except TypeError:
-                # else, redefine the operation as the inverse matrix
-                def inverse_operation(*p):
-                    # embed the gate in a unitary matrix with shape (2**wires, 2**wires)
-                    g = mapped_operation(*p).get_matrix()
-                    mat = reduce(np.kron, [np.eye(2)] * len(device_wires)).astype(complex)
-                    mat[-len(g) :, -len(g) :] = g
-
-                    # mat follows PL convention => reverse wire-order
-                    reverse_wire_labels = device_wires.tolist()[::-1]
-                    gate_mat = gate.DenseMatrix(reverse_wire_labels, np.conj(mat).T)
-                    return gate_mat
-
-        return inverse_operation
 
     def analytic_probability(self, wires=None):
         """Return the (marginal) analytic probability of each computational basis state."""

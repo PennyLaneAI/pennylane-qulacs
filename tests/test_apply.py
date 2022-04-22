@@ -243,21 +243,21 @@ class TestStateApply:
         expected = mat @ state
         assert np.allclose(res, expected, tol)
 
-    @pytest.mark.parametrize("mat", [U, U2])
-    def test_qubit_unitary(self, init_state, mat, tol):
-        """Test QubitUnitary application"""
-
-        N = int(np.log2(len(mat)))
-        dev = QrackDevice(N)
-        state = init_state(N)
-
-        op = qml.QubitUnitary(mat, wires=list(range(N)))
-        dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
-        dev._obs_queue = []
-
-        res = dev.state
-        expected = mat @ state
-        assert np.allclose(res, expected, tol)
+    # @pytest.mark.parametrize("mat", [U, U2])
+    # def test_qubit_unitary(self, init_state, mat, tol):
+    #     """Test QubitUnitary application"""
+    #
+    #     N = int(np.log2(len(mat)))
+    #     dev = QrackDevice(N)
+    #     state = init_state(N)
+    #
+    #     op = qml.QubitUnitary(mat, wires=list(range(N)))
+    #     dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
+    #     dev._obs_queue = []
+    #
+    #     res = dev.state
+    #     expected = mat @ state
+    #     assert np.allclose(res, expected, tol)
 
     def test_invalid_qubit_state_unitary(self):
         """Test that an exception is raised if the
