@@ -14,8 +14,9 @@
 """
 Base device class for PennyLane-Qrack.
 """
+from collections import OrderedDict
 from functools import reduce
-import cmath
+import cmath, math
 import itertools as it
 
 import numpy as np
@@ -31,6 +32,18 @@ from . import __version__
 # tolerance for numerical errors
 tolerance = 1e-10
 
+
+def _reverse_state(state_vector):
+    """Reverse the qubit order for a vector of amplitudes.
+    Args:
+        state_vector (iterable[complex]): vector containing the amplitudes
+    Returns:
+        list[complex]
+    """
+    state_vector = np.array(state_vector)
+    N = int(math.log2(len(state_vector)))
+    reversed_state = state_vector.reshape([2] * N).T.flatten()
+    return reversed_state
 
 class QrackDevice(QubitDevice):
     """Qrack device"""
@@ -78,6 +91,12 @@ class QrackDevice(QubitDevice):
         self._state = QrackSimulator(self.num_wires)
 
         self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
+
+    def define_wire_map(self, wires):
+        consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))
+
+        wire_map = zip(wires, consecutive_wires)
+        return OrderedDict(wire_map)
 
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
@@ -139,7 +158,7 @@ class QrackDevice(QubitDevice):
 
     def _apply_qubit_state_vector(self, op):
         """Initialize state with a state vector"""
-        wires = self.map_wires(op.wires)
+        wires = op.wires
         input_state = op.parameters[0]
 
         if len(input_state) != 2 ** len(wires):
@@ -149,7 +168,7 @@ class QrackDevice(QubitDevice):
         if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
             raise ValueError("Sum of amplitudes-squared does not equal one.")
 
-        if len(wires) != self.num_wires or sorted(wires) != wires:
+        if len(wires) != self.num_wires or sorted(wires, reverse=True) != wires:
             input_state = self._expand_state(input_state, wires)
 
         # call qrack' state initialization
@@ -231,7 +250,7 @@ class QrackDevice(QubitDevice):
         if self._state is None:
             return None
 
-        all_probs = self._abs(self.state) ** 2
+        all_probs = _reverse_state(self._abs(self.state) ** 2)
         prob = self.marginal_prob(all_probs, wires)
         return prob
 
