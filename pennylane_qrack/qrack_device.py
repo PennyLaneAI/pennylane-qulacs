@@ -91,8 +91,6 @@ class QrackDevice(QubitDevice):
 
         self._state = QrackSimulator(self.num_wires)
 
-        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
-
     def define_wire_map(self, wires):
         consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))
 
@@ -103,11 +101,6 @@ class QrackDevice(QubitDevice):
         rotations = kwargs.get("rotations", [])
 
         self.apply_operations(operations)
-
-        # Dealloc copy before creating a second copy.
-        del self._pre_rotated_state
-
-        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
 
         # Rotating the state for measurement in the computational basis
         if rotations:
@@ -277,8 +270,9 @@ class QrackDevice(QubitDevice):
             if None not in observables:
                 applied_wires = self.map_wires(observable.wires).tolist()
                 opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
+                state_copy = QrackSimulator(cloneSid = self._state.sid)
 
-                return self._pre_rotated_state.measure_pauli(observables, list(range(self.num_wires)))
+                return state_copy.measure_pauli(observables, list(range(self.num_wires)))
 
             # exact expectation value
             eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
@@ -295,8 +289,3 @@ class QrackDevice(QubitDevice):
 
     def reset(self):
         self._state.reset_all()
-
-        # Dealloc copy before creating a second copy.
-        del self._pre_rotated_state
-
-        self._pre_rotated_state = QrackSimulator(cloneSid = self._state.sid)
