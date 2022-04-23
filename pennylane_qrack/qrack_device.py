@@ -33,7 +33,6 @@ from . import __version__
 # tolerance for numerical errors
 tolerance = 1e-10
 
-
 def _reverse_state(state_vector):
     """Reverse the qubit order for a vector of amplitudes.
     Args:
@@ -45,6 +44,7 @@ def _reverse_state(state_vector):
     N = int(math.log2(len(state_vector)))
     reversed_state = state_vector.reshape([2] * N).T.flatten()
     return reversed_state
+
 
 class QrackDevice(QubitDevice):
     """Qrack device"""
@@ -260,13 +260,6 @@ class QrackDevice(QubitDevice):
                 observables = [self._observable_map[obs] for obs in observable.name]
             else:
                 observables = [self._observable_map[observable.name]]
-
-            if None not in observables:
-                applied_wires = self.map_wires(observable.wires).tolist()
-                opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
-                state_copy = QrackSimulator(cloneSid = self._state.sid)
-
-                return state_copy.measure_pauli(observables, list(range(self.num_wires)))
 
             # exact expectation value
             eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
