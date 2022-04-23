@@ -307,19 +307,9 @@ class TestStateApply:
             dev.reset()
             dev.apply([qml.QubitStateVector(p, wires=[0, 1])])
 
-        with pytest.raises(
-            qml.DeviceError,
-            match="Operation QubitStateVector cannot be used after other Operations have already been applied "
-            "on a qrack.simulator device.",
-        ):
-            dev.reset()
-            dev.apply(
-                [qml.RZ(0.5, wires=[0]), qml.QubitStateVector(np.array([0, 1, 0, 0]), wires=[0, 1])]
-            )
-
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
-        dev = QrackDevice(1)
+        dev = QrackDevice(2)
 
         with pytest.raises(
             ValueError, match="BasisState parameter must consist of 0 or 1 integers."
@@ -330,14 +320,6 @@ class TestStateApply:
             ValueError, match="BasisState parameter and wires must be of equal length."
         ):
             dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
-
-        dev.reset()
-        with pytest.raises(
-            qml.DeviceError,
-            match="Operation BasisState cannot be used after other Operations have already been applied "
-            "on a qrack.simulator device.",
-        ):
-            dev.apply([qml.RZ(0.5, wires=[0]), qml.BasisState(np.array([1, 1]), wires=[0, 1])])
 
 
 @pytest.mark.parametrize(

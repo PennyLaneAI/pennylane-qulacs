@@ -116,12 +116,6 @@ class QrackDevice(QubitDevice):
         """
 
         for i, op in enumerate(operations):
-            if i > 0 and isinstance(op, (QubitStateVector, BasisState)):
-                raise DeviceError(
-                    "Operation {} cannot be used after other Operations have already been applied "
-                    "on a {} device.".format(op.name, self.short_name)
-                )
-
             if isinstance(op, QubitStateVector):
                 self._apply_qubit_state_vector(op)
             elif isinstance(op, BasisState):
@@ -170,7 +164,7 @@ class QrackDevice(QubitDevice):
 
     def _apply_basis_state(self, op):
         """Initialize a basis state"""
-        wires = op.wires
+        wires = self.map_wires(Wires(op.wires))
         par = op.parameters[0]
         wire_count = len(wires)
         n_basis_state = len(par)
@@ -181,7 +175,7 @@ class QrackDevice(QubitDevice):
             raise ValueError("BasisState parameter and wires must be of equal length.")
 
         for i in range(wire_count):
-            index = (self.num_wires - 1) - wires.labels[i]
+            index = wires.labels[i]
             if par[i] != self._state.m(index):
                 self._state.x(index)
 
