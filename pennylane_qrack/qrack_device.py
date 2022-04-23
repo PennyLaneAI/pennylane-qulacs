@@ -121,9 +121,11 @@ class QrackDevice(QubitDevice):
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
-                raise DeviceError(
-                    "Operation {} is not supported on a {} device.".format(op.name, self.short_name)
-                )
+                if len(op.wires) > 1:
+                    raise DeviceError(
+                        "Operation {} is not supported on a {} device, except for single wires.".format(op.name, self.short_name)
+                    )
+                self._apply_qubit_unitary(op)
             else:
                 self._apply_gate(op)
 
@@ -234,6 +236,21 @@ class QrackDevice(QubitDevice):
             raise DeviceError(
                 "Operation {} is not supported on a {} device.".format(op.name, self.short_name)
             )
+
+    def _apply_qubit_unitary(self, op):
+        """Apply unitary to state"""
+        # translate op wire labels to consecutive wire labels used by the device
+        device_wires = self.map_wires(op.wires)
+        par = op.parameters
+
+        if len(par[0]) != 2 ** len(device_wires):
+            raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
+
+        if op.inverse:
+            par[0] = par[0].conj().T
+
+        matrix = par[0].flatten().tolist()
+        self._state.mtrx(matrix, device_wires.labels[0])
 
     def analytic_probability(self, wires=None):
         """Return the (marginal) analytic probability of each computational basis state."""
