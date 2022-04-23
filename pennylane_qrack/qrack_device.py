@@ -282,6 +282,18 @@ class QrackDevice(QubitDevice):
         # estimate the ev
         return np.mean(self.sample(observable))
 
+    def generate_samples(self):
+        if self.shots is None:
+            raise qml.QuantumFunctionError(
+                "The number of shots has to be explicitly set on the device "
+                "when using sample-based measurements."
+            )
+
+        samples = np.array(self._state.measure_shots(list(range(self.num_wires - 1, -1, -1)), self.shots))
+        self._samples = QubitDevice.states_to_binary(samples, self.num_wires)
+
+        return self._samples
+
     @property
     def state(self):
         # returns the state after all operations are applied
