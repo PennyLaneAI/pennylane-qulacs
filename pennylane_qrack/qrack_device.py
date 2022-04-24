@@ -83,7 +83,8 @@ class QrackDevice(QubitDevice):
         "PauliY",
         "PauliZ",
         "Hadamard",
-        "PhaseShift"
+        "PhaseShift",
+        "MultiControlledX"
     }
 
     def __init__(self, wires, shots=None, **kwargs):
@@ -188,7 +189,7 @@ class QrackDevice(QubitDevice):
         device_wires = self.map_wires(op.wires)
         par = op.parameters
 
-        if op.name == "Toffoli" or op.name == "Toffoli.inv" or op.name == "CNOT" or op.name == "CNOT.inv":
+        if op.name == "Toffoli" or op.name == "Toffoli.inv" or op.name == "CNOT" or op.name == "CNOT.inv" or op.name == "MultiControlledX" or op.name == "MultiControlledX.inv":
             self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
         elif op.name == "CSWAP" or op.name == "CSWAP.inv":
             self._state.cswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])

@@ -40,6 +40,8 @@ CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 CZ = np.diag([1, 1, 1, -1])
 toffoli = np.diag([1 for i in range(8)])
 toffoli[6:8, 6:8] = np.array([[0, 1], [1, 0]])
+multix4 = np.diag([1 for i in range(16)])
+multix4[14:16, 14:16] = np.array([[0, 1], [1, 0]])
 CSWAP = block_diag(I, I, SWAP)
 
 # parametrized qubit gates
@@ -106,6 +108,10 @@ three_qubit = [
     (qml.CSWAP(wires=[0, 1, 2]), CSWAP),
     (qml.Toffoli(wires=[0, 1, 2]).inv(), toffoli.conj().T),
     (qml.CSWAP(wires=[0, 1, 2]).inv(), CSWAP.conj().T),
+]
+# list of all four-qubit gates
+four_qubit = [
+    (qml.MultiControlledX(wires=[0, 1, 2, 3]), multix4)
 ]
 
 
@@ -273,6 +279,18 @@ class TestStateApply:
         state = init_state(3)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
+        dev._obs_queue = []
+
+        res = dev.state
+        expected = mat @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("op, mat", four_qubit)
+    def test_four_qubit_no_parameters(self, init_state, op, mat, tol):
+        dev = QrackDevice(4)
+        state = init_state(4)
+
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2, 3]), op])
         dev._obs_queue = []
 
         res = dev.state
