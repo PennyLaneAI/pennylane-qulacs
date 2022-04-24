@@ -35,9 +35,11 @@ Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
 S = np.diag([1, 1j])
 T = np.diag([1, np.exp(1j * np.pi / 4)])
+SX = np.array([[(1+1j)/2, (1-1j)/2], [(1-1j)/2, (1+1j)/2]])
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 CZ = np.diag([1, 1, 1, -1])
+ISWAP = np.array([[1, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1]])
 toffoli = np.diag([1 for i in range(8)])
 toffoli[6:8, 6:8] = np.array([[0, 1], [1, 0]])
 multix4 = np.diag([1 for i in range(16)])
@@ -45,18 +47,45 @@ multix4[14:16, 14:16] = np.array([[0, 1], [1, 0]])
 CSWAP = block_diag(I, I, SWAP)
 
 # parametrized qubit gates
-phase_shift = lambda phi: np.array([[1, 0], [0, np.exp(1j * phi)]])
+phase_shift = lambda phi: np.diag([1, np.exp(1j * phi)])
+c_phase_shift = lambda phi: np.diag([1, 1, 1, np.exp(1j * phi)])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
+u2 = lambda phi, delta: np.array([[1, np.exp(1j * delta)], [np.exp(1j * phi), np.exp(1j * (phi + delta))]])
+u3 = lambda theta, phi, delta: np.array([[np.cos(theta / 2), -np.exp(1j * delta) * np.sin(theta / 2)], [np.exp(1j * phi) * np.sin(theta / 2), np.exp(1j * (phi + delta)) * np.cos(theta / 2)]])
 
-# CRZ in the PennyLane convention
+# CRX/CRY/CRZ in the PennyLane convention
+crx = lambda theta: np.array(
+    [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, np.cos(theta / 2), -1j * np.sin(theta / 2)],
+        [0, 0, -1j * np.sin(theta / 2), np.cos(theta / 2)],
+    ]
+)
+cry = lambda theta: np.array(
+    [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, np.cos(theta / 2), -np.sin(theta / 2)],
+        [0, 0, np.sin(theta / 2), np.cos(theta / 2)],
+    ]
+)
 crz = lambda theta: np.array(
     [
         [1, 0, 0, 0],
         [0, 1, 0, 0],
         [0, 0, np.exp(-1j * theta / 2), 0],
         [0, 0, 0, np.exp(1j * theta / 2)],
+    ]
+)
+crot = lambda phi, theta, omega: np.array(
+    [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, np.exp(-0.5j * (phi + omega)) * np.cos(theta / 2), np.exp(0.5j * (phi - omega)) * np.sin(theta / 2)],
+        [0, 0, np.exp(-0.5j * (phi - omega)) * np.sin(theta / 2), np.exp(0.5j * (phi + omega)) * np.cos(theta / 2)]
     ]
 )
 
@@ -69,12 +98,14 @@ single_qubit = [
     (qml.Hadamard(wires=0), H),
     (qml.S(wires=0), S),
     (qml.T(wires=0), T),
+    (qml.SX(wires=0), SX),
     (qml.PauliX(wires=0).inv(), X.conj().T),
     (qml.PauliY(wires=0).inv(), Y.conj().T),
     (qml.PauliZ(wires=0).inv(), Z.conj().T),
     (qml.Hadamard(wires=0).inv(), H.conj().T),
     (qml.S(wires=0).inv(), S.conj().T),
     (qml.T(wires=0).inv(), T.conj().T),
+    (qml.SX(wires=0).inv(), SX.conj().T)
 ]
 
 # list of all parametrized single-qubit gates
@@ -88,19 +119,39 @@ single_qubit_param = [
     (qml.RZ(0, wires=0).inv(), lambda theta: rz(-theta)),
     (qml.PhaseShift(0, wires=0).inv(), lambda theta: phase_shift(-theta)),
 ]
+single_qubit_two_param = [
+    (qml.U2(0, 0, wires=0), u2),
+    (qml.U2(0, 0, wires=0).inv(), lambda phi, delta: u2(-phi, -delta)),
+]
+single_qubit_three_param = [
+    (qml.U3(0, 0, 0, wires=0), u3),
+    (qml.U3(0, 0, 0, wires=0).inv(), lambda theta, phi, delta: u3(-theta, -phi, -delta)),
+]
 # list of all non-parametrized two-qubit gates
 two_qubit = [
     (qml.CNOT(wires=[0, 1]), CNOT),
     (qml.SWAP(wires=[0, 1]), SWAP),
     (qml.CZ(wires=[0, 1]), CZ),
+    (qml.ISWAP(wires=[0, 1]), ISWAP),
     (qml.CNOT(wires=[0, 1]).inv(), CNOT.conj().T),
     (qml.SWAP(wires=[0, 1]).inv(), SWAP.conj().T),
     (qml.CZ(wires=[0, 1]).inv(), CZ.conj().T),
+    (qml.ISWAP(wires=[0, 1]).inv(), ISWAP.conj().T)
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
+    (qml.CRX(0, wires=[0, 1]), crx),
+    (qml.CRY(0, wires=[0, 1]), cry),
     (qml.CRZ(0, wires=[0, 1]), crz),
+    (qml.ControlledPhaseShift(0, wires=[0, 1]), c_phase_shift),
+    (qml.CRX(0, wires=[0, 1]).inv(), lambda theta: crx(-theta)),
+    (qml.CRY(0, wires=[0, 1]).inv(), lambda theta: cry(-theta)),
     (qml.CRZ(0, wires=[0, 1]).inv(), lambda theta: crz(-theta)),
+    (qml.ControlledPhaseShift(0, wires=[0, 1]).inv(), lambda theta: c_phase_shift(-theta))
+]
+two_qubit_three_param = [
+    (qml.CRot(0, 0, 0, wires=[0, 1]), crot),
+    (qml.CRot(0, 0, 0, wires=[0, 1]).inv(), lambda phi, theta, omega: crot(-phi, -theta, -omega)),
 ]
 # list of all three-qubit gates
 three_qubit = [
@@ -111,7 +162,8 @@ three_qubit = [
 ]
 # list of all four-qubit gates
 four_qubit = [
-    (qml.MultiControlledX(wires=[0, 1, 2, 3]), multix4)
+    (qml.MultiControlledX(wires=[0, 1, 2, 3]), multix4),
+    (qml.MultiControlledX(wires=[0, 1, 2, 3]).inv(), multix4.conj().T)
 ]
 
 
@@ -236,6 +288,39 @@ class TestStateApply:
         expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("phi", [0.126, -0.721])
+    @pytest.mark.parametrize("delta", [0.5432, -0.232])
+    @pytest.mark.parametrize("op,func", single_qubit_two_param)
+    def test_single_qubit_two_parameters(self, init_state, op, func, phi, delta, tol):
+        """Test PauliX application"""
+        dev = QrackDevice(1)
+        state = init_state(1)
+
+        op.data = [phi, delta]
+        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
+        dev._obs_queue = []
+
+        res = dev.state
+        expected = func(phi, delta) @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("phi", [0.126, -0.721])
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("omega", [1.213, -0.221])
+    @pytest.mark.parametrize("op,func", single_qubit_three_param)
+    def test_single_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
+        """Test PauliX application"""
+        dev = QrackDevice(1)
+        state = init_state(1)
+
+        op.data = [phi, theta, omega]
+        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
+        dev._obs_queue = []
+
+        res = dev.state
+        expected = func(phi, theta, omega) @ state
+        assert np.allclose(res, expected, tol)
+
     @pytest.mark.parametrize("op, mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
@@ -311,6 +396,24 @@ class TestStateApply:
 
         res = dev.state
         expected = func(theta) @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("phi", [0.126, -0.721])
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("omega", [1.213, -0.221])
+    @pytest.mark.parametrize("op,func", two_qubit_three_param)
+    def test_two_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
+        """Test parametrized two qubit gates application"""
+        dev = QrackDevice(2)
+        state = init_state(2)
+
+        op.data = [phi, theta, omega]
+        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
+
+        dev._obs_queue = []
+
+        res = dev.state
+        expected = func(phi, theta, omega) @ state
         assert np.allclose(res, expected, tol)
 
     def test_apply_errors_qubit_state_vector(self):
