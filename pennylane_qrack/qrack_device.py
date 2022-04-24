@@ -236,11 +236,7 @@ class QrackDevice(QubitDevice):
         elif op.name == "ISWAP":
             self._state.iswap(device_wires.labels[0], device_wires.labels[1])
         elif op.name == "ISWAP.inv":
-            # TODO: Implement in native Qrack
-            self._state.mcx(device_wires.labels[1:], device_wires.labels[0])
-            self._state.adjs(device_wires.labels[0])
-            self._state.mcx(device_wires.labels[1:], device_wires.labels[0])
-            self._state.swap(device_wires.labels[0], device_wires.labels[1])
+            self._state.adjiswap(device_wires.labels[0], device_wires.labels[1])
         elif op.name == "CZ" or op.name == "CZ.inv":
             self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
         elif op.name == "S":
