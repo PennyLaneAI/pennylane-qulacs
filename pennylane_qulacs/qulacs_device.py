@@ -74,7 +74,7 @@ class QulacsDevice(QubitDevice):
 
     name = "Qulacs device"
     short_name = "qulacs.simulator"
-    pennylane_requires = ">=0.24.0"
+    pennylane_requires = ">=0.11.0"
     version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
@@ -347,7 +347,10 @@ class QulacsDevice(QubitDevice):
                 return qulacs_observable.get_expectation_value(self._pre_rotated_state)
 
             # exact expectation value
-            eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
+            if callable(observable.eigvals):
+                eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
+            else:  # older version of pennylane
+                eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
             prob = self.probability(wires=observable.wires)
             return self._dot(eigvals, prob)
 
