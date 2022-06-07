@@ -10,9 +10,14 @@
 
 ### Bug fixes
 
+* Updates the plugin to be compatible with the use of `Operator.eigvals` as a method.
+  [(#35)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/35)
+
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Christina Lee
 
 ---
 
