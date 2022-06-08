@@ -79,7 +79,12 @@ class QulacsDevice(QubitDevice):
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
 
-    _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True, "returns_state": True}
+    _capabilities = {
+        "model": "qubit",
+        "tensor_observables": True,
+        "inverse_operations": True,
+        "returns_state": True,
+    }
 
     _operation_map = {
         "QubitStateVector": None,
