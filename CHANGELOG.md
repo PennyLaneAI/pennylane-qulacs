@@ -6,13 +6,13 @@
 
 ### Improvements
 
-* Defines the `returns_state` entry of the `capabilities` dictionary of the
-  device.
-  [(#36)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/36)
-
 ### Documentation
 
 ### Bug fixes
+
+* Defines the missing `returns_state` entry of the `capabilities` dictionary of
+  the device.
+  [(#36)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/36)
 
 * Updates the plugin to be compatible with the use of `Operator.eigvals` as a method.
   [(#35)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/35)
