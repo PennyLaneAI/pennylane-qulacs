@@ -1,10 +1,14 @@
-# Release 0.17.0-dev
+# Release 0.24.0-dev
 
 ### New features since last release
 
 ### Breaking changes
 
 ### Improvements
+
+* Defines the `returns_state` entry of the `capabilities` dictionary of the
+  device.
+  [(#36)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/36)
 
 ### Documentation
 
@@ -17,7 +21,7 @@
 
 This release contains contributions from (in alphabetical order):
 
-Christina Lee
+Christina Lee, Antal Száva
 
 ---
 
