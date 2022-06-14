@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Top level Pennylane-qulacs plugin"""
+"""Version information.
+   Version number (major.minor.patch[-label])
+"""
+
+__version__ = "0.17.0-dev"
