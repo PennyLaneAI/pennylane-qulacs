@@ -36,6 +36,7 @@ class TestDeviceUnits:
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
         assert dev._capabilities["inverse_operations"]
+        assert dev._capabilities["returns_state"]
         assert isinstance(dev._state, QuantumState)
         assert isinstance(dev._circuit, QuantumCircuit)
 

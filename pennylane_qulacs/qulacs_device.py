@@ -79,7 +79,12 @@ class QulacsDevice(QubitDevice):
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
 
-    _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True}
+    _capabilities = {
+        "model": "qubit",
+        "tensor_observables": True,
+        "inverse_operations": True,
+        "returns_state": True,
+    }
 
     _operation_map = {
         "QubitStateVector": None,
@@ -347,7 +352,10 @@ class QulacsDevice(QubitDevice):
                 return qulacs_observable.get_expectation_value(self._pre_rotated_state)
 
             # exact expectation value
-            eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
+            if callable(observable.eigvals):
+                eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
+            else:  # older version of pennylane
+                eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
             prob = self.probability(wires=observable.wires)
             return self._dot(eigvals, prob)
 
