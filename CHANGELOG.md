@@ -6,6 +6,9 @@
 
 ### Improvements
 
+* Adds the compatibility tag for Python 3.10 and removed it for 3.6.
+  [(#31)](https://github.com/PennyLaneAI/pennylane-sf/pull/31)
+
 ### Documentation
 
 ### Bug fixes
