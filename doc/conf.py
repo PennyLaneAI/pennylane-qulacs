@@ -74,7 +74,7 @@ add_module_names = False
 import pennylane_qulacs
 
 # The full version, including alpha/beta/rc tags.
-release = pennylane_qulacs._version.__version__
+release = pennylane_qulacs.__version__
 
 # The short X.Y version.
 version = re.match(r"^(\d+\.\d+)", release).expand(r"\1")
