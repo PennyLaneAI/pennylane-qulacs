@@ -28,7 +28,7 @@ from pennylane.wires import Wires
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
 
-from . import _version
+from _version import __version__
 
 
 GPU_SUPPORTED = True
@@ -75,7 +75,7 @@ class QulacsDevice(QubitDevice):
     name = "Qulacs device"
     short_name = "qulacs.simulator"
     pennylane_requires = ">=0.11.0"
-    version = _version.__version__
+    version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
 
