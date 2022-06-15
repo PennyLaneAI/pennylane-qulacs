@@ -28,7 +28,7 @@ from pennylane.wires import Wires
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
 
-from . import __version__
+from ._version import __version__
 
 
 GPU_SUPPORTED = True
