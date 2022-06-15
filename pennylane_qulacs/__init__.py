@@ -13,5 +13,4 @@
 # limitations under the License.
 
 """Top level Pennylane-qulacs plugin"""
-from .qulacs_device import *
 from ._version import __version__

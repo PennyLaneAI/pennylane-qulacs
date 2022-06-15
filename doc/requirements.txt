@@ -2,5 +2,4 @@ docutils==0.16
 sphinxcontrib-bibtex
 pygments-github-lexers
 pennylane
-Qulacs>=0.1.10.1
 sphinx-automodapi
