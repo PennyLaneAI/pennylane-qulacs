@@ -1,15 +1,9 @@
-# Release 0.24.0-dev
-
-### New features since last release
-
-### Breaking changes
+# Release 0.24.0
 
 ### Improvements
 
 * Adds the compatibility tag for Python 3.10 and removed it for 3.6.
   [(#31)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/31)
-
-### Documentation
 
 ### Bug fixes
 
