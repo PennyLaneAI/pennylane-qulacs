@@ -14,9 +14,9 @@ PennyLane-Qulacs Plugin
     :alt: CodeFactor Grade
     :target: https://www.codefactor.io/repository/github/pennylaneai/pennylane-qulacs
 
-.. image:: https://img.shields.io/readthedocs/pennylane-qulacs.svg?logo=read-the-docs&style=flat-square
+.. image:: https://readthedocs.com/projects/xanaduai-pennylane-qulacs/badge/?version=latest&style=flat-square
     :alt: Read the Docs
-    :target: https://pennylane-qulacs.readthedocs.io
+    :target: https://docs.pennylane.ai/projects/qulacs
 
 .. image:: https://img.shields.io/pypi/v/PennyLane-qulacs.svg?style=flat-square
     :alt: PyPI
@@ -31,14 +31,14 @@ PennyLane-Qulacs Plugin
 The PennyLane-Qulacs plugin integrates the Qulacs quantum computing framework with PennyLane's
 quantum machine learning capabilities.
 
-`PennyLane <https://pennylane.readthedocs.io>`__ is a cross-platform Python library for quantum machine
+`PennyLane <https://docs.pennylane.ai>`__ is a cross-platform Python library for quantum machine
 learning, automatic differentiation, and optimization of hybrid quantum-classical computations.
 
 `Qulacs <https://github.com/qulacs>`__ is a software library for quantum computing, written in C++ and with GPU support.
 
 .. header-end-inclusion-marker-do-not-remove
 
-The plugin documentation can be found here: `<https://pennylane-qulacs.readthedocs.io/en/latest/>`__.
+The plugin documentation can be found here: `<https://docs.pennylane.ai/projects/qulacs>`__.
 
 Features
 ========
@@ -53,7 +53,7 @@ Benchmarks
 ==========
 
 We ran a 100 executions of 4 layer quantum neural
-network `strongly entangling layer <https://pennylane.readthedocs.io/en/latest/code/api/pennylane.templates.layers.StronglyEntanglingLayers.html>`_
+network `strongly entangling layer <https://docs.pennylane.ai/en/latest/code/api/pennylane.StronglyEntanglingLayers.html>`_
 and compared the runtimes between CPU and GPU.
 
 .. image:: https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png
@@ -132,7 +132,7 @@ PennyLane-Qulacs requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
+* `PennyLane <http://docs.pennylane.ai/>`__ >= 0.9
 * `Qulacs <https://docs.qulacs.org/en/latest/>`__  >= 0.1.9
 
 

@@ -3,3 +3,4 @@ sphinxcontrib-bibtex
 pygments-github-lexers
 pennylane
 sphinx-automodapi
+xanadu-sphinx-theme==0.1.0
