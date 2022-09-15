@@ -28,7 +28,7 @@ from pennylane.wires import Wires
 
 from pyqrack import QrackSimulator, Pauli
 
-from . import __version__
+from ._version import __version__
 
 # tolerance for numerical errors
 tolerance = 1e-10
@@ -55,7 +55,12 @@ class QrackDevice(QubitDevice):
     version = __version__
     author = "Daniel Strano, adapted from Steven Oud and Xanadu"
 
-    _capabilities = {"model": "qubit", "tensor_observables": True, "inverse_operations": True}
+    _capabilities = {
+        "model": "qubit",
+        "tensor_observables": True,
+        "inverse_operations": True,
+        "returns_state": False,
+    }
 
     _observable_map = {
         "PauliX": Pauli.PauliX,
@@ -334,7 +339,7 @@ class QrackDevice(QubitDevice):
                 observables = [self._observable_map[observable.name]]
 
             # exact expectation value
-            eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
+            eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
             prob = self.probability(wires=observable.wires)
             return self._dot(eigvals, prob)
 

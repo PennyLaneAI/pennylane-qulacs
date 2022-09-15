@@ -1,4 +1,4 @@
-# Release 0.17.0-dev
+# Release 0.25.0-dev
 
 ### New features since last release
 
@@ -13,6 +13,29 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+---
+# Release 0.24.0
+
+### Improvements
+
+* Adds the compatibility tag for Python 3.10 and removed it for 3.6.
+  [(#31)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/31)
+
+### Bug fixes
+
+* Defines the missing `returns_state` entry of the `capabilities` dictionary of
+  the device.
+  [(#36)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/36)
+
+* Updates the plugin to be compatible with the use of `Operator.eigvals` as a method.
+  [(#35)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/35)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Christina Lee, Antal Száva
 
 ---
 

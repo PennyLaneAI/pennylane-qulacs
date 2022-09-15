@@ -1,0 +1,30 @@
+name: Automated Release Version Bumps
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  post_release_version_bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Run post-release version bump
+        uses: PennyLaneAI/automation/version_bump_action@main
+        with:
+          version_path: "./pennylane_qulacs/_version.py"
+          changelog_path: "./CHANGELOG.md"
+          release_status: "post_release"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: post release version bump
+          title: Version Bump
+          body: updated changelog and _version.py
+          branch: post-release-version-bump
+          reviewers: rmoyard
+          base: master

@@ -12,5 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""PennyLane-Qrack plugin"""
-from ._version import __version__
+"""Version information.
+   Version number (major.minor.patch[-label])
+"""
+
+__version__ = "0.3.1"

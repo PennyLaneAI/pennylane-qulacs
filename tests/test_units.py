@@ -36,6 +36,7 @@ class TestDeviceUnits:
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
         assert dev._capabilities["inverse_operations"]
+        assert not dev._capabilities["returns_state"]
         assert isinstance(dev._state, QrackSimulator)
 
     # def test_no_gpu_support(self, monkeypatch):
