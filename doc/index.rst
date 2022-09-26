@@ -15,11 +15,11 @@ Devices
 
 Currently, PennyLane-Qulacs provides one Qulacs device for PennyLane:
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'qulacs.simulator'
     :description: Qulacs's simulator backend.
     :link: devices/simulator.html
- 
+
 .. raw:: html
 
         <div style='clear:both'></div>
@@ -39,11 +39,10 @@ Check out these demos to see the PennyLane-Qulacs plugin in action:
 
     <div class="row">
 
-.. demogalleryitem::
+.. title-card::
     :name: Intro to QAOA
-    :figure: https://pennylane.ai/qml/_images/qaoa_layer.png
+    :description: <img src="https://pennylane.ai/qml/_images/qaoa_layer.png" width="100%" />
     :link:  https://pennylane.ai/qml/demos/tutorial_qaoa_intro.html
-    :tooltip: Learn how to implement QAOA workflows with PennyLane
 
 
 .. raw:: html
