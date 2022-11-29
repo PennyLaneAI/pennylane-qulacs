@@ -4,6 +4,9 @@
 
 ### Breaking changes
 
+* Removes testing for Python 3.7.
+  [(#43)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/43)
+
 ### Improvements
 
 ### Documentation
@@ -13,6 +16,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Christina Lee
 
 ---
 # Release 0.24.0
