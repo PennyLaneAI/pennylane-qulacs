@@ -1,17 +1,9 @@
-# Release 0.25.0-dev
-
-### New features since last release
+# Release 0.28.0
 
 ### Breaking changes
 
 * Removes testing for Python 3.7.
   [(#43)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/43)
-
-### Improvements
-
-### Documentation
-
-### Bug fixes
 
 ### Contributors
 
