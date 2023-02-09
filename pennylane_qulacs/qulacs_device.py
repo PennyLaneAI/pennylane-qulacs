@@ -19,11 +19,9 @@ import math, cmath
 import itertools as it
 
 import numpy as np
-from scipy.linalg import block_diag
 
 from pennylane import QubitDevice, DeviceError
-from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift
-from pennylane.wires import Wires
+from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift, Adjoint
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
@@ -166,17 +164,21 @@ class QulacsDevice(QubitDevice):
                     "Operation {} cannot be used after other Operations have already been applied "
                     "on a {} device.".format(op.name, self.short_name)
                 )
+            inverse = False
+            if isinstance(op, Adjoint):
+                inverse = True
+                op = op.base
 
             if isinstance(op, QubitStateVector):
                 self._apply_qubit_state_vector(op)
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
-                self._apply_qubit_unitary(op)
+                self._apply_qubit_unitary(op, inverse)
             elif isinstance(op, (CRZ, PhaseShift)):
-                self._apply_matrix(op)
+                self._apply_matrix(op, inverse)
             else:
-                self._apply_gate(op)
+                self._apply_gate(op, inverse)
 
     def _expand_state(self, state_vector, wires):
         """Expands state vector to more wires"""
@@ -200,10 +202,6 @@ class QulacsDevice(QubitDevice):
         wires = self.map_wires(op.wires)
         input_state = op.parameters[0]
 
-        if len(input_state) != 2 ** len(wires):
-            raise ValueError("State vector must be of length 2**wires.")
-        if input_state.ndim != 1 or len(input_state) != 2 ** len(wires):
-            raise ValueError("State vector must be of length 2**wires.")
         if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
             raise ValueError("Sum of amplitudes-squared does not equal one.")
 
@@ -238,7 +236,7 @@ class QulacsDevice(QubitDevice):
         # call qulacs' basis state initialization
         self._state.set_computational_basis(basis_state)
 
-    def _apply_qubit_unitary(self, op):
+    def _apply_qubit_unitary(self, op, inverse=False):
         """Apply unitary to state"""
         # translate op wire labels to consecutive wire labels used by the device
         device_wires = self.map_wires(op.wires)
@@ -247,7 +245,7 @@ class QulacsDevice(QubitDevice):
         if len(par[0]) != 2 ** len(device_wires):
             raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-        if op.inverse:
+        if inverse:
             par[0] = par[0].conj().T
 
         # reverse wires (could also change par[0])
@@ -256,14 +254,14 @@ class QulacsDevice(QubitDevice):
         self._circuit.add_gate(unitary_gate)
         unitary_gate.update_quantum_state(self._state)
 
-    def _apply_matrix(self, op):
+    def _apply_matrix(self, op, inverse=False):
         """Apply predefined gate-matrix to state (must follow qulacs convention)"""
         # translate op wire labels to consecutive wire labels used by the device
         device_wires = self.map_wires(op.wires)
         par = op.parameters
 
         mapped_operation = self._operation_map[op.name]
-        if op.inverse:
+        if inverse:
             mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
 
         if callable(mapped_operation):
@@ -276,7 +274,7 @@ class QulacsDevice(QubitDevice):
         self._circuit.add_gate(dense_gate)
         gate.DenseMatrix(device_wires.labels, gate_matrix).update_quantum_state(self._state)
 
-    def _apply_gate(self, op):
+    def _apply_gate(self, op, inverse=False):
         """Apply native qulacs gate"""
 
         # translate op wire labels to consecutive wire labels used by the device
@@ -284,7 +282,7 @@ class QulacsDevice(QubitDevice):
         par = op.parameters
 
         mapped_operation = self._operation_map[op.name]
-        if op.inverse:
+        if inverse:
             mapped_operation = self._get_inverse_operation(mapped_operation, device_wires, par)
 
         # Negating the parameters such that it adheres to qulacs

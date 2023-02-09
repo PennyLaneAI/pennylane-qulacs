@@ -6,6 +6,10 @@
 
 ### Improvements
 
+* Removed support for in-place inversion of operations (e.g. `qml.PauliX(0).inv()`). Users should
+  use `qml.adjoint` instead.
+  [(#46)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/46)
+
 ### Documentation
 
 ### Bug fixes
@@ -14,7 +18,10 @@
 
 This release contains contributions from (in alphabetical order):
 
+Albert Mitjans Coma
+
 ---
+
 # Release 0.28.0
 
 ### Breaking changes
@@ -29,6 +36,7 @@ This release contains contributions from (in alphabetical order):
 Christina Lee
 
 ---
+
 # Release 0.24.0
 
 ### Improvements
