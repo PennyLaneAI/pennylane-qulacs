@@ -18,6 +18,8 @@
 
 This release contains contributions from (in alphabetical order):
 
+Albert Mitjans Coma
+
 ---
 
 # Release 0.28.0
