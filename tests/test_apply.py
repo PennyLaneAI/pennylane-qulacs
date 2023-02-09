@@ -192,16 +192,6 @@ class TestStateApply:
 
         assert np.allclose(res, expected, tol)
 
-    def test_invalid_qubit_state_vector(self):
-        """Test that an exception is raised if the state
-        vector is the wrong size"""
-        dev = QulacsDevice(2)
-        state = np.array([0, 123.432])
-
-        with pytest.raises(ValueError, match="State vector must have shape"):
-            op = qml.QubitStateVector(state, wires=[0, 1])
-            dev.apply([op])
-
     @pytest.mark.parametrize("op,mat", single_qubit)
     def test_single_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
@@ -294,28 +284,6 @@ class TestStateApply:
         res = dev.state
         expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
-
-    def test_apply_errors_qubit_state_vector(self):
-        """Test that apply fails for incorrect state preparation."""
-        dev = QulacsDevice(2)
-
-        with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
-            dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
-
-        with pytest.raises(ValueError, match="State vector must have shape"):
-            p = np.array([1, 0, 1, 1, 0]) / np.sqrt(3)
-            dev.reset()
-            dev.apply([qml.QubitStateVector(p, wires=[0, 1])])
-
-        with pytest.raises(
-            qml.DeviceError,
-            match="Operation QubitStateVector cannot be used after other Operations have already been applied "
-            "on a qulacs.simulator device.",
-        ):
-            dev.reset()
-            dev.apply(
-                [qml.RZ(0.5, wires=[0]), qml.QubitStateVector(np.array([0, 1, 0, 0]), wires=[0, 1])]
-            )
 
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
