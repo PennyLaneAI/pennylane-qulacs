@@ -38,7 +38,7 @@ class TestIntegration:
 
         @qml.qnode(dev)
         def circuit():
-            qml.RY(theta, wires=[0]).inv()
+            qml.adjoint(qml.RY(theta, wires=[0]))
             qml.RY(phi, wires=[1])
             qml.CNOT(wires=[0, 1])
             return qml.expval(qml.PauliX(wires=0)), qml.expval(qml.PauliX(wires=1))

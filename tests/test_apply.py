@@ -99,13 +99,13 @@ single_qubit = [
     (qml.S(wires=0), S),
     (qml.T(wires=0), T),
     (qml.SX(wires=0), SX),
-    (qml.PauliX(wires=0).inv(), X.conj().T),
-    (qml.PauliY(wires=0).inv(), Y.conj().T),
-    (qml.PauliZ(wires=0).inv(), Z.conj().T),
-    (qml.Hadamard(wires=0).inv(), H.conj().T),
-    (qml.S(wires=0).inv(), S.conj().T),
-    (qml.T(wires=0).inv(), T.conj().T),
-    (qml.SX(wires=0).inv(), SX.conj().T)
+    (qml.adjoint(qml.PauliX(wires=0)), X.conj().T),
+    (qml.adjoint(qml.PauliY(wires=0)), Y.conj().T),
+    (qml.adjoint(qml.PauliZ(wires=0)), Z.conj().T),
+    (qml.adjoint(qml.Hadamard(wires=0)), H.conj().T),
+    (qml.adjoint(qml.S(wires=0)), S.conj().T),
+    (qml.adjoint(qml.T(wires=0)), T.conj().T),
+    (qml.adjoint(qml.SX(wires=0)), SX.conj().T)
 ]
 
 # list of all parametrized single-qubit gates
@@ -114,18 +114,18 @@ single_qubit_param = [
     (qml.RY(0, wires=0), ry),
     (qml.RZ(0, wires=0), rz),
     (qml.PhaseShift(0, wires=0), phase_shift),
-    (qml.RX(0, wires=0).inv(), lambda theta: rx(-theta)),
-    (qml.RY(0, wires=0).inv(), lambda theta: ry(-theta)),
-    (qml.RZ(0, wires=0).inv(), lambda theta: rz(-theta)),
-    (qml.PhaseShift(0, wires=0).inv(), lambda theta: phase_shift(-theta)),
+    (qml.adjoint(qml.RX(0, wires=0)), lambda theta: rx(-theta)),
+    (qml.adjoint(qml.RY(0, wires=0)), lambda theta: ry(-theta)),
+    (qml.adjoint(qml.RZ(0, wires=0)), lambda theta: rz(-theta)),
+    (qml.adjoint(qml.PhaseShift(0, wires=0)), lambda theta: phase_shift(-theta)),
 ]
 single_qubit_two_param = [
     (qml.U2(0, 0, wires=0), u2),
-    (qml.U2(0, 0, wires=0).inv(), lambda phi, delta: u2(-phi, -delta)),
+    (qml.adjoint(qml.U2(0, 0, wires=0)), lambda phi, delta: u2(-phi, -delta)),
 ]
 single_qubit_three_param = [
     (qml.U3(0, 0, 0, wires=0), u3),
-    (qml.U3(0, 0, 0, wires=0).inv(), lambda theta, phi, delta: u3(-theta, -phi, -delta)),
+    (qml.adjoint(qml.U3(0, 0, 0, wires=0)), lambda theta, phi, delta: u3(-theta, -phi, -delta)),
 ]
 # list of all non-parametrized two-qubit gates
 two_qubit = [
@@ -133,10 +133,10 @@ two_qubit = [
     (qml.SWAP(wires=[0, 1]), SWAP),
     (qml.CZ(wires=[0, 1]), CZ),
     (qml.ISWAP(wires=[0, 1]), ISWAP),
-    (qml.CNOT(wires=[0, 1]).inv(), CNOT.conj().T),
-    (qml.SWAP(wires=[0, 1]).inv(), SWAP.conj().T),
-    (qml.CZ(wires=[0, 1]).inv(), CZ.conj().T),
-    (qml.ISWAP(wires=[0, 1]).inv(), ISWAP.conj().T)
+    (qml.adjoint(qml.CNOT(wires=[0, 1])), CNOT.conj().T),
+    (qml.adjoint(qml.SWAP(wires=[0, 1])), SWAP.conj().T),
+    (qml.adjoint(qml.CZ(wires=[0, 1])), CZ.conj().T),
+    (qml.adjoint(qml.ISWAP(wires=[0, 1])), ISWAP.conj().T)
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
@@ -144,26 +144,26 @@ two_qubit_param = [
     (qml.CRY(0, wires=[0, 1]), cry),
     (qml.CRZ(0, wires=[0, 1]), crz),
     (qml.ControlledPhaseShift(0, wires=[0, 1]), c_phase_shift),
-    (qml.CRX(0, wires=[0, 1]).inv(), lambda theta: crx(-theta)),
-    (qml.CRY(0, wires=[0, 1]).inv(), lambda theta: cry(-theta)),
-    (qml.CRZ(0, wires=[0, 1]).inv(), lambda theta: crz(-theta)),
-    (qml.ControlledPhaseShift(0, wires=[0, 1]).inv(), lambda theta: c_phase_shift(-theta))
+    (qml.adjoint(qml.CRX(0, wires=[0, 1])), lambda theta: crx(-theta)),
+    (qml.adjoint(qml.CRY(0, wires=[0, 1])), lambda theta: cry(-theta)),
+    (qml.adjoint(qml.CRZ(0, wires=[0, 1])), lambda theta: crz(-theta)),
+    (qml.adjoint(qml.ControlledPhaseShift(0, wires=[0, 1])), lambda theta: c_phase_shift(-theta))
 ]
 two_qubit_three_param = [
     (qml.CRot(0, 0, 0, wires=[0, 1]), crot),
-    (qml.CRot(0, 0, 0, wires=[0, 1]).inv(), lambda phi, theta, omega: crot(-phi, -theta, -omega)),
+    (qml.adjoint(qml.CRot(0, 0, 0, wires=[0, 1])), lambda phi, theta, omega: crot(-phi, -theta, -omega)),
 ]
 # list of all three-qubit gates
 three_qubit = [
     (qml.Toffoli(wires=[0, 1, 2]), toffoli),
     (qml.CSWAP(wires=[0, 1, 2]), CSWAP),
-    (qml.Toffoli(wires=[0, 1, 2]).inv(), toffoli.conj().T),
-    (qml.CSWAP(wires=[0, 1, 2]).inv(), CSWAP.conj().T),
+    (qml.adjoint(qml.Toffoli(wires=[0, 1, 2])), toffoli.conj().T),
+    (qml.adjoint(qml.CSWAP(wires=[0, 1, 2])), CSWAP.conj().T),
 ]
 # list of all four-qubit gates
 four_qubit = [
     (qml.MultiControlledX(wires=[0, 1, 2, 3]), multix4),
-    (qml.MultiControlledX(wires=[0, 1, 2, 3]).inv(), multix4.conj().T)
+    (qml.adjoint(qml.MultiControlledX(wires=[0, 1, 2, 3])), multix4.conj().T)
 ]
 
 

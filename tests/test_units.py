@@ -35,7 +35,6 @@ class TestDeviceUnits:
         assert dev._samples is None
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
-        assert dev._capabilities["inverse_operations"]
         assert not dev._capabilities["returns_state"]
         assert isinstance(dev._state, QrackSimulator)
 
