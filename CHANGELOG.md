@@ -1,18 +1,10 @@
-# Release 0.29.0-dev
-
-### New features since last release
-
-### Breaking changes
+# Release 0.29.0
 
 ### Improvements
 
 * Removed support for in-place inversion of operations (e.g. `qml.PauliX(0).inv()`). Users should
   use `qml.adjoint` instead.
   [(#46)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/46)
-
-### Documentation
-
-### Bug fixes
 
 ### Contributors
 
