@@ -261,21 +261,22 @@ class QulacsDevice(QubitDevice):
         """Apply controlled unitary to state"""
         # translate op wire labels to consecutive wire labels used by the device
         device_wires = self.map_wires(op.wires)
+        target_wires = self.map_wires(op.target_wires)
         control_wires = self.map_wires(op.control_wires)
         control_values = op.control_values 
         par = op.parameters
 
-        if len(par[0]) != 2 ** len(device_wires):
-            raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
+        if len(par[0]) != 2 ** len(target_wires):
+            raise ValueError("Unitary matrix must be of shape (2**target_wires, 2**target_wires).")
 
         if inverse:
             par[0] = par[0].conj().T
 
         # reverse wires (could also change par[0])
-        reverse_wire_labels = device_wires.tolist()[::-1]
+        reverse_target_wire_labels = target_wires.tolist()[::-1]
         reverse_control_wire_labels = control_wires.tolist()[::-1]
         reverse_control_value = control_values[::-1]
-        unitary_gate = gate.DenseMatrix(reverse_wire_labels, par[0])
+        unitary_gate = gate.DenseMatrix(reverse_target_wire_labels, par[0])
         for i,j in enumerate(reverse_control_wire_labels):
             unitary_gate.add_control_qubit(j, reverse_control_value[i])
         self._circuit.add_gate(unitary_gate)
