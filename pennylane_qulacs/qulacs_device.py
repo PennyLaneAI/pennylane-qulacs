@@ -177,7 +177,10 @@ class QulacsDevice(QubitDevice):
             elif isinstance(op, QubitUnitary):
                 self._apply_qubit_unitary(op, inverse)
             elif isinstance(op, ControlledQubitUnitary):
-                self._apply_controlled_qubit_unitary(op, inverse)
+                if len(op.control_wires) == 0:
+                    self._apply_qubit_unitary(op, inverse)
+                else:
+                    self._apply_controlled_qubit_unitary(op, inverse)
             elif isinstance(op, (CRZ, PhaseShift)):
                 self._apply_matrix(op, inverse)
             else:
@@ -265,6 +268,9 @@ class QulacsDevice(QubitDevice):
         control_wires = self.map_wires(op.control_wires)
         control_values = op.control_values 
         par = op.parameters
+
+        if len(control_wires) + len(target_wires) == len(device_wires):
+            raise ValueError("len(device_wire) should be equal to len(control_wires) + len(target_wires)")
 
         if len(par[0]) != 2 ** len(target_wires):
             raise ValueError("Unitary matrix must be of shape (2**target_wires, 2**target_wires).")
