@@ -249,6 +249,34 @@ class TestStateApply:
         expected = mat @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("control_wires", [[0], [0, 1]])
+    @pytest.mark.parametrize("mat", [U, U2])
+    def test_controlled_qubit_unitary(self, init_state, mat, control_wires, tol):
+        """Test ControlledQubitUnitary application"""
+
+        N = int(np.log2(len(mat)))
+        dev = QulacsDevice(N + len(control_wires))
+        state = init_state(N + len(control_wires))
+        #import pdb
+        #pdb.set_trace()
+
+        op = qml.ControlledQubitUnitary(mat, wires=list(range(len(control_wires),N+len(control_wires))), control_wires=control_wires)
+        dev.apply([qml.QubitStateVector(state, wires=list(range(N + len(control_wires)))), op])
+        dev._obs_queue = []
+
+        res = dev.state
+        zero_op = np.array([[1,0], [0,0]])
+        one_op = np.array([[0,0], [0,1]])
+        if control_wires == [0]:
+            expected = (np.kron(zero_op, np.eye(2 ** N)) + np.kron(one_op, mat)) @ state
+        elif control_wires == [0, 1]:
+            expected = (np.kron(np.kron(zero_op, zero_op), np.eye(2 ** N)) + 
+                        np.kron(np.kron(zero_op, one_op), np.eye(2 ** N)) + 
+                        np.kron(np.kron(one_op, zero_op), np.eye(2 ** N)) + 
+                        np.kron(np.kron(one_op, one_op), mat)) @ state 
+
+        assert np.allclose(res, expected, tol)
+
     def test_invalid_qubit_state_unitary(self):
         """Test that an exception is raised if the
         unitary matrix is the wrong size"""
