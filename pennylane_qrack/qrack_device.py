@@ -311,7 +311,7 @@ class QrackDevice(QubitDevice):
         if len(par[0]) != 2 ** len(device_wires):
             raise ValueError("Unitary matrix must be of shape (2**wires, 2**wires).")
 
-        if op.inverse:
+        if isinstance(op, Adjoint):
             par[0] = par[0].conj().T
 
         matrix = par[0].flatten().tolist()

@@ -256,7 +256,7 @@ class TestStateApply:
         dev = QrackDevice(2)
         state = np.array([0, 123.432])
 
-        with pytest.raises(ValueError, match=r"State vector must be of length 2\*\*wires"):
+        with pytest.raises(ValueError, match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\)."):
             op = qml.QubitStateVector(state, wires=[0, 1])
             dev.apply([op])
 
@@ -423,7 +423,7 @@ class TestStateApply:
         with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
 
-        with pytest.raises(ValueError, match=r"State vector must be of length 2\*\*wires."):
+        with pytest.raises(ValueError, match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\)."):
             p = np.array([1, 0, 1, 1, 0]) / np.sqrt(3)
             dev.reset()
             dev.apply([qml.QubitStateVector(p, wires=[0, 1])])

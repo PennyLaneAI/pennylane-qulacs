@@ -73,7 +73,7 @@ class TestDeviceUnits:
 
         expected = [0.0] * 16
         expected[0] = 1.0
-        actual = dev._state.dump()
+        actual = dev._state.out_ket()
         for i in range(16):
             actual[i] = actual[i] * np.conjugate(actual[i])
         assert np.allclose(actual, expected)
