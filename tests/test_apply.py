@@ -254,7 +254,7 @@ class TestStateApply:
     def test_controlled_qubit_unitary(self, init_state, mat, control_wires, tol):
         """Test ControlledQubitUnitary application"""
 
-        N = int(np.log2(len(mat)))
+        N = int(np.round(np.log2(len(mat))))
         dev = QulacsDevice(N + len(control_wires))
         state = init_state(N + len(control_wires))
 
