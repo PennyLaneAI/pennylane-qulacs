@@ -267,7 +267,7 @@ class QulacsDevice(QubitDevice):
         target_wires = self.map_wires(op.target_wires)
         control_wires = self.map_wires(op.control_wires)
         control_values = op.control_values 
-        par = op.parameters
+        par = op.base.matrix()
 
         if len(control_wires) + len(target_wires) != len(device_wires):
             raise ValueError("len(device_wire) should be equal to len(control_wires) + len(target_wires)")
