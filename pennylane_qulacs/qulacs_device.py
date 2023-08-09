@@ -272,7 +272,7 @@ class QulacsDevice(QubitDevice):
         if len(control_wires) + len(target_wires) != len(device_wires):
             raise ValueError("len(device_wire) should be equal to len(control_wires) + len(target_wires)")
 
-        if len(par[0]) != 2 ** len(target_wires):
+        if qml.math.shape(par) != (2 ** len(target_wires), 2 ** len(target_wires)):
             raise ValueError("Unitary matrix must be of shape (2**target_wires, 2**target_wires).")
 
         if inverse:
