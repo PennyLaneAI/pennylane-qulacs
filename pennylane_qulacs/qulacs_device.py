@@ -276,7 +276,7 @@ class QulacsDevice(QubitDevice):
             raise ValueError("Unitary matrix must be of shape (2**target_wires, 2**target_wires).")
 
         if inverse:
-            par[0] = par[0].conj().T
+            par = par.conj().T
 
         # reverse wires (could also change par[0])
         reverse_target_wire_labels = target_wires.tolist()[::-1]
