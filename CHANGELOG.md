@@ -9,6 +9,9 @@
 
 ### Improvements
 
+* Added support for `qml.StatePrep` as a state preparation operation. 
+  [(#54)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/54)
+
 ### Documentation
 
 ### Bug fixes
@@ -17,7 +20,8 @@
 
 This release contains contributions from (in alphabetical order):
 
-Mudit Pandey
+Mudit Pandey,
+Jay Soni
 
 ---
 # Release 0.29.0
