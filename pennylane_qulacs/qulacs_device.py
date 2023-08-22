@@ -21,7 +21,7 @@ import itertools as it
 import numpy as np
 
 from pennylane import QubitDevice, DeviceError
-from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift, Adjoint
+from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, ControlledQubitUnitary, CRZ, PhaseShift, Adjoint
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
@@ -88,6 +88,7 @@ class QulacsDevice(QubitDevice):
         "QubitStateVector": None,
         "BasisState": None,
         "QubitUnitary": None,
+        "ControlledQubitUnitary": None,
         "Toffoli": gate.TOFFOLI,
         "CSWAP": gate.FREDKIN,
         "CRZ": crz,
@@ -175,6 +176,11 @@ class QulacsDevice(QubitDevice):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
                 self._apply_qubit_unitary(op, inverse)
+            elif isinstance(op, ControlledQubitUnitary):
+                if len(op.control_wires) == 0:
+                    self._apply_qubit_unitary(op, inverse)
+                else:
+                    self._apply_controlled_qubit_unitary(op, inverse)
             elif isinstance(op, (CRZ, PhaseShift)):
                 self._apply_matrix(op, inverse)
             else:
@@ -251,6 +257,34 @@ class QulacsDevice(QubitDevice):
         # reverse wires (could also change par[0])
         reverse_wire_labels = device_wires.tolist()[::-1]
         unitary_gate = gate.DenseMatrix(reverse_wire_labels, par[0])
+        self._circuit.add_gate(unitary_gate)
+        unitary_gate.update_quantum_state(self._state)
+
+    def _apply_controlled_qubit_unitary(self, op, inverse=False):
+        """Apply controlled unitary to state"""
+        # translate op wire labels to consecutive wire labels used by the device
+        device_wires = self.map_wires(op.wires)
+        target_wires = self.map_wires(op.target_wires)
+        control_wires = self.map_wires(op.control_wires)
+        control_values = op.control_values 
+        par = op.base.matrix()
+
+        if len(control_wires) + len(target_wires) != len(device_wires):
+            raise ValueError("len(device_wire) should be equal to len(control_wires) + len(target_wires)")
+
+        if qml.math.shape(par) != (2 ** len(target_wires), 2 ** len(target_wires)):
+            raise ValueError("Unitary matrix must be of shape (2**target_wires, 2**target_wires).")
+
+        if inverse:
+            par = par.conj().T
+
+        # reverse wires (could also change par[0])
+        reverse_target_wire_labels = target_wires.tolist()[::-1]
+        reverse_control_wire_labels = control_wires.tolist()[::-1]
+        reverse_control_value = control_values[::-1]
+        unitary_gate = gate.DenseMatrix(reverse_target_wire_labels, par[0])
+        for i,j in enumerate(reverse_control_wire_labels):
+            unitary_gate.add_control_qubit(j, reverse_control_value[i])
         self._circuit.add_gate(unitary_gate)
         unitary_gate.update_quantum_state(self._state)
 
