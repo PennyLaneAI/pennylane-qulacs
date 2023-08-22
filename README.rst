@@ -47,32 +47,6 @@ Features
 
 * Support for all PennyLane core functionality
 
-.. benchmarks-start-inclusion-marker-do-not-remove
-
-Benchmarks
-==========
-
-We ran a 100 executions of 4 layer quantum neural
-network `strongly entangling layer <https://docs.pennylane.ai/en/latest/code/api/pennylane.StronglyEntanglingLayers.html>`_
-and compared the runtimes between CPU and GPU.
-
-.. image:: https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qnn_cpu_vs_gpu.png
-    :align: center
-    :width: 60%
-    :target: javascript:void(0);
-
-|
-
-.. image:: https://raw.githubusercontent.com/soudy/pennylane-qulacs/master/images/qulacs_table.png
-    :align: center
-    :width: 60%
-    :target: javascript:void(0);
-
-|
-
-
-.. benchmarks-end-inclusion-marker-do-not-remove
-
 
 .. installation-start-inclusion-marker-do-not-remove
 
