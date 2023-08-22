@@ -5,7 +5,7 @@
 ### Breaking changes
 
 * Support for Python 3.8 has been removed.
-  [(#)]()
+  [(#55)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/55)
 
 ### Improvements
 
