@@ -21,7 +21,15 @@ import itertools as it
 import numpy as np
 
 from pennylane import QubitDevice, DeviceError
-from pennylane.ops import QubitStateVector, BasisState, QubitUnitary, CRZ, PhaseShift, Adjoint, StatePrep
+from pennylane.ops import (
+    QubitStateVector,
+    BasisState,
+    QubitUnitary,
+    CRZ,
+    PhaseShift,
+    Adjoint,
+    StatePrep,
+)
 
 import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
