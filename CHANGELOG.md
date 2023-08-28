@@ -1,18 +1,21 @@
-# Release 0.30.0-dev
-
-### New features since last release
+# Release 0.32.0
 
 ### Breaking changes
 
+* Support for Python 3.8 has been removed, and support for 3.11 has been added.
+  [(#55)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/55)
+
 ### Improvements
 
-### Documentation
-
-### Bug fixes
+* Added support for `qml.StatePrep` as a state preparation operation. 
+  [(#54)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/54)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Mudit Pandey,
+Jay Soni
 
 ---
 # Release 0.29.0

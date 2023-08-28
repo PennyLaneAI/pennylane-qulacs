@@ -163,12 +163,13 @@ class TestStateApply:
         expected = dev._expand_state(expected, op_wires)
         assert np.allclose(res, expected, tol)
 
-    def test_qubit_state_vector(self, init_state, tol):
-        """Test QubitStateVector application"""
+    @pytest.mark.parametrize("state_prep_op", (qml.QubitStateVector, qml.StatePrep))
+    def test_qubit_state_vector(self, init_state, state_prep_op, tol):
+        """Test QubitStateVector and StatePrep application"""
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        op = qml.QubitStateVector(state, wires=[0])
+        op = state_prep_op(state, wires=[0])
         dev.apply([op])
         dev._obs_queue = []
 
@@ -176,14 +177,15 @@ class TestStateApply:
         expected = state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("state_prep_op", (qml.QubitStateVector, qml.StatePrep))
     @pytest.mark.parametrize("device_wires", [3, 4, 5])
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
-    def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, tol):
-        """Test QubitStateVector application on a subset of device wires"""
+    def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, state_prep_op, tol):
+        """Test QubitStateVector and StatePrep application on a subset of device wires"""
         dev = QulacsDevice(device_wires)
         state = init_state(len(op_wires))
 
-        op = qml.QubitStateVector(state, wires=op_wires)
+        op = state_prep_op(state, wires=op_wires)
         dev.apply([op])
         dev._obs_queue = []
 
@@ -198,7 +200,7 @@ class TestStateApply:
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
+        dev.apply([qml.StatePrep(state, wires=[0]), op])
         dev._obs_queue = []
 
         res = dev.state
@@ -213,7 +215,7 @@ class TestStateApply:
         state = init_state(1)
 
         op.data = [theta]
-        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
+        dev.apply([qml.StatePrep(state, wires=[0]), op])
         dev._obs_queue = []
 
         res = dev.state
@@ -226,7 +228,7 @@ class TestStateApply:
         dev = QulacsDevice(2)
         state = init_state(2)
 
-        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
+        dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
         dev._obs_queue = []
 
         res = dev.state
@@ -242,7 +244,7 @@ class TestStateApply:
         state = init_state(N)
 
         op = qml.QubitUnitary(mat, wires=list(range(N)))
-        dev.apply([qml.QubitStateVector(state, wires=list(range(N))), op])
+        dev.apply([qml.StatePrep(state, wires=list(range(N))), op])
         dev._obs_queue = []
 
         res = dev.state
@@ -262,7 +264,7 @@ class TestStateApply:
         dev = QulacsDevice(3)
         state = init_state(3)
 
-        dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
+        dev.apply([qml.StatePrep(state, wires=[0, 1, 2]), op])
         dev._obs_queue = []
 
         res = dev.state
@@ -277,7 +279,7 @@ class TestStateApply:
         state = init_state(2)
 
         op.data = [theta]
-        dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
+        dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
 
