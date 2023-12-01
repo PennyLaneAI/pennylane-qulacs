@@ -11,7 +11,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: [3.9, '3.10', '3.11']
+
 
     steps:
       - name: Cancel Previous Runs
@@ -59,7 +60,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Install dependencies
         run: |

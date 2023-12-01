@@ -1,20 +1,73 @@
-# Release 0.25.0-dev
+# Release 0.33.0-dev
 
 ### New features since last release
 
+### Improvements 🛠
+
+### Breaking changes 💔
+
+### Deprecations 👋
+
+### Documentation 📝
+
+### Bug fixes 🐛
+
+### Contributors ✍️
+
+This release contains contributions from (in alphabetical order):
+
+---
+# Release 0.32.0
+
 ### Breaking changes
+
+* Support for Python 3.8 has been removed, and support for 3.11 has been added.
+  [(#55)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/55)
 
 ### Improvements
 
-### Documentation
-
-### Bug fixes
+* Added support for `qml.StatePrep` as a state preparation operation. 
+  [(#54)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/54)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
 
+Mudit Pandey,
+Jay Soni
+
 ---
+# Release 0.29.0
+
+### Improvements
+
+* Removed support for in-place inversion of operations (e.g. `qml.PauliX(0).inv()`). Users should
+  use `qml.adjoint` instead.
+  [(#46)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/46)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Albert Mitjans Coma
+
+---
+
+# Release 0.28.0
+
+### Breaking changes
+
+* Removes testing for Python 3.7.
+  [(#43)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/43)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Christina Lee
+
+---
+
 # Release 0.24.0
 
 ### Improvements

@@ -181,7 +181,7 @@ class TestStateApply:
     )
     def test_basis_state(self, state, tol):
         """Test basis state initialization"""
-        dev = QrackDevice(4)
+        dev = QrackDevice(4, isTensorNetwork=False)
 
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
@@ -207,7 +207,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op_wires", [[0, 1], [1, 0], [2, 0]])
     def test_basis_state_on_wires_subset(self, state, device_wires, op_wires, tol):
         """Test basis state initialization on a subset of device wires"""
-        dev = QrackDevice(device_wires)
+        dev = QrackDevice(device_wires, isTensorNetwork=False)
 
         op = qml.BasisState(state, wires=op_wires)
         dev.apply([op])
@@ -223,7 +223,7 @@ class TestStateApply:
 
     def test_qubit_state_vector(self, init_state, tol):
         """Test QubitStateVector application"""
-        dev = QrackDevice(1)
+        dev = QrackDevice(1, isTensorNetwork=False)
         state = init_state(1)
 
         op = qml.QubitStateVector(state, wires=[0])
@@ -238,7 +238,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
     def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, tol):
         """Test QubitStateVector application on a subset of device wires"""
-        dev = QrackDevice(device_wires)
+        dev = QrackDevice(device_wires, isTensorNetwork=False)
         state = init_state(len(op_wires))
 
         op = qml.QubitStateVector(state, wires=op_wires)
@@ -253,7 +253,7 @@ class TestStateApply:
     def test_invalid_qubit_state_vector(self):
         """Test that an exception is raised if the state
         vector is the wrong size"""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
         state = np.array([0, 123.432])
 
         with pytest.raises(ValueError, match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\)."):
@@ -263,7 +263,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,mat", single_qubit)
     def test_single_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
-        dev = QrackDevice(1)
+        dev = QrackDevice(1, isTensorNetwork=False)
         state = init_state(1)
 
         dev.apply([qml.QubitStateVector(state, wires=[0]), op])
@@ -277,7 +277,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", single_qubit_param)
     def test_single_qubit_parameters(self, init_state, op, func, theta, tol):
         """Test PauliX application"""
-        dev = QrackDevice(1)
+        dev = QrackDevice(1, isTensorNetwork=False)
         state = init_state(1)
 
         op.data = [theta]
@@ -293,7 +293,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", single_qubit_two_param)
     def test_single_qubit_two_parameters(self, init_state, op, func, phi, delta, tol):
         """Test PauliX application"""
-        dev = QrackDevice(1)
+        dev = QrackDevice(1, isTensorNetwork=False)
         state = init_state(1)
 
         op.data = [phi, delta]
@@ -310,7 +310,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", single_qubit_three_param)
     def test_single_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
         """Test PauliX application"""
-        dev = QrackDevice(1)
+        dev = QrackDevice(1, isTensorNetwork=False)
         state = init_state(1)
 
         op.data = [phi, theta, omega]
@@ -324,7 +324,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op, mat", two_qubit)
     def test_two_qubit_no_parameters(self, init_state, op, mat, tol):
         """Test PauliX application"""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
         state = init_state(2)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
@@ -339,7 +339,7 @@ class TestStateApply:
         """Test QubitUnitary application"""
 
         N = int(np.log2(len(mat)))
-        dev = QrackDevice(N)
+        dev = QrackDevice(N, isTensorNetwork=False)
         state = init_state(N)
 
         op = qml.QubitUnitary(mat, wires=list(range(N)))
@@ -360,7 +360,7 @@ class TestStateApply:
 
     @pytest.mark.parametrize("op, mat", three_qubit)
     def test_three_qubit_no_parameters(self, init_state, op, mat, tol):
-        dev = QrackDevice(3)
+        dev = QrackDevice(3, isTensorNetwork=False)
         state = init_state(3)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2]), op])
@@ -372,7 +372,7 @@ class TestStateApply:
 
     @pytest.mark.parametrize("op, mat", four_qubit)
     def test_four_qubit_no_parameters(self, init_state, op, mat, tol):
-        dev = QrackDevice(4)
+        dev = QrackDevice(4, isTensorNetwork=False)
         state = init_state(4)
 
         dev.apply([qml.QubitStateVector(state, wires=[0, 1, 2, 3]), op])
@@ -386,7 +386,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", two_qubit_param)
     def test_two_qubit_parameters(self, init_state, op, func, theta, tol):
         """Test parametrized two qubit gates application"""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
         state = init_state(2)
 
         op.data = [theta]
@@ -404,7 +404,7 @@ class TestStateApply:
     @pytest.mark.parametrize("op,func", two_qubit_three_param)
     def test_two_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
         """Test parametrized two qubit gates application"""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
         state = init_state(2)
 
         op.data = [phi, theta, omega]
@@ -418,7 +418,7 @@ class TestStateApply:
 
     def test_apply_errors_qubit_state_vector(self):
         """Test that apply fails for incorrect state preparation."""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
 
         with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
@@ -430,7 +430,7 @@ class TestStateApply:
 
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
-        dev = QrackDevice(2)
+        dev = QrackDevice(2, isTensorNetwork=False)
 
         with pytest.raises(
             ValueError, match="BasisState parameter must consist of 0 or 1 integers."
@@ -458,7 +458,7 @@ class TestStateApply:
 )
 def test_expand_state(state, op_wires, device_wires, expected, tol):
     """Test that the expand_state method works as expected."""
-    dev = QrackDevice(device_wires)
+    dev = QrackDevice(device_wires, isTensorNetwork=False)
     res = dev._expand_state(state, op_wires)
 
     assert np.allclose(res, expected, tol)

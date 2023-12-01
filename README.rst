@@ -28,12 +28,12 @@ Dependencies
 
 PennyLane-Qrack requires the following libraries be installed:
 
-* `Python <http://python.org/>`__ >= 3.6
+* `Python <http://python.org/>`__ >= 3.8
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.9
-* `PyQrack <https://github.com/vm6502q/pyqrack>`__  >= 0.12.1
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.32
+* `PyQrack <https://github.com/vm6502q/pyqrack>`__  >= 0.13.0
 
 
 If you currently do not have Python 3 installed, we recommend

@@ -1,3 +1,3 @@
-pennylane>=0.15
+pennylane>=0.32
 pyqrack>=0.13.0
 numpy~=1.16
