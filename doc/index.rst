@@ -41,7 +41,7 @@ Check out these demos to see the PennyLane-Qulacs plugin in action:
 
 .. title-card::
     :name: Intro to QAOA
-    :description: <img src="https://pennylane.ai/_images/qaoa_layer.png" width="100%" />
+    :description: <img src="https://pennylane.ai/_static/demonstration_assets/qaoa_module/qaoa_layer.png" width="100%" />
     :link:  https://pennylane.ai/qml/demos/tutorial_qaoa_intro.html
 
 
