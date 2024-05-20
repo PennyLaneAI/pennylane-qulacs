@@ -41,7 +41,9 @@ info = {
     "long_description": open("README.rst").read(),
     "long_description_content_type": "text/x-rst",
     "provides": ["pennylane_qrack"],
-    "install_requires": requirements
+    "install_requires": requirements,
+    "package_data": {'pennylane_qrack': ['QrackDeviceConfig.toml']},
+    "include_package_data": True
 }
 
 classifiers = [

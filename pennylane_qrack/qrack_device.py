@@ -18,6 +18,8 @@ from collections import OrderedDict
 from functools import reduce
 import cmath, math
 import os
+import pathlib
+import sys
 import itertools as it
 
 import numpy as np
@@ -101,7 +103,7 @@ class QrackDevice(QubitDevice):
         "MultiControlledX"
     }
 
-    config = pathlib.Path("catalyst/QrackDeviceConfig.toml")
+    config = pathlib.Path(os.path.dirname(sys.modules[__name__].__file__) + "/QrackDeviceConfig.toml")
 
     @staticmethod
     def get_c_interface():
