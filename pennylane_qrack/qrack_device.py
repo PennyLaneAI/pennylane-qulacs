@@ -148,7 +148,7 @@ class QrackDevice(QubitDevice):
     def get_c_interface():
         return "QrackDevice", os.path.dirname(sys.modules[__name__].__file__) + "/libqrack_device.so"
 
-    def __init__(self, wires, shots=None, **kwargs):
+    def __init__(self, wires=[], shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
         self._state = QrackSimulator(self.num_wires, **kwargs)
@@ -262,7 +262,7 @@ class QrackDevice(QubitDevice):
                 self._state.mcr(Pauli.PauliZ, par[0], control_wires, q)
 
         # translate op wire labels to consecutive wire labels used by the device
-        device_wires = self.map_wires(op.control_wires + op.wires)
+        device_wires = self.map_wires((op.control_wires + op.wires) if op.control_wires else op.wires)
         par = op.parameters
 
         if opname == "Toffoli" or opname == "Toffoli.inv" or opname == "C(Toffoli)" or opname == "C(Toffoli).inv" or opname == "CNOT" or opname == "CNOT.inv" or opname == "C(CNOT)" or opname == "C(CNOT).inv" or opname == "MultiControlledX" or opname == "MultiControlledX.inv" or opname == "C(PauliX)" or opname == "C(PauliX).inv":
