@@ -101,6 +101,12 @@ class QrackDevice(QubitDevice):
         "MultiControlledX"
     }
 
+    config = pathlib.Path("catalyst/QrackDeviceConfig.toml")
+
+    @staticmethod
+    def get_c_interface():
+        return "QrackDevice", "catalyst/libqrack_device.so"
+
     def __init__(self, wires, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
