@@ -28,11 +28,13 @@ CNOT = { properties = [ "controllable", "invertible" ] }
 SWAP = { properties = [ "controllable", "invertible" ] }
 CSWAP = { properties = [ "controllable", "invertible" ] }
 ISWAP = { properties = [ "controllable", "invertible"] }
+PSWAP = { properties = [ "controllable", "invertible"] }
 Toffoli = { properties = [ "controllable", "invertible" ] }
 CY = { properties = [ "controllable", "invertible" ] }
 CZ = { properties = [ "controllable", "invertible" ] }
 PhaseShift = { properties = [ "controllable", "invertible" ] }
 ControlledPhaseShift = { properties = [ "controllable", "invertible" ] }
+CPhase = { properties = [ "controllable", "invertible" ] }
 RX = { properties = [ "controllable", "invertible" ] }
 RY = { properties = [ "controllable", "invertible" ] }
 RZ = { properties = [ "controllable", "invertible" ] }
@@ -56,10 +58,8 @@ QFT = { properties = [ "invertible" ] }
 [operators.gates.decomp]
 
 QubitUnitary = {}
-PSWAP = {}
 SISWAP = {}
 SQISW = {}
-CPhase = {}
 BasisState = {}
 QubitStateVector = {}
 StatePrep = {}

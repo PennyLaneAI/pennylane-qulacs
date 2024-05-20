@@ -108,6 +108,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 throw std::invalid_argument("ISWAP must have exactly two target qubits!");
             }
             qsim->ISwap(wires[0U], wires[1U]);
+        } else if (name == "PSWAP") {
+            if (wires.size() != 2U) {
+                throw std::invalid_argument("PSWAP must have exactly two target qubits!");
+            }
+            const std::vector<bitLenInt> c { wires[0U] };
+            qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
+            qsim->Swap(wires[0U], wires[1U]);
+            qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
         } else if (name == "PhaseShift") {
             const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
             const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
@@ -264,13 +272,19 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     qsim->X(control_wires[i]);
                 }
             }
-        } else if ((name == "PhaseShift") || (name == "ControlledPhaseShift")) {
+        } else if ((name == "PhaseShift") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
             const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
             const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
             const Qrack::complex bottomRight(cosine, sine);
             for (const bitLenInt& target : wires) {
                 qsim->UCPhase(control_wires, Qrack::ONE_CMPLX, bottomRight, target, controlPerm);
             }
+        } else if (name == "PSWAP") {
+            std::vector<bitLenInt> c(control_wires);
+            c.push_back(wires[0U]);
+            qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
+            qsim->CSwap(control_wires, wires[0U], wires[1U]);
+            qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
         } else if ((name == "RX") || (name == "CRX")) {
             const Qrack::real1 cosine = (Qrack::real1)cos((inverse ? -params[0U] : params[0U]) / 2);
             const Qrack::real1 sine = (Qrack::real1)sin((inverse ? -params[0U] : params[0U]) / 2);
