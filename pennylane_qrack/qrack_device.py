@@ -125,6 +125,8 @@ class QrackDevice(QubitDevice):
         "C(U2)",
         "U3",
         "C(U3)",
+        "Rot",
+        "C(Rot)",
         "ControlledPhaseShift",
         "C(ControlledPhaseShift)",
         "MultiControlledX",
