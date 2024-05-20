@@ -76,31 +76,59 @@ class QrackDevice(QubitDevice):
     observables = _observable_map.keys()
     operations = {
         "Toffoli",
+        "C(Toffoli)",
         "CSWAP",
+        "C(CSWAP)",
         "CRX",
+        "C(CRX)",
         "CRY",
+        "C(CRY)",
         "CRZ",
+        "C(CRZ)",
         "CRot",
+        "C(CRot)",
         "SWAP",
+        "C(SWAP)",
         "ISWAP",
+        "C(ISWAP)",
         "CNOT",
+        "C(CNOT)",
+        "CY",
+        "C(CY)",
         "CZ",
+        "C(CZ)",
         "S",
+        "C(S)",
         "T",
+        "C(T)",
         "RX",
+        "C(RX)",
         "RY",
+        "C(RY)",
         "RZ",
+        "C(RZ)",
         "PauliX",
+        "C(PauliX)",
         "PauliY",
+        "C(PauliY)",
         "PauliZ",
+        "C(PauliZ)",
         "Hadamard",
+        "C(Hadamard)",
         "SX",
+        "C(SX)",
         "PhaseShift",
+        "C(PhaseShift)",
         "U1",
+        "C(U1)",
         "U2",
+        "C(U2)",
         "U3",
+        "C(U3)",
         "ControlledPhaseShift",
-        "MultiControlledX"
+        "C(ControlledPhaseShift)",
+        "MultiControlledX",
+        "C(MultiControlledX)"
     }
 
     config = pathlib.Path(os.path.dirname(sys.modules[__name__].__file__) + "/QrackDeviceConfig.toml")
@@ -208,7 +236,7 @@ class QrackDevice(QubitDevice):
         """Apply native qrack gate"""
 
         # translate op wire labels to consecutive wire labels used by the device
-        device_wires = self.map_wires(op.wires)
+        device_wires = self.map_wires(op.control_wires + op.wires)
         par = op.parameters
 
         opname = op.name
@@ -216,27 +244,33 @@ class QrackDevice(QubitDevice):
             op = op.base
             opname = op.name + ".inv"
 
-        if opname == "Toffoli" or opname == "Toffoli.inv" or opname == "CNOT" or opname == "CNOT.inv" or opname == "MultiControlledX" or opname == "MultiControlledX.inv":
+        if opname == "Toffoli" or opname == "Toffoli.inv" or opname == "C(Toffoli)" or opname == "C(Toffoli).inv" or opname == "CNOT" or opname == "CNOT.inv" or opname == "C(CNOT)" or opname == "C(CNOT).inv" or opname == "MultiControlledX" or opname == "MultiControlledX.inv" or opname == "C(PauliX)" or opname == "C(PauliX).inv":
             self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CSWAP" or opname == "CSWAP.inv":
+        elif opname == "C(PauliY)" or opname == "C(PauliY).inv":
+            self._state.mcy(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "C(PauliZ)" or opname == "C(PauliZ).inv":
+            self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "C(Hadamard)" or opname == "C(Hadamard).inv":
+            self._state.mch(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "CSWAP" or opname == "CSWAP.inv" or opname == "C(SWAP)" or opname == "C(SWAP).inv" or opname == "C(CSWAP)" or opname == "C(CSWAP).inv":
             self._state.cswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
-        elif opname == "CRX":
+        elif opname == "CRX" or opname == "C(RX)" or opname == "C(CRX)":
             self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRX.inv":
+        elif opname == "CRX.inv" or opname == "C(RX).inv" or opname == "C(CRX).inv":
             self._state.mcr(Pauli.PauliX, -par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRY":
+        elif opname == "CRY" or opname == "C(RY)" or opname == "C(CRY)":
             self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRY.inv":
+        elif opname == "CRY.inv" or opname == "C(RY).inv" or opname == "C(CRY).inv":
             self._state.mcr(Pauli.PauliY, -par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRZ":
+        elif opname == "CRZ" or opname == "C(RZ)" or opname == "C(CRZ)":
             self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRZ.inv":
+        elif opname == "CRZ.inv" or opname == "C(RZ).inv" or opname == "C(CRZ).inv":
             self._state.mcr(Pauli.PauliZ, -par[0], device_wires.labels[:-1], device_wires.labels[-1])
-        elif opname == "CRot" or opname == "CRot.inv":
+        elif opname == "CRot" or opname == "CRot.inv" or opname == "C(Rot)" or opname == "C(Rot).inv" or opname == "C(CRot)" or opname == "C(CRot).inv":
             phi = par[0]
             theta = par[1]
             omega = par[2]
-            if opname == "CRot.inv":
+            if ".inv" in opname:
                 phi = -phi
                 theta = -theta
                 omega = -omega
@@ -251,32 +285,60 @@ class QrackDevice(QubitDevice):
             self._state.swap(device_wires.labels[0], device_wires.labels[1])
         elif opname == "ISWAP":
             self._state.iswap(device_wires.labels[0], device_wires.labels[1])
-        elif opname == "ISWAP":
-            self._state.iswap(device_wires.labels[0], device_wires.labels[1])
         elif opname == "ISWAP.inv":
             self._state.adjiswap(device_wires.labels[0], device_wires.labels[1])
-        elif opname == "CZ" or opname == "CZ.inv":
+        elif opname == "C(ISWAP)":
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, 1j)
+            self._state.cswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, 1j)
+        elif opname == "C(ISWAP).inv":
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j)
+            self._state.cswap(device_wires.labels[:-2], device_wires.labels[-2], device_wires.labels[-1])
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j)
+        elif opname == "CY" or opname == "CY.inv" or opname == "C(CY)" or opname == "C(CY).inv":
+            self._state.mcy(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "CZ" or opname == "CZ.inv" or opname == "C(CZ)" or opname == "C(CZ).inv":
             self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "S":
             self._state.s(device_wires.labels[0])
         elif opname == "S.inv":
             self._state.adjs(device_wires.labels[0])
+        elif opname == "C(S)":
+            self._state.mcs(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "C(S).inv":
+            self._state.mcadjs(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "T":
             self._state.t(device_wires.labels[0])
         elif opname == "T.inv":
             self._state.adjt(device_wires.labels[0])
+        elif opname == "C(T)":
+            self._state.mct(device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "C(T).inv":
+            self._state.mcadjt(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RX":
             self._state.r(Pauli.PauliX, par[0], device_wires.labels[0])
         elif opname == "RX.inv":
             self._state.r(Pauli.PauliX, -par[0], device_wires.labels[0])
+        elif opname == "CRX" or opname == "C(RX)"or opname == "C(CRX)":
+            self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "CRX.inv" or opname == "C(RX).inv" or opname == "C(CRX).inv":
+            self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RY":
             self._state.r(Pauli.PauliY, par[0], device_wires.labels[0])
         elif opname == "RY.inv":
             self._state.r(Pauli.PauliY, -par[0], device_wires.labels[0])
+        elif opname == "CRY" or opname == "C(RY)"or opname == "C(CRY)":
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "CRY.inv" or opname == "C(RY).inv" or opname == "C(CRY).inv":
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RZ":
             self._state.r(Pauli.PauliZ, par[0], device_wires.labels[0])
         elif opname == "RZ.inv":
             self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[0])
+        elif opname == "CRZ" or opname == "C(RZ)"or opname == "C(CRZ)":
+            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
+        elif opname == "CRZ.inv" or opname == "C(RZ).inv" or opname == "C(CRZ).inv":
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "PauliX" or opname == "PauliX.inv":
             self._state.x(device_wires.labels[0])
         elif opname == "PauliY" or opname == "PauliY.inv":
@@ -289,22 +351,40 @@ class QrackDevice(QubitDevice):
             self._state.mtrx([(1+1j)/2, (1-1j)/2, (1-1j)/2, (1+1j)/2], device_wires.labels[0])
         elif opname == "SX.inv":
             self._state.mtrx([(1-1j)/2, (1+1j)/2, (1+1j)/2, (1-1j)/2], device_wires.labels[0])
+        elif opname == "C(SX)":
+            self._state.mcmtrx(device_wires.labels[:-1], [(1+1j)/2, (1-1j)/2, (1-1j)/2, (1+1j)/2], device_wires.labels[-1])
+        elif opname == "SX.inv":
+            self._state.mtrx([(1-1j)/2, (1+1j)/2, (1+1j)/2, (1-1j)/2], device_wires.labels[0])
+        elif opname == "C(SX).inc":
+            self._state.mcmtrx(device_wires.labels[:-1], [(1-1j)/2, (1+1j)/2, (1+1j)/2, (1-1j)/2], device_wires.labels[-1])
         elif opname == "PhaseShift" or opname == "U1":
             self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
         elif opname == "PhaseShift.inv" or opname == "U1.inv":
             self._state.mtrx([1, 0, 0, cmath.exp(1j * -par[0])], device_wires.labels[0])
-        elif opname == "ControlledPhaseShift":
+        elif opname == "C(PhaseShift)" or opname == "C(U1)":
+            self._state.mtrx(device_wires.labels[:-1], [1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[-1])
+        elif opname == "C(PhaseShift).inv" or opname == "C(U1).inv":
+            self._state.mtrx(device_wires.labels[:-1], [1, 0, 0, cmath.exp(1j * -par[0])], device_wires.labels[-1])
+        elif opname == "ControlledPhaseShift" or opname == "C(ControlledPhaseShift)":
             self._state.mcmtrx(device_wires.labels[:-1], [1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[-1])
-        elif opname == "ControlledPhaseShift.inv":
+        elif opname == "ControlledPhaseShift.inv" or opname == "C(ControlledPhaseShift).inv":
             self._state.mcmtrx(device_wires.labels[:-1], [1, 0, 0, cmath.exp(1j * -par[0])], device_wires.labels[-1])
         elif opname == "U2":
-            self._state.mtrx([1, cmath.exp(1j * par[1]), cmath.exp(1j * par[0]), cmath.exp(1j * (par[0] + par[1]))], device_wires.labels[-1])
+            self._state.mtrx([1, cmath.exp(1j * par[1]), cmath.exp(1j * par[0]), cmath.exp(1j * (par[0] + par[1]))], device_wires.labels[0])
         elif opname == "U2.inv":
-            self._state.mtrx([1, cmath.exp(1j * -par[1]), cmath.exp(1j * -par[0]), cmath.exp(1j * (-par[0] - par[1]))], device_wires.labels[-1])
+            self._state.mtrx([1, cmath.exp(1j * -par[1]), cmath.exp(1j * -par[0]), cmath.exp(1j * (-par[0] - par[1]))], device_wires.labels[0])
+        elif opname == "C(U2)":
+            self._state.mcmtrx(device_wires.labels[:-1], [1, cmath.exp(1j * par[1]), cmath.exp(1j * par[0]), cmath.exp(1j * (par[0] + par[1]))], device_wires.labels[-1])
+        elif opname == "C(U2).inv":
+            self._state.mcmtrx(device_wires.labels[:-1], [1, cmath.exp(1j * -par[1]), cmath.exp(1j * -par[0]), cmath.exp(1j * (-par[0] - par[1]))], device_wires.labels[-1])
         elif opname == "U3":
             self._state.u(device_wires.labels[-1], par[0], par[1], par[2])
         elif opname == "U3.inv":
             self._state.u(device_wires.labels[-1], -par[0], -par[1], -par[2])
+        elif opname == "C(U3)":
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], par[0], par[1], par[2])
+        elif opname == "C(U3).inv":
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], -par[0], -par[1], -par[2])
         else:
             raise DeviceError(
                 "Operation {} is not supported on a {} device.".format(opname, self.short_name)
