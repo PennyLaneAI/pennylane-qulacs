@@ -55,30 +55,30 @@ QFT = { properties = [ "invertible" ] }
 # Optional, since gates not listed in this list will typically be decomposed by
 # default, but can be useful to express a deviation from this device's regular
 # strategy in PennyLane.
-[operators.gates.decomp]
+# [operators.gates.decomp]
 
-QubitUnitary = {}
-SISWAP = {}
-SQISW = {}
-BasisState = {}
-QubitStateVector = {}
-StatePrep = {}
-ControlledQubitUnitary = {}
-DiagonalQubitUnitary = {}
-SingleExcitation = {}
-SingleExcitationPlus = {}
-SingleExcitationMinus = {}
-DoubleExcitation = {}
-DoubleExcitationPlus = {}
-DoubleExcitationMinus = {}
-QubitCarry = {}
-QubitSum = {}
-OrbitalRotation = {}
-ECR = {}
-IsingXX = {}
-IsingYY = {}
-IsingZZ = {}
-IsingXY = {}
+# QubitUnitary = {}
+# SISWAP = {}
+# SQISW = {}
+# BasisState = {}
+# QubitStateVector = {}
+# StatePrep = {}
+# ControlledQubitUnitary = {}
+# DiagonalQubitUnitary = {}
+# SingleExcitation = {}
+# SingleExcitationPlus = {}
+# SingleExcitationMinus = {}
+# DoubleExcitation = {}
+# DoubleExcitationPlus = {}
+# DoubleExcitationMinus = {}
+# QubitCarry = {}
+# QubitSum = {}
+# OrbitalRotation = {}
+# ECR = {}
+# IsingXX = {}
+# IsingYY = {}
+# IsingZZ = {}
+# IsingXY = {}
 
 # Gates which should be translated to QubitUnitary
 # [operators.gates.matrix]
