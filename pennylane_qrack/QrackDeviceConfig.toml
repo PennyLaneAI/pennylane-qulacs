@@ -84,21 +84,21 @@ QFT = { properties = [ "invertible" ] }
 # [operators.gates.matrix]
 
 # Observables supported by the device
-# [operators.observables]
+[operators.observables]
 
-# PauliX = {}
-# PauliY = {}
-# PauliZ = {}
-# Hadamard = {}
-# Hermitian = {}
-# Identity = {}
-# Projector = {}
-# SparseHamiltonian = {}
-# Hamiltonian = {}
-# Sum = {}
-# SProd = {}
-# Prod = {}
-# Exp = {}
+PauliX = {}
+PauliY = {}
+PauliZ = {}
+Hadamard = {}
+Hermitian = {}
+Identity = {}
+Projector = {}
+SparseHamiltonian = {}
+Hamiltonian = {}
+Sum = {}
+SProd = {}
+Prod = {}
+Exp = {}
 
 [measurement_processes]
 
