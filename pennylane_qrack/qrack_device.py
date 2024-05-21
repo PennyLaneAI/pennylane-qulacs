@@ -61,14 +61,14 @@ class QrackDevice(QubitDevice):
         "model": "qubit",
         "tensor_observables": True,
         "inverse_operations": True,
-        "returns_state": False,
+        "returns_state": True,
     }
 
     _observable_map = {
-        "PauliX": Pauli.PauliX,
-        "PauliY": Pauli.PauliY,
-        "PauliZ": Pauli.PauliZ,
-        "Identity": Pauli.PauliI,
+        "PauliX": "X",
+        "PauliY": "Y",
+        "PauliZ": "Z",
+        "Identity": "I",
         "Hadamard": None,
         "Hermitian": None,
         "Sum": None,
@@ -466,13 +466,26 @@ class QrackDevice(QubitDevice):
 
     def expval(self, observable, **kwargs):
         if self.shots is None:
+            qulacs_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
                 observables = [self._observable_map[obs] for obs in observable.name]
+            elif observable.name == "Prod":
+                observables = [self._observable_map[obs.name] for obs in observable.operands]
             else:
                 observables = [self._observable_map[observable.name]]
 
+            if None not in observables:
+                applied_wires = self.map_wires(observable.wires).tolist()
+                opp = " ".join([f"{obs} {applied_wires[i]}" for i, obs in enumerate(observables)])
+
+                qulacs_observable.add_operator(1.0, opp)
+                return qulacs_observable.get_expectation_value(self._pre_rotated_state)
+
             # exact expectation value
-            eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
+            if callable(observable.eigvals):
+                eigvals = self._asarray(observable.eigvals(), dtype=self.R_DTYPE)
+            else:  # older version of pennylane
+                eigvals = self._asarray(observable.eigvals, dtype=self.R_DTYPE)
             prob = self.probability(wires=observable.wires)
             return self._dot(eigvals, prob)
 
