@@ -426,9 +426,7 @@ class QrackDevice(QubitDevice):
         elif opname == "QFT.inv":
             self._state.iqft(device_wires.labels)
         elif not opname in ["Identity", "Identity.inv", "C(Identity)", "C(Identity).inv"]:
-            raise DeviceError(
-                "Operation {} is not supported on a {} device.".format(opname, self.short_name)
-            )
+            raise DeviceError(f"Operation {opname} is not supported on a {self.short_name} device.")
 
     def _apply_qubit_unitary(self, op):
         """Apply unitary to state"""
