@@ -397,15 +397,15 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         tokens.push_back(kwargs);
 
         std::map<std::string, int> keyMap;
-        keyMap["wires"] = 0;
-        keyMap["shots"] = 1;
-        keyMap["is_hybrid_stabilizer"] = 2;
-        keyMap["is_tensor_network"] = 3;
-        keyMap["is_schmidt_decomposed"] = 4;
-        keyMap["is_schmidt_decomposition_parallel"] = 5;
-        keyMap["is_qbdd"] = 6;
-        keyMap["is_gpu"] = 7;
-        keyMap["is_host_pointer"] = 8;
+        keyMap["wires"] = 1;
+        keyMap["shots"] = 2;
+        keyMap["is_hybrid_stabilizer"] = 3;
+        keyMap["is_tensor_network"] = 4;
+        keyMap["is_schmidt_decomposed"] = 5;
+        keyMap["is_schmidt_decomposition_parallel"] = 6;
+        keyMap["is_qbdd"] = 7;
+        keyMap["is_gpu"] = 8;
+        keyMap["is_host_pointer"] = 9;
 
         bitLenInt wires = 24;
         bool is_hybrid_stabilizer = true;
@@ -425,31 +425,31 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             key.erase(key.size() - 1U);
             const bool val = (token == "True");
             switch (keyMap[key]) {
-                case 0:
+                case 1:
                     wires = std::stoi(token);
                     break;
-                case 1:
+                case 2:
                     shots = std::stoi(token);
                     break;
-                case 2:
+                case 3:
                     is_hybrid_stabilizer = val;
                     break;
-                case 3:
+                case 4:
                     is_tensor_network = val;
                     break;
-                case 4:
+                case 5:
                     is_schmidt_decomposed = val;
                     break;
-                case 5:
+                case 6:
                     is_schmidt_decomposition_parallel = val;
                     break;
-                case 6:
+                case 7:
                     is_qbdd = val;
                     break;
-                case 7:
+                case 8:
                     is_gpu =  val;
                     break;
-                case 8:
+                case 9:
                     is_host_pointer = val;
                     break;
                 default:
