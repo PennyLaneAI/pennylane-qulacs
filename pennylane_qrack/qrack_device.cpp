@@ -539,7 +539,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     auto HamiltonianObservable(const std::vector<double> &coeffs, const std::vector<ObsIdType> &obs)
         -> ObsIdType override
     {
-        return 0;
+        return -1;
     }
     auto Measure(QubitIdType id, std::optional<int> postselect) -> Result override {
         bool *ret = (bool *)malloc(sizeof(bool));
@@ -678,11 +678,16 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         //                                      dev_controlled_wires, controlled_values);
         // }
     }
-    auto Expval(ObsIdType id) -> double override {
+    auto Expval(ObsIdType id) -> double override
+    {
         const QrackObservable& obs = obs_cache[id];
         return qsim->ExpectationPauliAll(obs.wires, obs.obs);
     }
-    auto Var(ObsIdType) -> double override { return 0.0; }
+    auto Var(ObsIdType id) -> double override
+    {
+        const QrackObservable& obs = obs_cache[id];
+        return qsim->VariancePauliAll(obs.wires, obs.obs);
+    }
     void State(DataView<std::complex<double>, 1>& sv) override
     {
         RT_FAIL_IF(sv.size() != (size_t)qsim->GetMaxQPower(), "Invalid size for the pre-allocated state vector");
