@@ -89,16 +89,16 @@ QFT = { properties = [ "invertible" ] }
 PauliX = {}
 PauliY = {}
 PauliZ = {}
-Hadamard = {}
-Hermitian = {}
 Identity = {}
-Projector = {}
-SparseHamiltonian = {}
-Hamiltonian = {}
-Sum = {}
-SProd = {}
 Prod = {}
-Exp = {}
+# Hadamard = {}
+# Hermitian = {}
+# Projector = {}
+# SparseHamiltonian = {}
+# Hamiltonian = {}
+# Sum = {}
+# SProd = {}
+# Exp = {}
 
 [measurement_processes]
 

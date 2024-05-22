@@ -69,15 +69,15 @@ class QrackDevice(QubitDevice):
         "PauliY": Pauli.PauliY,
         "PauliZ": Pauli.PauliZ,
         "Identity": Pauli.PauliI,
-        "Hadamard": None,
-        "Hermitian": None,
-        "Sum": None,
-        "Prod": None,
-        "SProd": None,
-        "Exp": None,
-        "Projector": None,
-        "Hamiltonian": None,
-        "SparseHamiltonian": None
+        "Prod": None
+        # "Hadamard": None,
+        # "Hermitian": None,
+        # "Sum": None,
+        # "SProd": None,
+        # "Exp": None,
+        # "Projector": None,
+        # "Hamiltonian": None,
+        # "SparseHamiltonian": None
     }
 
     observables = _observable_map.keys()
