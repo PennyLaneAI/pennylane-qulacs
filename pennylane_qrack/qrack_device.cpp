@@ -506,7 +506,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     auto Observable(ObsId id, const std::vector<std::complex<double>> &matrix,
                     const std::vector<QubitIdType> &wires) -> ObsIdType override
     {
-        Qrack::Pauli basis;
+        Qrack::Pauli basis = Qrack::PauliI;
         switch (id) {
             case ObsId::PauliX:
                 basis = Qrack::PauliX;
@@ -516,6 +516,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 break;
             case ObsId::PauliZ:
                 basis = Qrack::PauliZ;
+                break;
+            default:
                 break;
         }
         obs_cache.push_back(QrackObservable({ basis }, { wires[0U] }));
