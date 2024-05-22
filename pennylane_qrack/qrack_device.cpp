@@ -14,11 +14,26 @@ std::string trim(std::string s)
     return std::regex_replace(s, std::regex("^ +| +$|( ) +"), "$1");
 }
 
+struct QrackObservable {
+    std::vector<Qrack::Pauli> obs;
+    std::vector<bitLenInt> wires;
+    QrackObservable()
+    {
+        // Intentionally left blank
+    }
+    QrackObservable(std::vector<Qrack::Pauli> o, std::vector<bitLenInt> w)
+        : obs(o)
+        , wires(w)
+    {
+        // Intentionally left blank
+    }
+};
+
 struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     bool tapeRecording;
     size_t shots;
     Qrack::QInterfacePtr qsim;
-    // QrackObsManager<double> obs_manager{};
+    std::vector<QrackObservable> obs_cache;
 
     // static constants for RESULT values
     static constexpr bool QRACK_RESULT_TRUE_CONST = true;
@@ -491,22 +506,37 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     auto Observable(ObsId id, const std::vector<std::complex<double>> &matrix,
                     const std::vector<QubitIdType> &wires) -> ObsIdType override
     {
-        // if (id == ObsId::Hermitian) {
-        //     return obs_manager.createHermitianObs(matrix, wires);
-        // }
-        //
-        // return obs_manager.createNamedObs(id, wires);
-        return 0;
+        Qrack::Pauli basis;
+        switch (id) {
+            case ObsId::PauliX:
+                basis = Qrack::PauliX;
+                break;
+            case ObsId::PauliY:
+                basis = Qrack::PauliY;
+                break;
+            case ObsId::PauliZ:
+                basis = Qrack::PauliZ;
+                break;
+        }
+        obs_cache.push_back(QrackObservable({ basis }, { wires[0U] }));
+
+        return obs_cache.size() - 1U;
     }
     auto TensorObservable(const std::vector<ObsIdType> &obs) -> ObsIdType override
     {
-        // return obs_manager.createTensorProdObs(obs);
-        return 0;
+        QrackObservable o;
+        for (const ObsIdType& id : obs) {
+            const QrackObservable& i = obs_cache[id];
+            o.obs.insert(o.obs.end(), i.obs.begin(), i.obs.end());
+            o.wires.insert(o.wires.end(), i.wires.begin(), i.wires.end());
+        }
+        obs_cache.push_back(o);
+
+        return obs_cache.size() - 1U;
     }
     auto HamiltonianObservable(const std::vector<double> &coeffs, const std::vector<ObsIdType> &obs)
         -> ObsIdType override
     {
-        // return obs_manager.createHamiltonianObs(coeffs, obs);
         return 0;
     }
     auto Measure(QubitIdType id, std::optional<int> postselect) -> Result override {
@@ -646,7 +676,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         //                                      dev_controlled_wires, controlled_values);
         // }
     }
-    auto Expval(ObsIdType) -> double override { return 0.0; }
+    auto Expval(ObsIdType id) -> double override {
+        const QrackObservable& obs = obs_cache[id];
+        return qsim->ExpectationPauliAll(obs.wires, obs.obs);
+    }
     auto Var(ObsIdType) -> double override { return 0.0; }
     void State(DataView<std::complex<double>, 1>& sv) override
     {
