@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <string>
 #include <QuantumDevice.hpp>
-// #include "QrackObsManager.hpp"
 
 #define CL_HPP_TARGET_OPENCL_VERSION 300
 #include "qrack/qfactory.hpp"
