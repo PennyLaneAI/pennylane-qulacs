@@ -155,7 +155,7 @@ class QrackDevice(QubitDevice):
     def get_c_interface():
         return "QrackDevice", os.path.dirname(sys.modules[__name__].__file__) + "/libqrack_device.so"
 
-    def __init__(self, wires=[], shots=None, **kwargs):
+    def __init__(self, wires=24, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
         self._state = QrackSimulator(self.num_wires, **kwargs)

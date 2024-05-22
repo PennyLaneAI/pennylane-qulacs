@@ -397,6 +397,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         tokens.push_back(kwargs);
 
         std::map<std::string, int> keyMap;
+        keyMap["wires"] = 0;
         keyMap["shots"] = 1;
         keyMap["is_hybrid_stabilizer"] = 2;
         keyMap["is_tensor_network"] = 3;
@@ -406,6 +407,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["is_gpu"] = 7;
         keyMap["is_host_pointer"] = 8;
 
+        bitLenInt wires = 24;
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = true;
         bool is_schmidt_decomposed = true;
@@ -417,12 +419,15 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         for (std::string token : tokens) {
             pos = token.find(":");
             std::string key = trim(token.substr(0, pos));
+            token.erase(0, pos + 1U);
             // Leading and trailing quotes:
             key.erase(0U, 1U);
             key.erase(key.size() - 1U);
-            token.erase(0, pos + 1U);
             const bool val = (token == "True");
             switch (keyMap[key]) {
+                case 0:
+                    wires = std::stoi(token);
+                    break;
                 case 1:
                     shots = std::stoi(token);
                     break;
@@ -482,7 +487,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             simulatorType.push_back(Qrack::QINTERFACE_CPU);
         }
 
-        qsim = CreateQuantumInterface(simulatorType, 0U, Qrack::ZERO_BCI, nullptr, Qrack::CMPLX_DEFAULT_ARG, false, true, is_host_pointer);
+        qsim = CreateQuantumInterface(simulatorType, wires, Qrack::ZERO_BCI, nullptr, Qrack::CMPLX_DEFAULT_ARG, false, true, is_host_pointer);
     }
 
     QrackDevice &operator=(const QuantumDevice &) = delete;

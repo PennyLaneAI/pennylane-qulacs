@@ -127,6 +127,8 @@ dynamic_qubit_management = true
 # The option key will be the key in a dictionary.
 # The string corresponds to a field queried in the `qml.Device` instance.
 
+# Number of qubit wires
+wires = "wires"
 # Number of shots per job
 shots = "shots"
 # Use "hybrid" stabilizer optimization? (Default is "true"; non-Clifford circuits will fall back to near-Clifford or universal simulation)
