@@ -427,7 +427,24 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             // Leading and trailing quotes:
             key.erase(0U, 1U);
             key.erase(key.size() - 1U);
+
             if (key == "wires") {
+                // Handle if integer
+                pos = kwargs.find(",");
+                bool isInt = true;
+                for (size_t i = 0; i < pos; ++i) {
+                    if ((kwargs[i] != ' ') && !isdigit(kwargs[i])) {
+                        isInt = false;
+                        break;
+                    }
+                }
+                if (isInt) {
+                    wires = stoi(trim(kwargs.substr(0, pos)));
+                    kwargs.erase(0, pos + 1U);
+                    continue;
+                }
+
+                // Handles if Wires object
                 pos = kwargs.find("]>,");
                 std::string value = kwargs.substr(0, pos);
                 kwargs.erase(0, pos + 3U);
@@ -445,6 +462,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 ++wires;
                 continue;
             }
+
             pos = kwargs.find(",");
             std::string value = trim(kwargs.substr(0, pos));
             kwargs.erase(0, pos + 1U);
