@@ -428,7 +428,7 @@ class QrackDevice(QubitDevice):
             self._state.qft(device_wires.labels)
         elif opname == "QFT.inv":
             self._state.iqft(device_wires.labels)
-        elif not opname in ["Identity", "Identity.inv", "C(Identity)", "C(Identity).inv"]:
+        elif opname not in ["Identity", "Identity.inv", "C(Identity)", "C(Identity).inv"]:
             raise DeviceError(f"Operation {opname} is not supported on a {self.short_name} device.")
 
     def _apply_qubit_unitary(self, op):
@@ -474,7 +474,7 @@ class QrackDevice(QubitDevice):
             else:
                 b = [self._observable_map[observable.name]]
 
-            if None not in observables:
+            if None not in b:
                 q = self.map_wires(observable.wires)
                 return self._state.pauli_expectation(q, b)
 
