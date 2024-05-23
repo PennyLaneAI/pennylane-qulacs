@@ -158,7 +158,10 @@ class QrackDevice(QubitDevice):
     def __init__(self, wires=24, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
-        self._state = QrackSimulator(self.num_wires, **kwargs)
+        if "isTensorNetwork" in kwargs:
+            self._state = QrackSimulator(self.num_wires, **kwargs)
+        else:
+            self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
 
     def define_wire_map(self, wires):
         consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))

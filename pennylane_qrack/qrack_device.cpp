@@ -411,9 +411,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["is_gpu"] = 8;
         keyMap["is_host_pointer"] = 9;
 
-        bitLenInt wires = 24;
+        bitLenInt wires = 0U;
         bool is_hybrid_stabilizer = true;
-        bool is_tensor_network = true;
+        bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
         bool is_schmidt_decomposition_parallel = true;
         bool is_qbdd = false;
