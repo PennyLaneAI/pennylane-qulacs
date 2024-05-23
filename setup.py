@@ -13,7 +13,7 @@
 # limitations under the License.
 #!/usr/bin/env python3
 import re
-from setuptools import setup
+from skbuild import setup
 
 
 with open("./pennylane_qrack/_version.py") as f:
@@ -41,7 +41,9 @@ info = {
     "long_description": open("README.rst").read(),
     "long_description_content_type": "text/x-rst",
     "provides": ["pennylane_qrack"],
-    "install_requires": requirements
+    "install_requires": requirements,
+    "package_data": {'pennylane_qrack': ['QrackDeviceConfig.toml']},
+    "include_package_data": True
 }
 
 classifiers = [

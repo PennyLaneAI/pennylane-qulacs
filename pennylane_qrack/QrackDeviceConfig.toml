@@ -1,0 +1,156 @@
+# Which version of the specification format is being used.
+schema = 2
+
+# The union of all gate types listed in this section must match what
+# the device considers "supported" through PennyLane's device API.
+# The gate definition has the following format:
+#
+#   GATE = { properties = [ PROPS ], condition = [ COND ] }
+#
+# Where:
+#
+#   PROPS: zero or more comma-separated quoted strings:
+#          "controllable", "invertible", "differentiable"
+#   COND: quoted string, on of:
+#         "analytic", "finiteshots"
+#
+[operators.gates.native]
+
+PauliX = { properties = [ "controllable", "invertible"] }
+PauliY = { properties = [ "controllable", "invertible"] }
+PauliZ = { properties = [ "controllable", "invertible"] }
+SX = { properties = [ "controllable", "invertible"] }
+MultiRZ = { properties = [ "controllable", "invertible" ] }
+Hadamard = { properties = [ "controllable", "invertible"] }
+S = { properties = [ "controllable", "invertible" ] }
+T = { properties = [ "controllable", "invertible" ] }
+CNOT = { properties = [ "controllable", "invertible" ] }
+SWAP = { properties = [ "controllable", "invertible" ] }
+CSWAP = { properties = [ "controllable", "invertible" ] }
+ISWAP = { properties = [ "controllable", "invertible"] }
+PSWAP = { properties = [ "controllable", "invertible"] }
+Toffoli = { properties = [ "controllable", "invertible" ] }
+CY = { properties = [ "controllable", "invertible" ] }
+CZ = { properties = [ "controllable", "invertible" ] }
+PhaseShift = { properties = [ "controllable", "invertible" ] }
+ControlledPhaseShift = { properties = [ "controllable", "invertible" ] }
+CPhase = { properties = [ "controllable", "invertible" ] }
+RX = { properties = [ "controllable", "invertible" ] }
+RY = { properties = [ "controllable", "invertible" ] }
+RZ = { properties = [ "controllable", "invertible" ] }
+Rot = { properties = [ "controllable", "invertible" ] }
+CRX = { properties = [ "controllable", "invertible" ] }
+CRY = { properties = [ "controllable", "invertible" ] }
+CRZ = { properties = [ "controllable", "invertible" ] }
+CRot = { properties = [ "controllable", "invertible" ] }
+U3 = { properties = [ "controllable", "invertible" ] }
+U2 = { properties = [ "controllable", "invertible" ] }
+U1 = { properties = [ "controllable", "invertible" ] }
+MultiControlledX = { properties = [ "controllable", "invertible" ] }
+Identity = { properties = [ "controllable", "invertible" ] }
+QFT = { properties = [ "invertible" ] }
+
+# Operators that should be decomposed according to the algorithm used
+# by PennyLane's device API.
+# Optional, since gates not listed in this list will typically be decomposed by
+# default, but can be useful to express a deviation from this device's regular
+# strategy in PennyLane.
+# [operators.gates.decomp]
+
+# QubitUnitary = {}
+# SISWAP = {}
+# SQISW = {}
+# BasisState = {}
+# QubitStateVector = {}
+# StatePrep = {}
+# ControlledQubitUnitary = {}
+# DiagonalQubitUnitary = {}
+# SingleExcitation = {}
+# SingleExcitationPlus = {}
+# SingleExcitationMinus = {}
+# DoubleExcitation = {}
+# DoubleExcitationPlus = {}
+# DoubleExcitationMinus = {}
+# QubitCarry = {}
+# QubitSum = {}
+# OrbitalRotation = {}
+# ECR = {}
+# IsingXX = {}
+# IsingYY = {}
+# IsingZZ = {}
+# IsingXY = {}
+
+# Gates which should be translated to QubitUnitary
+# [operators.gates.matrix]
+
+# Observables supported by the device
+[operators.observables]
+
+PauliX = {}
+PauliY = {}
+PauliZ = {}
+Identity = {}
+Prod = {}
+# Hadamard = {}
+# Hermitian = {}
+# Projector = {}
+# SparseHamiltonian = {}
+# Hamiltonian = {}
+# Sum = {}
+# SProd = {}
+# Exp = {}
+
+[measurement_processes]
+
+Expval = {}
+Var = {}
+Probs = {}
+Sample = {}
+Counts = { condition = [ "finiteshots" ] }
+
+[compilation]
+
+# If the device is compatible with qjit
+qjit_compatible = true
+# If the device requires run time generation of the quantum circuit.
+runtime_code_generation = false
+# If the device supports mid circuit measurements natively
+mid_circuit_measurement = true
+# This field is currently unchecked but it is reserved for the purpose of
+# determining if the device supports dynamic qubit allocation/deallocation.
+dynamic_qubit_management = true
+
+[options]
+# Options is an optional field.
+# These options represent runtime parameters that can be passed to the device
+# upon the device initialization.
+# The option key will be the key in a dictionary.
+# The string corresponds to a field queried in the `qml.Device` instance.
+
+# Number of qubit wires
+wires = "wires"
+# Number of shots per job
+shots = "shots"
+# Use "hybrid" stabilizer optimization? (Default is "true"; non-Clifford circuits will fall back to near-Clifford or universal simulation)
+is_hybrid_stabilizer = "is_hybrid_stabilizer"
+# Use "tensor network" optimization? (Default is "true"; prevents dynamic qubit de-allocation; might function sub-optimally with "hybrid" stabilizer enabled)
+is_tensor_network = "is_tensor_network"
+# Use Schmidt decomposition optimizations? (Default is "true")
+is_schmidt_decomposed = "is_schmidt_decomposed"
+# Distribute Schmidt-decomposed qubit subsystems to multiple GPUs or accelerators, if available? (Default is "true"; mismatched device capacities might hurt overall performance)
+is_schmidt_decomposition_parallel = "is_schmidt_decomposition_parallel"
+# Use "quantum binary decision diagram" ("QBDD") methods? (Default is "false"; note that QBDD is CPU-only)
+is_qbdd = "is_qbdd"
+# Use GPU acceleration? (Default is "true")
+is_gpu = "is_gpu"
+# Allocate GPU buffer from general host heap? (Default is "false"; this might improve performance or reliability in certain cases, like if using an Intel HD as accelerator)
+is_host_pointer = "is_host_pointer"
+
+# In the above example, a dictionary will be constructed at run time.
+# The dictionary will contain the string key "option_key" and its value
+# will be the value in `qml.Device` `option_field`.
+# The value can be any Python type, but will be converted to a string.
+# During the initialization of your `class QuantumDevice`, the dictionary
+# will be sent to the constructor of your implementation of `class QuantumDevice`.
+# The dictionary will be a JSON string like the following:
+# { 'option_key': option_field }
