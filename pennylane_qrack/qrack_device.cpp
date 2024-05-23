@@ -137,6 +137,18 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             for (const bitLenInt& target : wires) {
                 qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
             }
+        } else if (name == "PhaseShift") {
+            const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
+            const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
+            const Qrack::complex bottomRight(cosine, sine);
+            for (const bitLenInt& target : wires) {
+                qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
+            }
+        } else if ((name == "ControlledPhaseShift") || (name == "CPhase")) {
+            const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
+            const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
+            const Qrack::complex bottomRight(cosine, sine);
+            qsim->MCPhase(std::vector<bitLenInt>(wires.begin(), wires.end() - 1U), Qrack::ONE_CMPLX, bottomRight, wires.back());
         } else if (name == "RX") {
             for (const bitLenInt& target : wires) {
                 qsim->RX(inverse ? -params[0U] : params[0U], target);
