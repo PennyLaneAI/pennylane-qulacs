@@ -275,7 +275,7 @@ class QrackDevice(QubitDevice):
         device_wires = self.map_wires((op.control_wires + op.wires) if op.control_wires else op.wires)
         par = op.parameters
 
-        if opname in ["Toffoli", "Toffoli.inv", "C(Toffoli)", "C(Toffoli).inv", "CNOT", "CNOT.inv", "C(CNOT)", "C(CNOT).inv", "MultiControlledX", "MultiControlledX.inv", "C(PauliX)", "C(PauliX).inv"]:
+        if opname in [''.join(p) for p in product(["Toffoli", "C(Toffoli)", "CNOT", "C(CNOT)", "MultiControlledX", "C(PauliX)"], ["", ".inv"])]:
             self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["C(PauliY)", "C(PauliY).inv"]:
             self._state.mcy(device_wires.labels[:-1], device_wires.labels[-1])
@@ -426,7 +426,11 @@ class QrackDevice(QubitDevice):
             self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], -par[0], -par[1], -par[2])
         elif opname == "QFT":
             self._state.qft(device_wires.labels)
+            for i in range(len(wires) >> 1):
+                self._state.swap(wires[i], wires[-i])
         elif opname == "QFT.inv":
+            for i in range(len(wires) >> 1):
+                self._state.swap(wires[i], wires[-i])
             self._state.iqft(device_wires.labels)
         elif opname not in ["Identity", "Identity.inv", "C(Identity)", "C(Identity).inv"]:
             raise DeviceError(f"Operation {opname} is not supported on a {self.short_name} device.")
