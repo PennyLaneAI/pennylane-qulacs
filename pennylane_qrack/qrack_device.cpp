@@ -599,10 +599,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
     void ReleaseQubit(QubitIdType id) override
     {
+        // Measure to prevent denormalization
+        qsim->M(id);
+        // Deallocate
         qsim->Dispose(id, 1U);
     }
     void ReleaseAllQubits() override
     {
+        // State vector is left empty
         qsim->Dispose(0U, qsim->GetQubitCount());
     }
     [[nodiscard]] auto GetNumQubits() const -> size_t override
