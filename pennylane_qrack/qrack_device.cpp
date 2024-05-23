@@ -388,14 +388,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // Cut leading, trailing, and extra spaces
         kwargs = trim(kwargs);
 
-        std::vector<std::string> tokens;
-        size_t pos;
-        while ((pos = kwargs.find(",")) != std::string::npos) {
-            tokens.push_back(kwargs.substr(0, pos));
-            kwargs.erase(0, pos + 1U);
-        }
-        tokens.push_back(kwargs);
-
         std::map<std::string, int> keyMap;
         keyMap["wires"] = 1;
         keyMap["shots"] = 2;
@@ -416,20 +408,36 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         bool is_gpu = true;
         bool is_host_pointer = false;
 
-        for (std::string token : tokens) {
-            pos = token.find(":");
-            std::string key = trim(token.substr(0, pos));
-            token.erase(0, pos + 1U);
+        size_t pos;
+        while ((pos = kwargs.find(":")) != std::string::npos) {
+            std::string key = kwargs.substr(0, pos);
+            kwargs.erase(0, pos + 1U);
             // Leading and trailing quotes:
             key.erase(0U, 1U);
             key.erase(key.size() - 1U);
-            const bool val = (token == "True");
+            if (key == "wires") {
+                pos = kwargs.find("]>,");
+                std::string value = kwargs.substr(0, pos);
+                kwargs.erase(0, pos + 3U);
+                size_t p = value.find("[");
+                value.erase(0, p + 1U);
+                wires = 0U;
+                size_t q;
+                while ((q = value.find(",")) != std::string::npos) {
+                    value.erase(0, q + 1U);
+                    ++wires;
+                }
+                continue;
+            }
+            pos = kwargs.find(",");
+            std::string value = trim(kwargs.substr(0, pos));
+            kwargs.erase(0, pos + 1U);
+            const bool val = (value == "True");
             switch (keyMap[key]) {
-                case 1:
-                    wires = std::stoi(token);
-                    break;
                 case 2:
-                    shots = std::stoi(token);
+                    if (value != "None") {
+                        shots = std::stoi(value);
+                    }
                     break;
                 case 3:
                     is_hybrid_stabilizer = val;
