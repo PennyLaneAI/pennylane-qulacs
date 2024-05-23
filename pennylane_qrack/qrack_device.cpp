@@ -424,9 +424,13 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 wires = 0U;
                 size_t q;
                 while ((q = value.find(",")) != std::string::npos) {
+                    const bitLenInt label = stoi(value.substr(0, q));
                     value.erase(0, q + 1U);
-                    ++wires;
+                    if (label > wires) {
+                        wires = label;
+                    }
                 }
+                ++wires;
                 continue;
             }
             pos = kwargs.find(",");
