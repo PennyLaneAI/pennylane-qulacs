@@ -102,8 +102,8 @@ Prod = {}
 
 [measurement_processes]
 
-# Expval = {}
-# Var = {}
+Expval = {}
+Var = {}
 Probs = {}
 Sample = {}
 Counts = { condition = [ "finiteshots" ] }
