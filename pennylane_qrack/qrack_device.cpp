@@ -686,14 +686,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         } else {
             applyNamedOperation(name, dev_controlled_wires, dev_controlled_values, dev_wires, inverse, params);
         }
-
-        // TODO: This the Lightning implementation, which doesn't work for Qrack yet, below.
-
-        // Update tape caching if required
-        // if (tapeRecording) {
-        //     this->cache_manager.addOperation(name, params, dev_wires, inverse, {}, dev_controlled_wires,
-        //                                  controlled_values);
-        // }
     }
     void MatrixOperation(const std::vector<std::complex<double>> &matrix,
                          const std::vector<QubitIdType> &wires, bool inverse,
@@ -727,14 +719,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             }
             qsim->UCMtrx(dev_controlled_wires, inverse ? inv : mtrx, wires[0U], controlPerm);
         }
-
-        // TODO: This the Lightning implementation, which doesn't work for Qrack yet, below.
-
-        // Update tape caching if required
-        // if (tapeRecording) {
-        //     this->cache_manager.addOperation("QubitUnitary", {}, dev_wires, inverse, matrix,
-        //                                      dev_controlled_wires, controlled_values);
-        // }
     }
     auto Expval(ObsIdType id) -> double override
     {
