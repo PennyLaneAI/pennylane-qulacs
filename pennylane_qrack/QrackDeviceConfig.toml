@@ -133,7 +133,7 @@ wires = "wires"
 shots = "shots"
 # Use "hybrid" stabilizer optimization? (Default is "true"; non-Clifford circuits will fall back to near-Clifford or universal simulation)
 is_hybrid_stabilizer = "is_hybrid_stabilizer"
-# Use "tensor network" optimization? (Default is "true"; prevents dynamic qubit de-allocation; might function sub-optimally with "hybrid" stabilizer enabled)
+# Use "tensor network" optimization? (Default is "false"; prevents dynamic qubit de-allocation; might function sub-optimally with "hybrid" stabilizer enabled)
 is_tensor_network = "is_tensor_network"
 # Use Schmidt decomposition optimizations? (Default is "true")
 is_schmidt_decomposed = "is_schmidt_decomposed"
@@ -143,7 +143,7 @@ is_schmidt_decomposition_parallel = "is_schmidt_decomposition_parallel"
 is_qbdd = "is_qbdd"
 # Use GPU acceleration? (Default is "true")
 is_gpu = "is_gpu"
-# Allocate GPU buffer from general host heap? (Default is "false"; this might improve performance or reliability in certain cases, like if using an Intel HD as accelerator)
+# Allocate GPU buffer from general host heap? (Default is "false"; "true" might improve performance or reliability in certain cases, like if using an Intel HD as accelerator)
 is_host_pointer = "is_host_pointer"
 
 # In the above example, a dictionary will be constructed at run time.
