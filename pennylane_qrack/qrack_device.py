@@ -275,7 +275,7 @@ class QrackDevice(QubitDevice):
         device_wires = self.map_wires((op.control_wires + op.wires) if op.control_wires else op.wires)
         par = op.parameters
 
-        if opname in [''.join(p) for p in product(["Toffoli", "C(Toffoli)", "CNOT", "C(CNOT)", "MultiControlledX", "C(PauliX)"], ["", ".inv"])]:
+        if opname in [''.join(p) for p in it.product(["Toffoli", "C(Toffoli)", "CNOT", "C(CNOT)", "MultiControlledX", "C(PauliX)"], ["", ".inv"])]:
             self._state.mcx(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["C(PauliY)", "C(PauliY).inv"]:
             self._state.mcy(device_wires.labels[:-1], device_wires.labels[-1])
@@ -420,6 +420,14 @@ class QrackDevice(QubitDevice):
             self._state.u(device_wires.labels[-1], par[0], par[1], par[2])
         elif opname == "U3.inv":
             self._state.u(device_wires.labels[-1], -par[0], -par[1], -par[2])
+        elif opname == "Rot":
+            self._state.r(Pauli.PauliZ, par[0], device_wires.labels[-1])
+            self._state.r(Pauli.PauliY, par[1], device_wires.labels[-1])
+            self._state.r(Pauli.PauliZ, par[2], device_wires.labels[-1])
+        elif opname == "Rot.inv":
+            self._state.r(Pauli.PauliZ, -par[2], device_wires.labels[-1])
+            self._state.r(Pauli.PauliY, -par[1], device_wires.labels[-1])
+            self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[-1])
         elif opname == "C(U3)":
             self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], par[0], par[1], par[2])
         elif opname == "C(U3).inv":
