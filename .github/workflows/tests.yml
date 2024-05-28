@@ -48,7 +48,7 @@ jobs:
           pip install dist/pennylane*.whl
 
       - name: Run tests
-        run: python -m pytest tests --cov=pennylane_qulacs --cov-report=term-missing --cov-report=xml -p no:warnings --tb=native
+        run: python -m pytest tests --cov-report=term-missing --cov-report=xml -p no:warnings --tb=native
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.0.7
@@ -93,8 +93,8 @@ jobs:
 
       - name: Run tests
         run: |
-          pl-device-test --device=qulacs.simulator --tb=short --skip-ops --shots=None
-          pl-device-test --device=qulacs.simulator --tb=short --skip-ops --shots=20000
+          pl-device-test --device=qrack.simulator --tb=short --skip-ops --shots=None
+          pl-device-test --device=qrack.simulator --tb=short --skip-ops --shots=20000
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.0.7
