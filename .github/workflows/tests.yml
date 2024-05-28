@@ -38,7 +38,7 @@ jobs:
           cd qrack
           mkdir _build
           cd _build
-          cmake ..
+          cmake -DENABLE_OPENCL=OFF ..
           sudo make install
           cd ../..
 
