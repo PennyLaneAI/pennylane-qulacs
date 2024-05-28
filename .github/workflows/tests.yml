@@ -39,7 +39,7 @@ jobs:
           mkdir _build
           cd _build
           cmake ..
-          make install
+          sudo make install
           cd ../..
 
       - name: Install Plugin
