@@ -32,8 +32,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install wheel pytest pytest-cov pytest-mock --upgrade
-          git submodule init
-          git submodule update
+          git clone https://github.com/PennyLaneAI/catalyst.git
           git clone https://github.com/unitaryfund/qrack.git
           cd qrack
           mkdir _build
