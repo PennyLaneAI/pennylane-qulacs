@@ -34,6 +34,13 @@ jobs:
           pip install wheel pytest pytest-cov pytest-mock --upgrade
           git submodule init
           git submodule update
+          git clone https://github.com/unitaryfund/qrack.git
+          cd qrack
+          mkdir _build
+          cd _build
+          cmake ..
+          make install
+          cd ../..
 
       - name: Install Plugin
         run: |
