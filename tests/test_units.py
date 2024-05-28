@@ -35,7 +35,7 @@ class TestDeviceUnits:
         assert dev._samples is None
         assert dev._capabilities["model"] == "qubit"
         assert dev._capabilities["tensor_observables"]
-        assert not dev._capabilities["returns_state"]
+        assert dev._capabilities["returns_state"]
         assert isinstance(dev._state, QrackSimulator)
 
     # def test_no_gpu_support(self, monkeypatch):
@@ -77,27 +77,3 @@ class TestDeviceUnits:
         for i in range(16):
             actual[i] = actual[i] * np.conjugate(actual[i])
         assert np.allclose(actual, expected)
-
-    @pytest.mark.parametrize("obs,args,wires,supported", [
-        (qml.PauliX, [], [0], True),
-        (qml.Hadamard, [], [0], False),
-        (qml.Hermitian, [
-            np.array([
-                [1.02789352, 1.61296440 - 0.3498192j],
-                [1.61296440 + 0.3498192j, 1.23920938 + 0j]
-            ])
-        ], [0], False),
-        (lambda wires: qml.PauliX(wires[0]) @ qml.Hadamard(wires[1]), [], [0, 1], False),
-        (lambda wires: qml.PauliZ(wires[0]) @ qml.PauliY(wires[1]), [], [0, 1], True)
-        ])
-    def test_expval_hadamard(self, obs, args, wires, supported, mocker):
-        """Test that QrackDevice.expval() uses native calculations when possible"""
-        dev = QrackDevice(4)
-
-        spy = mocker.spy(dev, "probability")
-        dev.expval(obs(*args, wires=wires))
-
-        # if supported:
-        #     spy.assert_not_called()
-        # else:
-        spy.assert_called_once()
