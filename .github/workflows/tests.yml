@@ -29,6 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt install ocl-icd-opencl-dev opencl-headers
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install wheel pytest pytest-cov pytest-mock --upgrade
@@ -37,7 +38,7 @@ jobs:
           cd qrack
           mkdir _build
           cd _build
-          cmake -DENABLE_OPENCL=OFF ..
+          cmake ..
           sudo make install
           cd ../..
 

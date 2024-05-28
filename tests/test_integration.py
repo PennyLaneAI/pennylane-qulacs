@@ -22,7 +22,7 @@ class TestIntegration:
 
     def test_load_device(self):
         """Test that the Qrack device loads correctly."""
-        dev = QrackDevice(2, shots=int(1e6))
+        dev = QrackDevice(2, shots=int(1e6), isOpenCL=False)
 
         assert dev.num_wires == 2
         assert dev.shots == int(1e6)
@@ -31,7 +31,7 @@ class TestIntegration:
 
     def test_expectation(self):
         """Test that expectation of a non-trivial circuit is correct."""
-        dev = QrackDevice(2, shots=int(1e6))
+        dev = QrackDevice(2, shots=int(1e6), isOpenCL=False)
 
         theta = 0.432
         phi = 0.123

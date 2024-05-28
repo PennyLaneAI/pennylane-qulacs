@@ -28,7 +28,7 @@ class TestDeviceUnits:
     )
     def test_device_attributes(self, num_wires, shots):
         """Test that attributes are set as expected."""
-        dev = QrackDevice(wires=num_wires, shots=shots)
+        dev = QrackDevice(wires=num_wires, shots=shots, isOpenCL=False)
 
         assert dev.num_wires == num_wires
         assert dev.shots == shots
@@ -41,12 +41,12 @@ class TestDeviceUnits:
     # def test_no_gpu_support(self, monkeypatch):
     #     """Test that error thrown when gpu set to True but no gpu support found."""
     #
-    #     monkeypatch.setattr(QrackDevice, "gpu_supported", False)
+    #     monkeypatch.setattr(QrackDevice, "gpu_supported", False, isOpenCL=False)
     #
     #     with pytest.raises(
     #         qml.DeviceError, match="GPU not supported with installed version of qrack"
     #     ):
-    #         QrackDevice(3, gpu=True)
+    #         QrackDevice(3, gpu=True, isOpenCL=False)
 
     @pytest.mark.parametrize(
         "wires, prob",
@@ -54,7 +54,7 @@ class TestDeviceUnits:
     )
     def test_analytic_probability(self, wires, prob, tol):
         """Test the analytic_probability() function."""
-        dev = QrackDevice(4)
+        dev = QrackDevice(4, isOpenCL=False)
         state = np.array((0, 1, 0, 1))
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])
@@ -65,7 +65,7 @@ class TestDeviceUnits:
 
     def test_reset(self, tol):
         """Test the reset() function."""
-        dev = QrackDevice(4)
+        dev = QrackDevice(4, isOpenCL=False)
         state = np.array((0, 1, 0, 1))
         op = qml.BasisState(state, wires=[0, 1, 2, 3])
         dev.apply([op])

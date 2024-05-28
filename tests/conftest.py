@@ -17,8 +17,6 @@ import os
 
 import pennylane as qml
 
-from pennylane_qrack.qrack_device import QrackDevice
-
 
 np.random.seed(42)
 
