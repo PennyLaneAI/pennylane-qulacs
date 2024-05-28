@@ -73,8 +73,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt install ocl-icd-opencl-dev opencl-headers
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          git clone https://github.com/PennyLaneAI/catalyst.git
+          git clone https://github.com/unitaryfund/qrack.git
+          cd qrack
+          mkdir _build
+          cd _build
+          cmake ..
+          sudo make install
+          cd ../..
           pip install wheel pytest pytest-cov pytest-mock flaky --upgrade
 
       - name: Install Plugin
