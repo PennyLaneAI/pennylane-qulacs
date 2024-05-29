@@ -1,5 +1,8 @@
 include pennylane_qrack/*
-include catalyst/runtime/lib/backend/common/*
+include qrack/include/*
+include qrack/_build/include/*
+include qrack/_build/libqrack.a
+include catalyst/runtime/include/*
 include Makefile
 include CMakeLists.txt
 include requirements.txt

@@ -18,7 +18,7 @@ else (ENABLE_OPENCL)
     target_link_libraries(qrack_device ${CMAKE_SOURCE_DIR}/qrack/_build/libqrack.a)
 endif (ENABLE_OPENCL)
 target_link_directories(qrack_device PUBLIC ${CMAKE_SOURCE_DIR}/qrack/_build)
-target_include_directories(qrack_device PUBLIC catalyst/runtime/include)
+target_include_directories(qrack_device PUBLIC catalyst/runtime/include qrack/include qrack/_build/include)
 set_property(TARGET qrack_device PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(TARGETS qrack_device LIBRARY DESTINATION pennylane_qrack)
 
