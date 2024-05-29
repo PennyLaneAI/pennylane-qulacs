@@ -210,9 +210,7 @@ class QrackDevice(QubitDevice):
             elif isinstance(op, QubitUnitary):
                 if len(op.wires) > 1:
                     raise DeviceError(
-                        "Operation {} is not supported on a {} device, except for single wires.".format(
-                            op.name, self.short_name
-                        )
+                        f"Operation {op.name} is not supported on a {self.short_name} device, except for single wires."
                     )
                 self._apply_qubit_unitary(op)
             else:
