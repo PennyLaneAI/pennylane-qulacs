@@ -35,7 +35,7 @@ Z = np.array([[1, 0], [0, -1]])
 H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
 S = np.diag([1, 1j])
 T = np.diag([1, np.exp(1j * np.pi / 4)])
-SX = np.array([[(1+1j)/2, (1-1j)/2], [(1-1j)/2, (1+1j)/2]])
+SX = np.array([[(1 + 1j) / 2, (1 - 1j) / 2], [(1 - 1j) / 2, (1 + 1j) / 2]])
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 CZ = np.diag([1, 1, 1, -1])
@@ -52,8 +52,18 @@ c_phase_shift = lambda phi: np.diag([1, 1, 1, np.exp(1j * phi)])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
-u2 = lambda phi, delta: np.array([[1, np.exp(1j * delta)], [np.exp(1j * phi), np.exp(1j * (phi + delta))]])
-u3 = lambda theta, phi, delta: np.array([[np.cos(theta / 2), -np.exp(1j * delta) * np.sin(theta / 2)], [np.exp(1j * phi) * np.sin(theta / 2), np.exp(1j * (phi + delta)) * np.cos(theta / 2)]])
+u2 = lambda phi, delta: np.array(
+    [[1, np.exp(1j * delta)], [np.exp(1j * phi), np.exp(1j * (phi + delta))]]
+)
+u3 = lambda theta, phi, delta: np.array(
+    [
+        [np.cos(theta / 2), -np.exp(1j * delta) * np.sin(theta / 2)],
+        [
+            np.exp(1j * phi) * np.sin(theta / 2),
+            np.exp(1j * (phi + delta)) * np.cos(theta / 2),
+        ],
+    ]
+)
 
 # CRX/CRY/CRZ in the PennyLane convention
 crx = lambda theta: np.array(
@@ -84,8 +94,18 @@ crot = lambda phi, theta, omega: np.array(
     [
         [1, 0, 0, 0],
         [0, 1, 0, 0],
-        [0, 0, np.exp(-0.5j * (phi + omega)) * np.cos(theta / 2), np.exp(0.5j * (phi - omega)) * np.sin(theta / 2)],
-        [0, 0, np.exp(-0.5j * (phi - omega)) * np.sin(theta / 2), np.exp(0.5j * (phi + omega)) * np.cos(theta / 2)]
+        [
+            0,
+            0,
+            np.exp(-0.5j * (phi + omega)) * np.cos(theta / 2),
+            np.exp(0.5j * (phi - omega)) * np.sin(theta / 2),
+        ],
+        [
+            0,
+            0,
+            np.exp(-0.5j * (phi - omega)) * np.sin(theta / 2),
+            np.exp(0.5j * (phi + omega)) * np.cos(theta / 2),
+        ],
     ]
 )
 
@@ -105,7 +125,7 @@ single_qubit = [
     (qml.adjoint(qml.Hadamard(wires=0)), H.conj().T),
     (qml.adjoint(qml.S(wires=0)), S.conj().T),
     (qml.adjoint(qml.T(wires=0)), T.conj().T),
-    (qml.adjoint(qml.SX(wires=0)), SX.conj().T)
+    (qml.adjoint(qml.SX(wires=0)), SX.conj().T),
 ]
 
 # list of all parametrized single-qubit gates
@@ -125,7 +145,10 @@ single_qubit_two_param = [
 ]
 single_qubit_three_param = [
     (qml.U3(0, 0, 0, wires=0), u3),
-    (qml.adjoint(qml.U3(0, 0, 0, wires=0)), lambda theta, phi, delta: u3(-theta, -phi, -delta)),
+    (
+        qml.adjoint(qml.U3(0, 0, 0, wires=0)),
+        lambda theta, phi, delta: u3(-theta, -phi, -delta),
+    ),
 ]
 # list of all non-parametrized two-qubit gates
 two_qubit = [
@@ -136,7 +159,7 @@ two_qubit = [
     (qml.adjoint(qml.CNOT(wires=[0, 1])), CNOT.conj().T),
     (qml.adjoint(qml.SWAP(wires=[0, 1])), SWAP.conj().T),
     (qml.adjoint(qml.CZ(wires=[0, 1])), CZ.conj().T),
-    (qml.adjoint(qml.ISWAP(wires=[0, 1])), ISWAP.conj().T)
+    (qml.adjoint(qml.ISWAP(wires=[0, 1])), ISWAP.conj().T),
 ]
 # list of all parametrized two-qubit gates
 two_qubit_param = [
@@ -147,11 +170,17 @@ two_qubit_param = [
     (qml.adjoint(qml.CRX(0, wires=[0, 1])), lambda theta: crx(-theta)),
     (qml.adjoint(qml.CRY(0, wires=[0, 1])), lambda theta: cry(-theta)),
     (qml.adjoint(qml.CRZ(0, wires=[0, 1])), lambda theta: crz(-theta)),
-    (qml.adjoint(qml.ControlledPhaseShift(0, wires=[0, 1])), lambda theta: c_phase_shift(-theta))
+    (
+        qml.adjoint(qml.ControlledPhaseShift(0, wires=[0, 1])),
+        lambda theta: c_phase_shift(-theta),
+    ),
 ]
 two_qubit_three_param = [
     (qml.CRot(0, 0, 0, wires=[0, 1]), crot),
-    (qml.adjoint(qml.CRot(0, 0, 0, wires=[0, 1])), lambda phi, theta, omega: crot(-phi, -theta, -omega)),
+    (
+        qml.adjoint(qml.CRot(0, 0, 0, wires=[0, 1])),
+        lambda phi, theta, omega: crot(-phi, -theta, -omega),
+    ),
 ]
 # list of all three-qubit gates
 three_qubit = [
@@ -163,7 +192,7 @@ three_qubit = [
 # list of all four-qubit gates
 four_qubit = [
     (qml.MultiControlledX(wires=[0, 1, 2, 3]), multix4),
-    (qml.adjoint(qml.MultiControlledX(wires=[0, 1, 2, 3])), multix4.conj().T)
+    (qml.adjoint(qml.MultiControlledX(wires=[0, 1, 2, 3])), multix4.conj().T),
 ]
 
 
@@ -189,7 +218,7 @@ class TestStateApply:
 
         res = np.abs(dev.state) ** 2
         # compute expected probabilities
-        expected = np.zeros([2 ** 4])
+        expected = np.zeros([2**4])
         expected[np.ravel_multi_index(state, [2] * 4)] = 1
 
         assert np.allclose(res, expected, tol)
@@ -236,7 +265,9 @@ class TestStateApply:
 
     @pytest.mark.parametrize("device_wires", [3, 4, 5])
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
-    def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, tol):
+    def test_qubit_state_vector_on_wires_subset(
+        self, init_state, device_wires, op_wires, tol
+    ):
         """Test QubitStateVector application on a subset of device wires"""
         dev = QrackDevice(device_wires, isOpenCL=False)
         state = init_state(len(op_wires))
@@ -256,7 +287,10 @@ class TestStateApply:
         dev = QrackDevice(2, isOpenCL=False)
         state = np.array([0, 123.432])
 
-        with pytest.raises(ValueError, match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\)."):
+        with pytest.raises(
+            ValueError,
+            match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\).",
+        ):
             op = qml.QubitStateVector(state, wires=[0, 1])
             dev.apply([op])
 
@@ -308,7 +342,9 @@ class TestStateApply:
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
     @pytest.mark.parametrize("omega", [1.213, -0.221])
     @pytest.mark.parametrize("op,func", single_qubit_three_param)
-    def test_single_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
+    def test_single_qubit_three_parameters(
+        self, init_state, op, func, phi, theta, omega, tol
+    ):
         """Test PauliX application"""
         dev = QrackDevice(1, isOpenCL=False)
         state = init_state(1)
@@ -402,7 +438,9 @@ class TestStateApply:
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
     @pytest.mark.parametrize("omega", [1.213, -0.221])
     @pytest.mark.parametrize("op,func", two_qubit_three_param)
-    def test_two_qubit_three_parameters(self, init_state, op, func, phi, theta, omega, tol):
+    def test_two_qubit_three_parameters(
+        self, init_state, op, func, phi, theta, omega, tol
+    ):
         """Test parametrized two qubit gates application"""
         dev = QrackDevice(2, isOpenCL=False)
         state = init_state(2)
@@ -420,10 +458,15 @@ class TestStateApply:
         """Test that apply fails for incorrect state preparation."""
         dev = QrackDevice(2, isOpenCL=False)
 
-        with pytest.raises(ValueError, match="Sum of amplitudes-squared does not equal one."):
+        with pytest.raises(
+            ValueError, match="Sum of amplitudes-squared does not equal one."
+        ):
             dev.apply([qml.QubitStateVector(np.array([1, -1]), wires=[0])])
 
-        with pytest.raises(ValueError, match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\)."):
+        with pytest.raises(
+            ValueError,
+            match="State vector must have shape \\(2\\*\\*wires,\\) or \\(batch_size, 2\\*\\*wires\\).",
+        ):
             p = np.array([1, 0, 1, 1, 0]) / np.sqrt(3)
             dev.reset()
             dev.apply([qml.QubitStateVector(p, wires=[0, 1])])
@@ -449,11 +492,36 @@ class TestStateApply:
         (np.array([1, 0]), 2, [0], [1, 0, 0, 0]),
         (np.array([0, 1]), 2, [0], [0, 0, 1, 0]),
         (np.array([1, 1]) / np.sqrt(2), 2, [1], np.array([1, 1, 0, 0]) / np.sqrt(2)),
-        (np.array([1, 1]) / np.sqrt(2), 3, [0], np.array([1, 0, 0, 0, 1, 0, 0, 0]) / np.sqrt(2)),
-        (np.array([1, 2, 3, 4]) / np.sqrt(48), 3, [0, 1], np.array([1, 0, 2, 0, 3, 0, 4, 0]) / np.sqrt(48)),
-        (np.array([1, 2, 3, 4]) / np.sqrt(48), 3, [1, 0], np.array([1, 0, 3, 0, 2, 0, 4, 0]) / np.sqrt(48)),
-        (np.array([1, 2, 3, 4]) / np.sqrt(48), 3, [0, 2], np.array([1, 2, 0, 0, 3, 4, 0, 0]) / np.sqrt(48)),
-        (np.array([1, 2, 3, 4]) / np.sqrt(48), 3, [1, 2], np.array([1, 2, 3, 4, 0, 0, 0, 0]) / np.sqrt(48)),
+        (
+            np.array([1, 1]) / np.sqrt(2),
+            3,
+            [0],
+            np.array([1, 0, 0, 0, 1, 0, 0, 0]) / np.sqrt(2),
+        ),
+        (
+            np.array([1, 2, 3, 4]) / np.sqrt(48),
+            3,
+            [0, 1],
+            np.array([1, 0, 2, 0, 3, 0, 4, 0]) / np.sqrt(48),
+        ),
+        (
+            np.array([1, 2, 3, 4]) / np.sqrt(48),
+            3,
+            [1, 0],
+            np.array([1, 0, 3, 0, 2, 0, 4, 0]) / np.sqrt(48),
+        ),
+        (
+            np.array([1, 2, 3, 4]) / np.sqrt(48),
+            3,
+            [0, 2],
+            np.array([1, 2, 0, 0, 3, 4, 0, 0]) / np.sqrt(48),
+        ),
+        (
+            np.array([1, 2, 3, 4]) / np.sqrt(48),
+            3,
+            [1, 2],
+            np.array([1, 2, 3, 4, 0, 0, 0, 0]) / np.sqrt(48),
+        ),
     ],
 )
 def test_expand_state(state, op_wires, device_wires, expected, tol):

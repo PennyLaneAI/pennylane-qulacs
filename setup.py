@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #!/usr/bin/env python3
+import os
 import re
 from skbuild import setup
 
@@ -19,12 +20,11 @@ from skbuild import setup
 with open("./pennylane_qrack/_version.py") as f:
     (version,) = re.findall('__version__ = "(.*)"', f.read())
 
-
 requirements = [
     "pennylane>=0.32",
     "pyqrack>=0.13.0",
     "numpy~=1.16",
-    "scikit-build>=0.1.0"
+    "scikit-build>=0.1.0",
 ]
 
 info = {
@@ -36,15 +36,17 @@ info = {
     "license": "Apache License 2.0",
     "packages": ["pennylane_qrack"],
     "entry_points": {
-        "pennylane.plugins": ["qrack.simulator = pennylane_qrack.qrack_device:QrackDevice"]
+        "pennylane.plugins": [
+            "qrack.simulator = pennylane_qrack.qrack_device:QrackDevice"
+        ]
     },
     "description": "PennyLane plugin for Qrack.",
     "long_description": open("README.rst").read(),
     "long_description_content_type": "text/x-rst",
     "provides": ["pennylane_qrack"],
     "install_requires": requirements,
-    "package_data": {'pennylane_qrack': ['QrackDeviceConfig.toml']},
-    "include_package_data": True
+    "package_data": {"pennylane_qrack": ["QrackDeviceConfig.toml"]},
+    "include_package_data": True,
 }
 
 classifiers = [

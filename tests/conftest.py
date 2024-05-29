@@ -36,7 +36,9 @@ U = np.array(
 U2 = np.array([[0, 1, 1, 1], [1, 0, 1, -1], [1, -1, 0, 1], [1, 1, -1, 0]]) / np.sqrt(3)
 
 # single qubit Hermitian observable
-A = np.array([[1.02789352, 1.61296440 - 0.3498192j], [1.61296440 + 0.3498192j, 1.23920938 + 0j]])
+A = np.array(
+    [[1.02789352, 1.61296440 - 0.3498192j], [1.61296440 + 0.3498192j, 1.23920938 + 0j]]
+)
 
 
 # ==========================================================
@@ -57,7 +59,7 @@ def init_state():
     """Fixture to create an n-qubit initial state"""
 
     def _init_state(n):
-        state = np.random.random([2 ** n]) + np.random.random([2 ** n]) * 1j
+        state = np.random.random([2**n]) + np.random.random([2**n]) * 1j
         state /= np.linalg.norm(state)
         return state
 

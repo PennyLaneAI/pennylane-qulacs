@@ -7,21 +7,36 @@ This plugin is addapted from the `PennyLane-Qulacs plugin, <https://github.com/P
 
 `PennyLane <https://pennylane.readthedocs.io>`__ is a cross-platform Python library for quantum machine learning, automatic differentiation, and optimization of hybrid quantum-classical computations.
 
-`vm6502q/qrack <https://github.com/vm6502q>`__ is a software library for quantum computing, written in C++ and with GPU support.
+`unitaryfund/qrack <https://github.com/unitaryfund/qrack>`__ (formerly **vm6502q/qrack**) is a software library for quantum computing, written in C++ and with GPU support.
 
 Features
 ========
 
 * Provides access to a PyQrack simulator backend via the ``qrack.simulator`` device
+* Provides access to a (C++) Qrack simulator backend for Catalyst (also) via the ``qrack.simulator`` device
 
 Installation
 ============
 
-This plugin requires Python version 3.6 or above, as well as PennyLane. Installation of this plugin, as well as all dependencies, can be done using ``pip``:
+This plugin requires Python version 3.6 or above, as well as PennyLane and the Qrack library.
+
+You can choose to go the `releases <https://github.com/unitaryfund/qrack/releases>`__ page of Qrack to download a packaged artifact for your system and **install it in your system directories** (like `/usr` or `/usr/local` on Linux and UNIX based systems, including Mac), **or** you can opt to **build and install from source**, which might be easier, and this gives you maximum control over build configurations, like choice of CUDA over OpenCL GPU acceleration!
+
+See the Qrack README and documentation for the many build options of qrack, but, after checking out the Qrack repository and entering its root folder, this might be the best and simplest way to build and install Qrack:
+
+```sh
+$ mkdir _build
+$ cd _build
+$ cmake -DCPP_STD=14 ..
+$ make all -j$(nproc --all)
+$ sudo make install
+```
+
+After installing Qrack, installation of this plugin as well as all its Python dependencies can be done using ``pip`` (or ``pip3``, as appropriate):
 
 .. code-block:: bash
 
-    $ pip install pennylane-qrack
+    $ pip3 install pennylane-qrack
 
 Dependencies
 ~~~~~~~~~~~~
@@ -29,11 +44,13 @@ Dependencies
 PennyLane-Qrack requires the following libraries be installed:
 
 * `Python <http://python.org/>`__ >= 3.8
+* `Qrack <https://github.com/unitaryfund/qrack>`__ >= 9.0
 
 as well as the following Python packages:
 
 * `PennyLane <http://pennylane.readthedocs.io/>`__ >= 0.32
-* `PyQrack <https://github.com/vm6502q/pyqrack>`__  >= 0.13.0
+* `Catalyst <https://docs.pennylane.ai/projects/catalyst/en/stable/index.html>`__ >= 0.6
+* `PyQrack <https://github.com/vm6502q/pyqrack>`__  >= 1.28.0
 
 
 If you currently do not have Python 3 installed, we recommend
