@@ -23,9 +23,7 @@ from pyqrack import QrackSimulator
 class TestDeviceUnits:
     """Unit tests for the plugin."""
 
-    @pytest.mark.parametrize(
-        "num_wires, shots", [(1, None), (2, 184), (3, 1)]
-    )
+    @pytest.mark.parametrize("num_wires, shots", [(1, None), (2, 184), (3, 1)])
     def test_device_attributes(self, num_wires, shots):
         """Test that attributes are set as expected."""
         dev = QrackDevice(wires=num_wires, shots=shots, isOpenCL=False)
@@ -50,7 +48,11 @@ class TestDeviceUnits:
 
     @pytest.mark.parametrize(
         "wires, prob",
-        [([0], [1.0, 0.0]), ([0, 1], [0.0, 1.0, 0.0, 0.0]), ([1, 3], [0.0, 0.0, 0.0, 1.0])],
+        [
+            ([0], [1.0, 0.0]),
+            ([0, 1], [0.0, 1.0, 0.0, 0.0]),
+            ([1, 3], [0.0, 0.0, 0.0, 1.0]),
+        ],
     )
     def test_analytic_probability(self, wires, prob, tol):
         """Test the analytic_probability() function."""

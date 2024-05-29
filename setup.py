@@ -30,7 +30,7 @@ requirements = [
     "pennylane>=0.32",
     "pyqrack>=0.13.0",
     "numpy~=1.16",
-    "scikit-build>=0.1.0"
+    "scikit-build>=0.1.0",
 ]
 
 info = {
@@ -49,8 +49,8 @@ info = {
     "long_description_content_type": "text/x-rst",
     "provides": ["pennylane_qrack"],
     "install_requires": requirements,
-    "package_data": {'pennylane_qrack': ['QrackDeviceConfig.toml']},
-    "include_package_data": True
+    "package_data": {"pennylane_qrack": ["QrackDeviceConfig.toml"]},
+    "include_package_data": True,
 }
 
 classifiers = [
