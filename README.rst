@@ -24,13 +24,13 @@ You can choose to go the `releases <https://github.com/unitaryfund/qrack/release
 
 See the Qrack README and documentation for the many build options of qrack, but, after checking out the Qrack repository and entering its root folder, this might be the best and simplest way to build and install Qrack:
 
-```sh
-$ mkdir _build
-$ cd _build
-$ cmake -DCPP_STD=14 ..
-$ make all -j$(nproc --all)
-$ sudo make install
-```
+.. code-block:: bash
+
+    $ mkdir _build
+    $ cd _build
+    $ cmake -DCPP_STD=14 ..
+    $ make all -j$(nproc --all)
+    $ sudo make install
 
 After installing Qrack, installation of this plugin as well as all its Python dependencies can be done using ``pip`` (or ``pip3``, as appropriate):
 
