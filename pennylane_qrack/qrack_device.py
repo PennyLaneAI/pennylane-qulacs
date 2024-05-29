@@ -174,9 +174,7 @@ class QrackDevice(QubitDevice):
         if "isTensorNetwork" in kwargs:
             self._state = QrackSimulator(self.num_wires, **kwargs)
         else:
-            self._state = QrackSimulator(
-                self.num_wires, isTensorNetwork=False, **kwargs
-            )
+            self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
 
     def define_wire_map(self, wires):
         consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))
@@ -227,9 +225,7 @@ class QrackDevice(QubitDevice):
         unravelled_indices[:, wires] = basis_states
 
         # get indices for which the state is changed to input state vector elements
-        ravelled_indices = np.ravel_multi_index(
-            unravelled_indices.T, [2] * self.num_wires
-        )
+        ravelled_indices = np.ravel_multi_index(unravelled_indices.T, [2] * self.num_wires)
 
         state = np.zeros([2**self.num_wires], dtype=np.complex128)
         state[ravelled_indices] = state_vector
@@ -331,25 +327,19 @@ class QrackDevice(QubitDevice):
                 device_wires.labels[-1],
             )
         elif opname in ["CRX", "C(RX)", "C(CRX)"]:
-            self._state.mcr(
-                Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRX.inv", "C(RX).inv", "C(CRX).inv"]:
             self._state.mcr(
                 Pauli.PauliX, -par[0], device_wires.labels[:-1], device_wires.labels[-1]
             )
         elif opname in ["CRY", "C(RY)", "C(CRY)"]:
-            self._state.mcr(
-                Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRY.inv", "C(RY).inv", "C(CRY).inv"]:
             self._state.mcr(
                 Pauli.PauliY, -par[0], device_wires.labels[:-1], device_wires.labels[-1]
             )
         elif opname in ["CRZ", "C(RZ)", "C(CRZ)"]:
-            self._state.mcr(
-                Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRZ.inv", "C(RZ).inv", "C(CRZ).inv"]:
             self._state.mcr(
                 Pauli.PauliZ, -par[0], device_wires.labels[:-1], device_wires.labels[-1]
@@ -393,41 +383,29 @@ class QrackDevice(QubitDevice):
             )
             self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, 1j)
         elif opname == "C(ISWAP).inv":
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j)
             self._state.cswap(
                 device_wires.labels[:-2],
                 device_wires.labels[-2],
                 device_wires.labels[-1],
             )
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -1j)
         elif opname == "C(PSWAP)":
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, par[0]
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, par[0])
             self._state.cswap(
                 device_wires.labels[:-2],
                 device_wires.labels[-2],
                 device_wires.labels[-1],
             )
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, par[0]
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, par[0])
         elif opname == "C(PSWAP).inv":
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -par[0]
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -par[0])
             self._state.cswap(
                 device_wires.labels[:-2],
                 device_wires.labels[-2],
                 device_wires.labels[-1],
             )
-            self._state.mcu(
-                device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -par[0]
-            )
+            self._state.mcu(device_wires.labels[:-1], device_wires.labels[-1], 0, 0, -par[0])
         elif opname in ["CY", "CY.inv", "C(CY)", "C(CY).inv"]:
             self._state.mcy(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CZ", "CZ.inv", "C(CZ)", "C(CZ).inv"]:
@@ -453,37 +431,25 @@ class QrackDevice(QubitDevice):
         elif opname == "RX.inv":
             self._state.r(Pauli.PauliX, -par[0], device_wires.labels[0])
         elif opname in ["CRX", "C(RX)", "C(CRX)"]:
-            self._state.mcr(
-                Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRX.inv", "C(RX).inv", "C(CRX).inv"]:
-            self._state.mcr(
-                Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RY":
             self._state.r(Pauli.PauliY, par[0], device_wires.labels[0])
         elif opname == "RY.inv":
             self._state.r(Pauli.PauliY, -par[0], device_wires.labels[0])
         elif opname in ["CRY", "C(RY)", "C(CRY)"]:
-            self._state.mcr(
-                Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRY.inv", "C(RY).inv", "C(CRY).inv"]:
-            self._state.mcr(
-                Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RZ":
             self._state.r(Pauli.PauliZ, par[0], device_wires.labels[0])
         elif opname == "RZ.inv":
             self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[0])
         elif opname in ["CRZ", "C(RZ)", "C(CRZ)"]:
-            self._state.mcr(
-                Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRZ.inv", "C(RZ).inv", "C(CRZ).inv"]:
-            self._state.mcr(
-                Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1]
-            )
+            self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["PauliX", "PauliX.inv"]:
             self._state.x(device_wires.labels[0])
         elif opname in ["PauliY", "PauliY.inv"]:
@@ -641,9 +607,7 @@ class QrackDevice(QubitDevice):
             "C(Identity)",
             "C(Identity).inv",
         ]:
-            raise DeviceError(
-                f"Operation {opname} is not supported on a {self.short_name} device."
-            )
+            raise DeviceError(f"Operation {opname} is not supported on a {self.short_name} device.")
 
     def _apply_qubit_unitary(self, op):
         """Apply unitary to state"""
@@ -668,9 +632,7 @@ class QrackDevice(QubitDevice):
         all_probs = _reverse_state(self._abs(self.state) ** 2)
         prob = self.marginal_prob(all_probs, wires)
 
-        if (not "QRACK_FPPOW" in os.environ) or (
-            6 > int(os.environ.get("QRACK_FPPOW"))
-        ):
+        if (not "QRACK_FPPOW" in os.environ) or (6 > int(os.environ.get("QRACK_FPPOW"))):
             tot_prob = 0
             for p in prob:
                 tot_prob = tot_prob + p
@@ -713,9 +675,7 @@ class QrackDevice(QubitDevice):
             )
 
         samples = np.array(
-            self._state.measure_shots(
-                list(range(self.num_wires - 1, -1, -1)), self.shots
-            )
+            self._state.measure_shots(list(range(self.num_wires - 1, -1, -1)), self.shots)
         )
         self._samples = QubitDevice.states_to_binary(samples, self.num_wires)
 
