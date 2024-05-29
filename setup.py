@@ -20,12 +20,6 @@ from skbuild import setup
 with open("./pennylane_qrack/_version.py") as f:
     (version,) = re.findall('__version__ = "(.*)"', f.read())
 
-if not os.path.exists("qrack/_build"):
-    os.mkdir("qrack/_build")
-os.chdir("qrack/_build")
-os.system("cmake -DCPP_STD=14 .. ; make all -j(nproc --all)")
-os.chdir("../..")
-
 requirements = [
     "pennylane>=0.32",
     "pyqrack>=0.13.0",
@@ -42,7 +36,9 @@ info = {
     "license": "Apache License 2.0",
     "packages": ["pennylane_qrack"],
     "entry_points": {
-        "pennylane.plugins": ["qrack.simulator = pennylane_qrack.device:QrackDevice"]
+        "pennylane.plugins": [
+            "qrack.simulator = pennylane_qrack.qrack_device:QrackDevice"
+        ]
     },
     "description": "PennyLane plugin for Qrack.",
     "long_description": open("README.rst").read(),
