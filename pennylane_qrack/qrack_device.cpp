@@ -541,6 +541,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     auto Observable(ObsId id, const std::vector<std::complex<double>> &matrix,
                     const std::vector<QubitIdType> &wires) -> ObsIdType override
     {
+        RT_FAIL_IF(wires.size() != 1U, "Cannot have observables besides tensor products of Pauli observables");
+        auto &&dev_wires = getDeviceWires(wires);
+
         Qrack::Pauli basis = Qrack::PauliI;
         switch (id) {
             case ObsId::PauliX:
@@ -555,7 +558,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             default:
                 break;
         }
-        obs_cache.push_back(QrackObservable({ basis }, { (bitLenInt)wires[0U] }));
+        obs_cache.push_back(QrackObservable({ basis }, { (bitLenInt)dev_wires[0U] }));
 
         return obs_cache.size() - 1U;
     }
