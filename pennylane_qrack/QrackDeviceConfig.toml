@@ -48,7 +48,6 @@ U2 = { properties = [ "controllable", "invertible" ] }
 U1 = { properties = [ "controllable", "invertible" ] }
 MultiControlledX = { properties = [ "controllable", "invertible" ] }
 Identity = { properties = [ "controllable", "invertible" ] }
-QFT = { properties = [ "invertible" ] }
 
 # Operators that should be decomposed according to the algorithm used
 # by PennyLane's device API.
@@ -79,6 +78,7 @@ QFT = { properties = [ "invertible" ] }
 # IsingYY = {}
 # IsingZZ = {}
 # IsingXY = {}
+# QFT = {}
 
 # Gates which should be translated to QubitUnitary
 # [operators.gates.matrix]
