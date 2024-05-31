@@ -191,11 +191,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                              const std::vector<bitLenInt> &wires, const bool& inverse,
                              const std::vector<double> &params)
     {
-        bitCapInt controlPerm = 0U;
-        for (size_t i = 0U; i < control_values.size(); ++i) {
-            controlPerm = controlPerm << 1U;
+        bitCapInt controlPerm = Qrack::ZERO_BCI;
+        for (bitLenInt i = 0U; i < control_values.size(); ++i) {
             if (control_values[i]) {
-                controlPerm = controlPerm | 1U;
+                controlPerm = controlPerm | Qrack::pow2(i);
             }
         }
 
