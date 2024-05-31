@@ -141,11 +141,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             for (const bitLenInt& target : wires) {
                 qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
             }
-        } else if ((name == "ControlledPhaseShift") || (name == "CPhase")) {
-            const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
-            const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
-            const Qrack::complex bottomRight(cosine, sine);
-            qsim->MCPhase(std::vector<bitLenInt>(wires.begin(), wires.end() - 1U), Qrack::ONE_CMPLX, bottomRight, wires.back());
         } else if (name == "RX") {
             for (const bitLenInt& target : wires) {
                 qsim->RX(inverse ? -params[0U] : params[0U], target);
@@ -664,7 +659,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         }
 
         // Update the state-vector
-        if (controlled_wires.empty()) {
+        if (dev_controlled_wires.empty()) {
             applyNamedOperation(name, dev_wires, inverse, params);
         } else {
             applyNamedOperation(name, dev_controlled_wires, dev_controlled_values, dev_wires, inverse, params);
@@ -690,7 +685,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         Qrack::inv2x2(mtrx, inv);
 
         // Update the state-vector
-        if (controlled_wires.empty()) {
+        if (dev_controlled_wires.empty()) {
             qsim->Mtrx(inverse ? inv : mtrx, wires[0U]);
         } else {
             bitCapInt controlPerm = 0U;
