@@ -653,33 +653,28 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         auto &&dev_controlled_wires = getDeviceWires(controlled_wires);
         std::vector<bool> dev_controlled_values(controlled_values);
-        if (name == "MultiControlledX") {
-            while (wires.size() > 1U) {
-                dev_controlled_wires.push_back(dev_wires[0]);
-                dev_controlled_values.push_back(true);
-                dev_wires.erase(dev_wires.begin());
-            }
-        } else if (name == "Toffoli") {
-            dev_controlled_wires.push_back(dev_wires[0]);
-            dev_controlled_values.push_back(true);
-            dev_wires.erase(dev_wires.begin());
-            dev_controlled_wires.push_back(dev_wires[0]);
-            dev_controlled_values.push_back(true);
-            dev_wires.erase(dev_wires.begin());
-        } else if ((name == "CNOT")
+        if ((name == "MultiControlledX")
+            || (name == "CNOT")
             || (name == "CY")
             || (name == "CZ")
-            || (name == "CSWAP")
             || (name == "ControlledPhaseShift")
             || (name == "CPhase")
             || (name == "CRX")
             || (name == "CRY")
             || (name == "CRZ")
-            || (name == "CRot"))
-        {
-            dev_controlled_wires.push_back(dev_wires[0]);
-            dev_controlled_values.push_back(true);
-            dev_wires.erase(dev_wires.begin());
+            || (name == "CRot")
+            || (name == "Toffoli")) {
+            while (dev_wires.size() > 1U) {
+                dev_controlled_wires.push_back(dev_wires[0]);
+                dev_controlled_values.push_back(true);
+                dev_wires.erase(dev_wires.begin());
+            }
+        } else if (name == "CSWAP") {
+            while (dev_wires.size() > 2U) {
+                dev_controlled_wires.push_back(dev_wires[0]);
+                dev_controlled_values.push_back(true);
+                dev_wires.erase(dev_wires.begin());
+            }
         }
 
         // Update the state-vector
