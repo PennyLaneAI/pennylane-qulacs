@@ -490,7 +490,7 @@ class QrackDevice(QubitDevice):
         elif opname in ["PhaseShift.inv", "U1.inv"]:
             ip_mtrx = [1, 0, 0, cmath.exp(1j * -par[0])]
             for label in device_wires.labels:
-                self._state.mtrx(p_mtrx, label)
+                self._state.mtrx(ip_mtrx, label)
         elif opname in ["C(PhaseShift)", "C(U1)"]:
             self._state.mtrx(
                 device_wires.labels[:-1],
