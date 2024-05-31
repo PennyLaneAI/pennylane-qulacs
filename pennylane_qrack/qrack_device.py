@@ -409,84 +409,89 @@ class QrackDevice(QubitDevice):
         elif opname in ["CZ", "CZ.inv", "C(CZ)", "C(CZ).inv"]:
             self._state.mcz(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "S":
-            self._state.s(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.s(label)
         elif opname == "S.inv":
-            self._state.adjs(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.adjs(label)
         elif opname == "C(S)":
             self._state.mcs(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "C(S).inv":
             self._state.mcadjs(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "T":
-            self._state.t(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.t(label)
         elif opname == "T.inv":
-            self._state.adjt(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.adjt(label)
         elif opname == "C(T)":
             self._state.mct(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "C(T).inv":
             self._state.mcadjt(device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RX":
-            self._state.r(Pauli.PauliX, par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliX, par[0], label)
         elif opname == "RX.inv":
-            self._state.r(Pauli.PauliX, -par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliX, -par[0], label)
         elif opname in ["CRX", "C(RX)", "C(CRX)"]:
             self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRX.inv", "C(RX).inv", "C(CRX).inv"]:
             self._state.mcr(Pauli.PauliX, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RY":
-            self._state.r(Pauli.PauliY, par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliY, par[0], label)
         elif opname == "RY.inv":
-            self._state.r(Pauli.PauliY, -par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliY, -par[0], label)
         elif opname in ["CRY", "C(RY)", "C(CRY)"]:
             self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRY.inv", "C(RY).inv", "C(CRY).inv"]:
             self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname == "RZ":
-            self._state.r(Pauli.PauliZ, par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliZ, par[0], label)
         elif opname == "RZ.inv":
-            self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliZ, -par[0], label)
         elif opname in ["CRZ", "C(RZ)", "C(CRZ)"]:
             self._state.mcr(Pauli.PauliZ, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["CRZ.inv", "C(RZ).inv", "C(CRZ).inv"]:
             self._state.mcr(Pauli.PauliY, par[0], device_wires.labels[:-1], device_wires.labels[-1])
         elif opname in ["PauliX", "PauliX.inv"]:
-            self._state.x(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.x(label)
         elif opname in ["PauliY", "PauliY.inv"]:
-            self._state.y(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.y(label)
         elif opname in ["PauliZ", "PauliZ.inv"]:
-            self._state.z(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.z(label)
         elif opname in ["Hadamard", "Hadamard.inv"]:
-            self._state.h(device_wires.labels[0])
+            for label in device_wires.labels:
+                self._state.h(label)
         elif opname == "SX":
-            self._state.mtrx(
-                [(1 + 1j) / 2, (1 - 1j) / 2, (1 - 1j) / 2, (1 + 1j) / 2],
-                device_wires.labels[0],
-            )
+            sx_mtrx = [(1 + 1j) / 2, (1 - 1j) / 2, (1 - 1j) / 2, (1 + 1j) / 2]
+            for label in device_wires.labels:
+                self._state.mtrx(sx_mtrx, label)
         elif opname == "SX.inv":
-            self._state.mtrx(
-                [(1 - 1j) / 2, (1 + 1j) / 2, (1 + 1j) / 2, (1 - 1j) / 2],
-                device_wires.labels[0],
-            )
+            isx_mtrx = [(1 - 1j) / 2, (1 + 1j) / 2, (1 + 1j) / 2, (1 - 1j) / 2]
+            for label in device_wires.labels:
+                self._state.mtrx(isx_mtrx, label)
         elif opname == "C(SX)":
             self._state.mcmtrx(
                 device_wires.labels[:-1],
                 [(1 + 1j) / 2, (1 - 1j) / 2, (1 - 1j) / 2, (1 + 1j) / 2],
                 device_wires.labels[-1],
             )
-        elif opname == "SX.inv":
-            self._state.mtrx(
-                [(1 - 1j) / 2, (1 + 1j) / 2, (1 + 1j) / 2, (1 - 1j) / 2],
-                device_wires.labels[0],
-            )
-        elif opname == "C(SX).inc":
-            self._state.mcmtrx(
-                device_wires.labels[:-1],
-                [(1 - 1j) / 2, (1 + 1j) / 2, (1 + 1j) / 2, (1 - 1j) / 2],
-                device_wires.labels[-1],
-            )
         elif opname in ["PhaseShift", "U1"]:
-            self._state.mtrx([1, 0, 0, cmath.exp(1j * par[0])], device_wires.labels[0])
+            p_mtrx = [1, 0, 0, cmath.exp(1j * par[0])]
+            for label in device_wires.labels:
+                self._state.mtrx(p_mtrx, label)
         elif opname in ["PhaseShift.inv", "U1.inv"]:
-            self._state.mtrx([1, 0, 0, cmath.exp(1j * -par[0])], device_wires.labels[0])
+            ip_mtrx = [1, 0, 0, cmath.exp(1j * -par[0])]
+            for label in device_wires.labels:
+                self._state.mtrx(p_mtrx, label)
         elif opname in ["C(PhaseShift)", "C(U1)"]:
             self._state.mtrx(
                 device_wires.labels[:-1],
@@ -522,25 +527,23 @@ class QrackDevice(QubitDevice):
                 device_wires.labels[-1],
             )
         elif opname == "U2":
-            self._state.mtrx(
-                [
-                    1,
-                    cmath.exp(1j * par[1]),
-                    cmath.exp(1j * par[0]),
-                    cmath.exp(1j * (par[0] + par[1])),
-                ],
-                device_wires.labels[0],
-            )
+            u2_mtrx = [
+                1,
+                cmath.exp(1j * par[1]),
+                cmath.exp(1j * par[0]),
+                cmath.exp(1j * (par[0] + par[1])),
+            ]
+            for label in device_wires.labels:
+                self._state.mtrx(u2_mtrx, label)
         elif opname == "U2.inv":
-            self._state.mtrx(
-                [
-                    1,
-                    cmath.exp(1j * -par[1]),
-                    cmath.exp(1j * -par[0]),
-                    cmath.exp(1j * (-par[0] - par[1])),
-                ],
-                device_wires.labels[0],
-            )
+            iu2_mtrx = [
+                1,
+                cmath.exp(1j * -par[1]),
+                cmath.exp(1j * -par[0]),
+                cmath.exp(1j * (-par[0] - par[1])),
+            ]
+            for label in device_wires.labels:
+                self._state.mtrx(iu2_mtrx, label)
         elif opname == "C(U2)":
             self._state.mcmtrx(
                 device_wires.labels[:-1],
@@ -564,17 +567,21 @@ class QrackDevice(QubitDevice):
                 device_wires.labels[-1],
             )
         elif opname == "U3":
-            self._state.u(device_wires.labels[-1], par[0], par[1], par[2])
+            for label in device_wires.labels:
+                self._state.u(label, par[0], par[1], par[2])
         elif opname == "U3.inv":
-            self._state.u(device_wires.labels[-1], -par[0], -par[1], -par[2])
+            for label in device_wires.labels:
+                self._state.u(label, -par[0], -par[1], -par[2])
         elif opname == "Rot":
-            self._state.r(Pauli.PauliZ, par[0], device_wires.labels[-1])
-            self._state.r(Pauli.PauliY, par[1], device_wires.labels[-1])
-            self._state.r(Pauli.PauliZ, par[2], device_wires.labels[-1])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliZ, par[0], label)
+                self._state.r(Pauli.PauliY, par[1], label)
+                self._state.r(Pauli.PauliZ, par[2], label)
         elif opname == "Rot.inv":
-            self._state.r(Pauli.PauliZ, -par[2], device_wires.labels[-1])
-            self._state.r(Pauli.PauliY, -par[1], device_wires.labels[-1])
-            self._state.r(Pauli.PauliZ, -par[0], device_wires.labels[-1])
+            for label in device_wires.labels:
+                self._state.r(Pauli.PauliZ, -par[2], label)
+                self._state.r(Pauli.PauliY, -par[1], label)
+                self._state.r(Pauli.PauliZ, -par[0], label)
         elif opname == "C(U3)":
             self._state.mcu(
                 device_wires.labels[:-1],
@@ -593,11 +600,11 @@ class QrackDevice(QubitDevice):
             )
         elif opname == "QFT":
             self._state.qft(device_wires.labels)
-            for i in range(len(wires) >> 1):
-                self._state.swap(wires[i], wires[-i])
+            for i in range(len(device_wires.labels) >> 1):
+                self._state.swap(device_wires.labels[i], device_wires.labels[-i])
         elif opname == "QFT.inv":
-            for i in range(len(wires) >> 1):
-                self._state.swap(wires[i], wires[-i])
+            for i in range(len(device_wires.labels) >> 1):
+                self._state.swap(device_wires.labels[i], device_wires.labels[-i])
             self._state.iqft(device_wires.labels)
         elif opname not in [
             "Identity",
