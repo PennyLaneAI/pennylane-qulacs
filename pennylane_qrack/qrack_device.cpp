@@ -685,16 +685,15 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
         // Update the state-vector
         if (dev_controlled_wires.empty()) {
-            qsim->Mtrx(inverse ? inv : mtrx, wires[0U]);
+            qsim->Mtrx(inverse ? inv : mtrx, dev_wires[0U]);
         } else {
-            bitCapInt controlPerm = 0U;
-            for (size_t i = 0U; i < controlled_values.size(); ++i) {
-                controlPerm = controlPerm << 1U;
+            bitCapInt controlPerm = Qrack::ZERO_BCI;
+            for (bitLenInt i = 0U; i < controlled_values.size(); ++i) {
                 if (controlled_values[i]) {
-                    controlPerm = controlPerm | 1U;
+                    controlPerm = controlPerm | Qrack::pow2(i);
                 }
             }
-            qsim->UCMtrx(dev_controlled_wires, inverse ? inv : mtrx, wires[0U], controlPerm);
+            qsim->UCMtrx(dev_controlled_wires, inverse ? inv : mtrx, dev_wires[0U], controlPerm);
         }
     }
     auto Expval(ObsIdType id) -> double override
