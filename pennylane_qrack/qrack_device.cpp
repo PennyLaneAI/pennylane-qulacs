@@ -38,6 +38,16 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     static constexpr bool QRACK_RESULT_TRUE_CONST = true;
     static constexpr bool QRACK_RESULT_FALSE_CONST = false;
 
+    inline auto reverseWires() -> void
+    {
+        const bitLenInt count = qsim->GetQubitCount();
+        const bitLenInt end = count - 1U;
+        const bitLenInt maxLcv = count >> 1U;
+        for (bitLenInt i = 0U; i < maxLcv; ++i) {
+            qsim->Swap(i, end - i);
+        }
+    }
+
     inline auto getDeviceWires(const std::vector<QubitIdType> &wires) -> std::vector<bitLenInt>
     {
         std::vector<bitLenInt> res;
@@ -735,15 +745,16 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void PartialProbs(DataView<double, 1> &p, const std::vector<QubitIdType> &wires) override
     {
         RT_FAIL_IF((size_t)Qrack::pow2(wires.size()) != p.size(), "Invalid size for the pre-allocated probabilities vector");
-        std::vector<bitLenInt> ids(wires.size());
-        std::transform(wires.begin(), wires.end(), ids.end(), [](QubitIdType a) { return (bitLenInt)a; });
+        auto &&dev_wires = getDeviceWires(wires);
+        reverseWires();
 #if FPPOW == 6
-        qsim->ProbBitsAll(ids, &(*(p.begin())));
+        qsim->ProbBitsAll(dev_wires, &(*(p.begin())));
 #else
         std::unique_ptr<Qrack::real1> _p(new Qrack::real1[p.size()]);
-        qsim->ProbBitsAll(ids, _p.get());
+        qsim->ProbBitsAll(dev_wires, _p.get());
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
+        reverseWires();
     }
     void Sample(DataView<double, 2> &samples, size_t shots) override
     {
@@ -771,11 +782,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
 
-        std::vector<bitCapInt> qPowers(wires.size());
+        auto &&dev_wires = getDeviceWires(wires);
+        std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2((bitLenInt)wires[i]);
+            qPowers[i] = Qrack::pow2((bitLenInt)dev_wires[i]);
         }
+        reverseWires();
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        reverseWires();
 
         auto samplesIter = samples.begin();
         for (size_t shot = 0U; shot < shots; ++shot) {
@@ -827,11 +841,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
 
-        std::vector<bitCapInt> qPowers(wires.size());
+        auto &&dev_wires = getDeviceWires(wires);
+        std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(wires[i]);
+            qPowers[i] = Qrack::pow2(dev_wires[i]);
         }
+        reverseWires();
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        reverseWires();
 
         std::iota(eigvals.begin(), eigvals.end(), 0);
         std::fill(counts.begin(), counts.end(), 0);
