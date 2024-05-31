@@ -154,6 +154,7 @@ class QrackDevice(QubitDevice):
         "C(CPhase)",
         "MultiControlledX",
         "C(MultiControlledX)",
+        "QFT",
     }
 
     config = pathlib.Path(
@@ -597,6 +598,14 @@ class QrackDevice(QubitDevice):
                 -par[1],
                 -par[2],
             )
+        elif opname == "QFT":
+            self._state.qft(device_wires.labels)
+            for i in range(len(device_wires.labels) >> 1):
+                self._state.swap(device_wires.labels[i], device_wires.labels[-i])
+        elif opname == "QFT.inv":
+            for i in range(len(device_wires.labels) >> 1):
+                self._state.swap(device_wires.labels[i], device_wires.labels[-i])
+            self._state.iqft(device_wires.labels)
         elif opname not in [
             "Identity",
             "Identity.inv",
