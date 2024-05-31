@@ -121,7 +121,11 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             if (wires.size() != 2U) {
                 throw std::invalid_argument("ISWAP must have exactly two target qubits!");
             }
-            qsim->ISwap(wires[0U], wires[1U]);
+            if (inverse) {
+                qsim->ISwap(wires[0U], wires[1U]);
+            } else {
+                qsim->IISwap(wires[0U], wires[1U]);
+            }
         } else if (name == "PSWAP") {
             if (wires.size() != 2U) {
                 throw std::invalid_argument("PSWAP must have exactly two target qubits!");
@@ -310,9 +314,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             }
             std::vector<bitLenInt> mcp_wires(control_wires);
             mcp_wires.push_back(wires[0U]);
-            qsim->MCPhase(mcp_wires, Qrack::I_CMPLX, Qrack::ONE_CMPLX, wires[1U]);
+            qsim->MCPhase(mcp_wires, inverse ? -Qrack::I_CMPLX : Qrack::I_CMPLX, Qrack::ONE_CMPLX, wires[1U]);
             qsim->CSwap(control_wires, wires[0U], wires[1U]);
-            qsim->MCPhase(mcp_wires, Qrack::I_CMPLX, Qrack::ONE_CMPLX, wires[1U]);
+            qsim->MCPhase(mcp_wires, inverse ? -Qrack::I_CMPLX : Qrack::I_CMPLX, Qrack::ONE_CMPLX, wires[1U]);
             for (bitLenInt i = 0U; i < control_wires.size(); ++i) {
                 if (!control_values[i]) {
                     qsim->X(control_wires[i]);
@@ -697,6 +701,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             || (name == "CZ")
             || (name == "CSWAP")
             || (name == "ControlledPhaseShift")
+            || (name == "CPhase")
             || (name == "CRX")
             || (name == "CRY")
             || (name == "CRZ")
