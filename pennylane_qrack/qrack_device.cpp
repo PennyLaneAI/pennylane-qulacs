@@ -192,20 +192,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     qsim->U(target, Qrack::PI_R1 / 2, params[0U], params[1U]);
                 }
             }
-        } else if (name == "QFT") {
-            const size_t maxLcv = wires.size() >> 1U;
-            const size_t end = wires.size() - 1U;
-            if (inverse) {
-                for (size_t i = 0U; i < maxLcv; ++i) {
-                    qsim->Swap(wires[i], wires[end - i]);
-                }
-                qsim->IQFTR(wires);
-            } else {
-                qsim->QFTR(wires);
-                for (size_t i = 0U; i < maxLcv; ++i) {
-                    qsim->Swap(wires[i], wires[end - i]);
-                }
-            }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);
         }
