@@ -42,7 +42,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         std::vector<bitLenInt> res;
         res.reserve(wires.size());
-        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [](auto w) { return (bitLenInt)w; });
+        const bitLenInt end = qsim->GetQubitCount() - 1U;
+        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [end](auto w) { return end - (bitLenInt)w; });
         return res;
     }
 
