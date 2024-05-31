@@ -656,17 +656,17 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             || (name == "CRZ")
             || (name == "CRot")
             || (name == "Toffoli")) {
-            while (dev_wires.size() > 1U) {
-                dev_controlled_wires.push_back(dev_wires[0]);
-                dev_controlled_values.push_back(true);
-                dev_wires.erase(dev_wires.begin());
-            }
+            const size_t end = dev_wires.size() - 1U;
+            dev_controlled_wires.insert(dev_controlled_wires.end(), dev_wires.begin(), dev_wires.begin() + end);
+            dev_wires.erase(dev_wires.begin(), dev_wires.begin() + end);
+            const std::vector<bool> t(end, true);
+            dev_controlled_values.insert(dev_controlled_values.end(), t.begin(), t.end());
         } else if (name == "CSWAP") {
-            while (dev_wires.size() > 2U) {
-                dev_controlled_wires.push_back(dev_wires[0]);
-                dev_controlled_values.push_back(true);
-                dev_wires.erase(dev_wires.begin());
-            }
+            const size_t end = dev_wires.size() - 2U;
+            dev_controlled_wires.insert(dev_controlled_wires.end(), dev_wires.begin(), dev_wires.begin() + end);
+            dev_wires.erase(dev_wires.begin(), dev_wires.begin() + end);
+            const std::vector<bool> t(end, true);
+            dev_controlled_values.insert(dev_controlled_values.end(), t.begin(), t.end());
         }
 
         // Update the state-vector
