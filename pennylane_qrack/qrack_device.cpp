@@ -144,9 +144,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             qsim->Swap(wires[0U], wires[1U]);
             qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
         } else if ((name == "PhaseShift") || (name == "U1")) {
-            const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
-            const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
-            const Qrack::complex bottomRight(cosine, sine);
+            const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
             }
@@ -243,12 +241,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCMtrx(control_wires, inverse ? iSqrtX : sqrtX, target, controlPerm);
             }
         } else if (name == "MultiRZ") {
-            const Qrack::real1 cosine = (Qrack::real1)cos((inverse ? -params[0U] : params[0U]) / 2);
-            const Qrack::real1 sine = (Qrack::real1)sin((inverse ? -params[0U] : params[0U]) / 2);
-            const Qrack::complex topLeft(cosine, -sine);
-            const Qrack::complex bottomRight(cosine, sine);
+            const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)((inverse ? -params[0U] : params[0U]) / 2));
             for (const bitLenInt& target : wires) {
-                qsim->UCPhase(control_wires, topLeft, bottomRight, target, controlPerm);
+                qsim->UCPhase(control_wires, conj(bottomRight), bottomRight, target, controlPerm);
             }
         } else if (name == "Hadamard") {
             for (const bitLenInt& target : wires) {
@@ -297,9 +292,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 }
             }
         } else if ((name == "PhaseShift") || (name == "U1") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
-            const Qrack::real1 cosine = (Qrack::real1)cos(inverse ? -params[0U] : params[0U]);
-            const Qrack::real1 sine = (Qrack::real1)sin(inverse ? -params[0U] : params[0U]);
-            const Qrack::complex bottomRight(cosine, sine);
+            const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->UCPhase(control_wires, Qrack::ONE_CMPLX, bottomRight, target, controlPerm);
             }
@@ -330,12 +323,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
             }
         } else if ((name == "RZ") || (name == "CRZ")) {
-            const Qrack::real1 cosine = (Qrack::real1)cos((inverse ? -params[0U] : params[0U]) / 2);
-            const Qrack::real1 sine = (Qrack::real1)sin((inverse ? -params[0U] : params[0U]) / 2);
-            const Qrack::complex topLeft(cosine, -sine);
-            const Qrack::complex bottomRight(cosine, sine);
+            const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)((inverse ? -params[0U] : params[0U]) / 2));
             for (const bitLenInt& target : wires) {
-                qsim->UCPhase(control_wires, topLeft, bottomRight, target, controlPerm);
+                qsim->UCPhase(control_wires, conj(bottomRight), bottomRight, target, controlPerm);
             }
         } else if ((name == "Rot") || (name == "CRot")) {
             const Qrack::real1 phi = inverse ? -params[0U] : params[0U];
