@@ -32,6 +32,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     bool tapeRecording;
     size_t shots;
     Qrack::QInterfacePtr qsim;
+    std::map<QubitIdType, bitLenInt> qubit_map;
     std::vector<QrackObservable> obs_cache;
 
     // static constants for RESULT values
@@ -42,8 +43,13 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         std::vector<bitLenInt> res;
         res.reserve(wires.size());
-        const bitLenInt end = qsim->GetQubitCount() - 1U;
-        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [end](auto w) { return end - (bitLenInt)w; });
+        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [this](auto w) {
+            const auto& it = qubit_map.find(w);
+            if (it == qubit_map.end()) {
+                throw std::invalid_argument("Qubit ID not in wire map: " + std::to_string(w));
+            }
+            return it->second;
+        });
         return res;
     }
 
@@ -51,7 +57,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         std::vector<bitLenInt> res;
         res.reserve(wires.size());
-        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [](auto w) { return (bitLenInt)w; });
+        const bitLenInt end = qsim->GetQubitCount() - 1U;
+        std::transform(wires.begin(), wires.end(), std::back_inserter(res), [this, end](auto w) {
+            const auto& it = qubit_map.find(w);
+            if (it == qubit_map.end()) {
+                throw std::invalid_argument("Qubit ID not in wire map: " + std::to_string(w));
+            }
+            return end - it->second;
+        });
         return res;
     }
 
@@ -389,15 +402,15 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         kwargs = trim(kwargs);
 
         std::map<std::string, int> keyMap;
-        keyMap["wires"] = 1;
-        keyMap["shots"] = 2;
-        keyMap["is_hybrid_stabilizer"] = 3;
-        keyMap["is_tensor_network"] = 4;
-        keyMap["is_schmidt_decomposed"] = 5;
-        keyMap["is_schmidt_decomposition_parallel"] = 6;
-        keyMap["is_qbdd"] = 7;
-        keyMap["is_gpu"] = 8;
-        keyMap["is_host_pointer"] = 9;
+        keyMap["'wires'"] = 1;
+        keyMap["'shots'"] = 2;
+        keyMap["'is_hybrid_stabilizer'"] = 3;
+        keyMap["'is_tensor_network'"] = 4;
+        keyMap["'is_schmidt_decomposed'"] = 5;
+        keyMap["'is_schmidt_decomposition_parallel'"] = 6;
+        keyMap["'is_qbdd'"] = 7;
+        keyMap["'is_gpu'"] = 8;
+        keyMap["'is_host_pointer'"] = 9;
 
         bitLenInt wires = 0U;
         bool is_hybrid_stabilizer = true;
@@ -410,13 +423,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
         size_t pos;
         while ((pos = kwargs.find(":")) != std::string::npos) {
-            std::string key = kwargs.substr(0, pos);
+            std::string key = trim(kwargs.substr(0, pos));
             kwargs.erase(0, pos + 1U);
-            // Leading and trailing quotes:
-            key.erase(0U, 1U);
-            key.erase(key.size() - 1U);
 
-            if (key == "wires") {
+            if (key == "'wires'") {
                 // Handle if integer
                 pos = kwargs.find(",");
                 bool isInt = true;
@@ -428,12 +438,16 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 }
                 if (isInt) {
                     wires = stoi(trim(kwargs.substr(0, pos)));
+                    for (size_t i = 0U; i < wires; ++i) {
+                        qubit_map[i] = wires - (i + 1U);
+                    }
                     kwargs.erase(0, pos + 1U);
+
                     continue;
                 }
 
                 // Handles if Wires object
-                pos = kwargs.find("]>,");
+                pos = kwargs.find("]>");
                 std::string value = kwargs.substr(0, pos);
                 kwargs.erase(0, pos + 3U);
                 size_t p = value.find("[");
@@ -441,13 +455,18 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 wires = 0U;
                 size_t q;
                 while ((q = value.find(",")) != std::string::npos) {
-                    const bitLenInt label = stoi(value.substr(0, q)) + 1U;
+                    qubit_map[(QubitIdType)stoi(trim(value.substr(0, q)))] = wires;
+                    ++wires;
                     value.erase(0, q + 1U);
-                    if (label > wires) {
-                        wires = label;
-                    }
                 }
+                qubit_map[stoi(trim(value))] = wires;
                 ++wires;
+
+                for (auto it = qubit_map.begin(); it != qubit_map.end(); ++it) {
+                    it->second = wires - (it->second + 1U);
+                    std::cout << (size_t)it->first << ", " << (size_t)it->second << std::endl;
+                }
+
                 continue;
             }
 
