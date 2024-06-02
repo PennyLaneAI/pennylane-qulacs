@@ -453,7 +453,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
                 for (auto it = qubit_map.begin(); it != qubit_map.end(); ++it) {
                     it->second = wires - (it->second + 1U);
-                    std::cout << (size_t)it->first << ", " << (size_t)it->second << std::endl;
                 }
 
                 continue;
