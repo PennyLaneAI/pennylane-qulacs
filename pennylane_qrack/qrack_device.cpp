@@ -397,7 +397,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_gpu'"] = 8;
         keyMap["'is_host_pointer'"] = 9;
 
-        bitLenInt wires = 0U;
+        bitLenInt wires = 1U;
+        qubit_map[0U] = 0U;
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
@@ -412,6 +413,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
+                wires = 0U;
+                qubit_map.clear();
+
                 // Handle if integer
                 pos = kwargs.find(",");
                 bool isInt = true;
