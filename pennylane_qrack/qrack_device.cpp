@@ -30,6 +30,7 @@ struct QrackObservable {
 
 struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     bool tapeRecording;
+    bitLenInt allocated_qubits;
     size_t shots;
     Qrack::QInterfacePtr qsim;
     std::map<QubitIdType, bitLenInt> qubit_map;
@@ -386,6 +387,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
     QrackDevice([[maybe_unused]] std::string kwargs = "{}")
         : tapeRecording(false)
+        , allocated_qubits(0U)
         , shots(1U)
         , qsim(nullptr)
     {
@@ -534,16 +536,19 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     QrackDevice &operator=(QuantumDevice &&) = delete;
 
     auto AllocateQubit() -> QubitIdType override {
-        const QubitIdType label = qubit_map.rbegin()->first + 1U;
-        qubit_map[label] = qsim->Allocate(1U);
+        if (allocated_qubits >= qubit_map.size()) {
+            throw std::runtime_error("Catalyst has requested more qubits than exist in device. (Set your wires count high enough, for the device.)");
+        }
+        auto it = qubit_map.begin();
+        std::advance(it, allocated_qubits);
+        const QubitIdType label = it->first;
+        ++allocated_qubits;
         return label;
     }
     auto AllocateQubits(size_t num_qubits) -> std::vector<QubitIdType> override {
         std::vector<QubitIdType> ids(num_qubits);
         for (size_t i = 0U; i < num_qubits; ++i) {
-            const QubitIdType label = qubit_map.rbegin()->first + 1U;
-            qubit_map[label] = qsim->Allocate(1U);
-            ids[i] = label;
+            ids[i] = AllocateQubit();
         }
         return ids;
     }
