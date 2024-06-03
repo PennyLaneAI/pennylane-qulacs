@@ -39,6 +39,15 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     static constexpr bool QRACK_RESULT_TRUE_CONST = true;
     static constexpr bool QRACK_RESULT_FALSE_CONST = false;
 
+    inline void reverseWires()
+    {
+        const bitLenInt end = qsim->GetQubitCount() - 1U;
+        const bitLenInt mid = qsim->GetQubitCount() >> 1U;
+        for (bitLenInt i = 0U; i < mid; ++i) {
+            qsim->Swap(i, end - i);
+        }
+    }
+
     inline auto getDeviceWires(const std::vector<QubitIdType> &wires) -> std::vector<bitLenInt>
     {
         std::vector<bitLenInt> res;
@@ -397,8 +406,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_gpu'"] = 8;
         keyMap["'is_host_pointer'"] = 9;
 
-        bitLenInt wires = 1U;
-        qubit_map[0U] = 0U;
+        bitLenInt wires = 0U;
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
@@ -413,9 +421,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
-                wires = 0U;
-                qubit_map.clear();
-
                 // Handle if integer
                 pos = kwargs.find(",");
                 bool isInt = true;
@@ -428,7 +433,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 if (isInt) {
                     wires = stoi(trim(kwargs.substr(0, pos)));
                     for (size_t i = 0U; i < wires; ++i) {
-                        qubit_map[i] = wires - (i + 1U);
+                        qubit_map[i] = i;
                     }
                     kwargs.erase(0, pos + 1U);
 
@@ -450,10 +455,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 }
                 qubit_map[stoi(trim(value))] = wires;
                 ++wires;
-
-                for (auto it = qubit_map.begin(); it != qubit_map.end(); ++it) {
-                    it->second = wires - (it->second + 1U);
-                }
 
                 continue;
             }
@@ -533,12 +534,16 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     QrackDevice &operator=(QuantumDevice &&) = delete;
 
     auto AllocateQubit() -> QubitIdType override {
-        return qsim->Allocate(1U);
+        const QubitIdType label = qubit_map.rbegin()->first + 1U;
+        qubit_map[label] = qsim->Allocate(1U);
+        return label;
     }
     auto AllocateQubits(size_t num_qubits) -> std::vector<QubitIdType> override {
         std::vector<QubitIdType> ids(num_qubits);
         for (size_t i = 0U; i < num_qubits; ++i) {
-            ids[i] = qsim->Allocate(1U);
+            const QubitIdType label = qubit_map.rbegin()->first + 1U;
+            qubit_map[label] = qsim->Allocate(1U);
+            ids[i] = label;
         }
         return ids;
     }
@@ -595,17 +600,20 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         return ret;
     }
 
-    void ReleaseQubit(QubitIdType id) override
+    void ReleaseQubit(QubitIdType label) override
     {
         // Measure to prevent denormalization
+        const bitLenInt id = qubit_map[label];
         qsim->M(id);
         // Deallocate
         qsim->Dispose(id, 1U);
+        qubit_map.erase(label);
     }
     void ReleaseAllQubits() override
     {
         // State vector is left empty
         qsim->Dispose(0U, qsim->GetQubitCount());
+        qubit_map.clear();
     }
     [[nodiscard]] auto GetNumQubits() const -> size_t override
     {
@@ -718,6 +726,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void State(DataView<std::complex<double>, 1>& sv) override
     {
         RT_FAIL_IF(sv.size() != (size_t)qsim->GetMaxQPower(), "Invalid size for the pre-allocated state vector");
+        reverseWires();
 #if FPPOW == 6
         qsim->GetQuantumState(&(*(sv.begin())));
 #else
@@ -725,10 +734,12 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         qsim->GetQuantumState(_sv.get());
         std::copy(_sv.get(), _sv.get() + sv.size(), sv.begin());
 #endif
+        reverseWires();
     }
     void Probs(DataView<double, 1>& p) override
     {
         RT_FAIL_IF(p.size() != (size_t)qsim->GetMaxQPower(), "Invalid size for the pre-allocated probabilities vector");
+        reverseWires();
 #if FPPOW == 6
         qsim->GetProbs(&(*(p.begin())));
 #else
@@ -736,6 +747,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         qsim->GetProbs(_p.get());
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
+        reverseWires();
     }
     void PartialProbs(DataView<double, 1> &p, const std::vector<QubitIdType> &wires) override
     {
@@ -755,6 +767,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
 
+        reverseWires();
+
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
             qPowers[i] = Qrack::pow2(i);
@@ -768,6 +782,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
             }
         }
+
+        reverseWires();
     }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
@@ -801,6 +817,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
 
+        reverseWires();
+
         std::vector<bitCapInt> qPowers(numQubits);
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
             qPowers[i] = Qrack::pow2(i);
@@ -819,6 +837,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             }
             ++counts(static_cast<size_t>(basisState.to_ulong()));
         }
+
+        reverseWires();
     }
 
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
