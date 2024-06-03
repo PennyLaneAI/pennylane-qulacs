@@ -162,11 +162,6 @@ class QrackDevice(QubitDevice):
         else:
             self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
 
-    def define_wire_map(self, wires):
-        consecutive_wires = Wires(range(self.num_wires))
-        wire_map = zip(wires, consecutive_wires)
-        return OrderedDict(wire_map)
-
     def _reverse_state(self):
         end = self.num_wires - 1
         mid = self.num_wires >> 1
