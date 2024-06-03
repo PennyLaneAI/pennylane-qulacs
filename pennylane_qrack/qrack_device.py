@@ -43,19 +43,6 @@ from ._version import __version__
 tolerance = 1e-10
 
 
-def _reverse_state(state_vector):
-    """Reverse the qubit order for a vector of amplitudes.
-    Args:
-        state_vector (iterable[complex]): vector containing the amplitudes
-    Returns:
-        list[complex]
-    """
-    state_vector = np.array(state_vector)
-    N = int(math.log2(len(state_vector)))
-    reversed_state = state_vector.reshape([2] * N).T.flatten()
-    return reversed_state
-
-
 class QrackDevice(QubitDevice):
     """Qrack device"""
 
@@ -176,10 +163,15 @@ class QrackDevice(QubitDevice):
             self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
 
     def define_wire_map(self, wires):
-        consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))
-
+        consecutive_wires = Wires(range(self.num_wires))
         wire_map = zip(wires, consecutive_wires)
         return OrderedDict(wire_map)
+
+    def _reverse_state(self):
+        end = self.num_wires - 1
+        mid = self.num_wires >> 1
+        for i in range(mid):
+            self._state.swap(i, end - i)
 
     def apply(self, operations, **kwargs):
         rotations = kwargs.get("rotations", [])
@@ -242,11 +234,13 @@ class QrackDevice(QubitDevice):
         if not np.isclose(np.linalg.norm(input_state, 2), 1.0, atol=tolerance):
             raise ValueError("Sum of amplitudes-squared does not equal one.")
 
+        self._reverse_state()
         if len(wires) != self.num_wires or sorted(wires, reverse=True) != wires:
             input_state = self._expand_state(input_state, wires)
 
         # call qrack' state initialization
         self._state.in_ket(input_state)
+        self._reverse_state()
 
     def _apply_basis_state(self, op):
         """Initialize a basis state"""
@@ -625,7 +619,7 @@ class QrackDevice(QubitDevice):
         if self._state is None:
             return None
 
-        all_probs = _reverse_state(self._abs(self.state) ** 2)
+        all_probs = self._abs(self.state) ** 2
         prob = self.marginal_prob(all_probs, wires)
 
         if (not "QRACK_FPPOW" in os.environ) or (6 > int(os.environ.get("QRACK_FPPOW"))):
@@ -650,7 +644,10 @@ class QrackDevice(QubitDevice):
 
             if None not in b:
                 q = self.map_wires(observable.wires)
-                return self._state.pauli_expectation(q, b)
+                self._reverse_state()
+                o = self._state.pauli_expectation(q, b)
+                self._reverse_state()
+                return o
 
             # exact expectation value
             if callable(observable.eigvals):
@@ -680,7 +677,10 @@ class QrackDevice(QubitDevice):
     @property
     def state(self):
         # returns the state after all operations are applied
-        return self._state.out_ket()
+        self._reverse_state()
+        o = self._state.out_ket()
+        self._reverse_state()
+        return o
 
     def reset(self):
         self._state.reset_all()
