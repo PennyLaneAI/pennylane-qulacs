@@ -176,7 +176,8 @@ class QrackDevice(QubitDevice):
             self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
 
     def define_wire_map(self, wires):
-        consecutive_wires = Wires(range(self.num_wires))
+        consecutive_wires = Wires(range(self.num_wires - 1, -1, -1))
+
         wire_map = zip(wires, consecutive_wires)
         return OrderedDict(wire_map)
 
@@ -624,7 +625,7 @@ class QrackDevice(QubitDevice):
         if self._state is None:
             return None
 
-        all_probs = self._abs(self.state) ** 2
+        all_probs = _reverse_state(self._abs(self.state) ** 2)
         prob = self.marginal_prob(all_probs, wires)
 
         if (not "QRACK_FPPOW" in os.environ) or (6 > int(os.environ.get("QRACK_FPPOW"))):
@@ -670,7 +671,7 @@ class QrackDevice(QubitDevice):
             )
 
         samples = np.array(
-            self._state.measure_shots(list(range(self.num_wires)), self.shots)
+            self._state.measure_shots(list(range(self.num_wires - 1, -1, -1)), self.shots)
         )
         self._samples = QubitDevice.states_to_binary(samples, self.num_wires)
 
@@ -679,7 +680,7 @@ class QrackDevice(QubitDevice):
     @property
     def state(self):
         # returns the state after all operations are applied
-        return _reverse_state(self._state.out_ket())
+        return self._state.out_ket()
 
     def reset(self):
         self._state.reset_all()
