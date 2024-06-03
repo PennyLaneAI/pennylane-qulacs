@@ -644,10 +644,7 @@ class QrackDevice(QubitDevice):
 
             if None not in b:
                 q = self.map_wires(observable.wires)
-                self._reverse_state()
-                o = self._state.pauli_expectation(q, b)
-                self._reverse_state()
-                return o
+                return self._state.pauli_expectation(q, b)
 
             # exact expectation value
             if callable(observable.eigvals):
