@@ -408,7 +408,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_gpu'"] = 8;
         keyMap["'is_host_pointer'"] = 9;
 
-        bitLenInt wires = 0U;
+        // If no argument is present, allocate one wire by default
+        bitLenInt wires = 1U;
+        qubit_map[0U] = 0U;
+
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
@@ -423,6 +426,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
+                // Clear the default wire map setup
+                wires = 0U;
+                qubit_map.clear();
+
                 // Handle if integer
                 pos = kwargs.find(",");
                 bool isInt = true;
@@ -757,6 +764,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void PartialProbs(DataView<double, 1> &p, const std::vector<QubitIdType> &wires) override
     {
         RT_FAIL_IF((size_t)Qrack::pow2(wires.size()) != p.size(), "Invalid size for the pre-allocated probabilities vector");
+        reverseWires();
         auto &&dev_wires = getDeviceWires(wires);
 #if FPPOW == 6
         qsim->ProbBitsAll(dev_wires, &(*(p.begin())));
@@ -765,6 +773,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         qsim->ProbBitsAll(dev_wires, _p.get());
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
+        reverseWires();
     }
     void Sample(DataView<double, 2> &samples, size_t shots) override
     {
@@ -772,11 +781,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
 
-        reverseWires();
-
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(i);
+            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -787,8 +794,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
             }
         }
-
-        reverseWires();
     }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
@@ -799,7 +804,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2((bitLenInt)dev_wires[i]);
+            qPowers[i] = Qrack::pow2((bitLenInt)dev_wires[qPowers.size() - (i + 1U)]);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -822,11 +827,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
 
-        reverseWires();
-
         std::vector<bitCapInt> qPowers(numQubits);
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(i);
+            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -842,8 +845,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             }
             ++counts(static_cast<size_t>(basisState.to_ulong()));
         }
-
-        reverseWires();
     }
 
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
@@ -860,7 +861,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(dev_wires[i]);
+            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 

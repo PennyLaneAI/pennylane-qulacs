@@ -154,7 +154,7 @@ class QrackDevice(QubitDevice):
             os.path.dirname(sys.modules[__name__].__file__) + "/libqrack_device.so",
         )
 
-    def __init__(self, wires=0, shots=None, **kwargs):
+    def __init__(self, wires=1, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
 
         if "isTensorNetwork" in kwargs:
