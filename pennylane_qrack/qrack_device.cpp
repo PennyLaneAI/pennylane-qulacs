@@ -747,8 +747,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void PartialProbs(DataView<double, 1> &p, const std::vector<QubitIdType> &wires) override
     {
         RT_FAIL_IF((size_t)Qrack::pow2(wires.size()) != p.size(), "Invalid size for the pre-allocated probabilities vector");
-        reverseWires();
         auto &&dev_wires = getDeviceWires(wires);
+        std::reverse(dev_wires.begin(), dev_wires.end());
 #if FPPOW == 6
         qsim->ProbBitsAll(dev_wires, &(*(p.begin())));
 #else
@@ -756,7 +756,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         qsim->ProbBitsAll(dev_wires, _p.get());
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
-        reverseWires();
     }
     void Sample(DataView<double, 2> &samples, size_t shots) override
     {
@@ -787,7 +786,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2((bitLenInt)dev_wires[qPowers.size() - (i + 1U)]);
+            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
