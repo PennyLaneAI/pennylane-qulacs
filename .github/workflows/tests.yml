@@ -29,21 +29,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install ocl-icd-opencl-dev opencl-headers
+          sudo apt install software-properties-common
+          sudo add-apt-repository ppa:wrathfulspatula/vm6502q
+          sudo apt install ocl-icd-opencl-dev opencl-headers pyqrack
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install wheel pytest pytest-cov pytest-mock --upgrade
           git clone https://github.com/PennyLaneAI/catalyst.git
-          git clone https://github.com/unitaryfund/qrack.git
-          cd qrack
-          mkdir _build
-          cd _build
-          cmake ..
-          sudo make install
-          cd ../..
           cd catalyst
           git submodule update --init --depth=1
-          pip3 install -r requirements.txt
+          pip install -r requirements.txt
           make all
           cd ..
 
