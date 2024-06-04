@@ -151,7 +151,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
             qsim->Swap(wires[0U], wires[1U]);
             qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
-        } else if ((name == "PhaseShift") || (name == "U1")) {
+        } else if (name == "PhaseShift") {
             const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
@@ -187,20 +187,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 } else {
                     qsim->U(target, params[0U], params[1U], params[2U]);
                 }
-            }
-        } else if (name == "U2") {
-            const Qrack::real1 th = inverse ? -params[0U] : params[0U];
-            const Qrack::real1 ph = inverse ? -params[1U] : params[1U];
-            const Qrack::complex u2Mtrx[4U] = {
-                Qrack::SQRT1_2_R1,
-                Qrack::SQRT1_2_R1 * -exp(Qrack::complex(ZERO_R1, ph)),
-                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th)),
-                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th + ph)),
-            };
-            Qrack::complex iU2Mtrx[4U];
-            Qrack::inv2x2(u2Mtrx, iU2Mtrx);
-            for (const bitLenInt& target : wires) {
-                qsim->Mtrx(inverse ? iU2Mtrx : u2Mtrx, target);
             }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);
@@ -305,7 +291,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     qsim->X(control_wires[i]);
                 }
             }
-        } else if ((name == "PhaseShift") || (name == "U1") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
+        } else if ((name == "PhaseShift") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
             const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->UCPhase(control_wires, Qrack::ONE_CMPLX, bottomRight, target, controlPerm);
@@ -372,20 +358,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             Qrack::inv2x2(mtrx, iMtrx);
             for (const bitLenInt& target : wires) {
                 qsim->UCMtrx(control_wires, inverse ? iMtrx : mtrx, target, controlPerm);
-            }
-        } else if (name == "U2") {
-            const Qrack::real1 th = params[0U];
-            const Qrack::real1 ph = params[1U];
-            const Qrack::complex u2Mtrx[4U] = {
-                Qrack::SQRT1_2_R1,
-                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, ph)),
-                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th)),
-                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th + ph)),
-            };
-            Qrack::complex iU2Mtrx[4U];
-            Qrack::inv2x2(u2Mtrx, iU2Mtrx);
-            for (const bitLenInt& target : wires) {
-                qsim->UCMtrx(control_wires, inverse ? iU2Mtrx : u2Mtrx, target, controlPerm);
             }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);

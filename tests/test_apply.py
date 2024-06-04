@@ -54,9 +54,6 @@ c_phase_shift = lambda phi: np.diag([1, 1, 1, np.exp(1j * phi)])
 rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
-u2 = lambda phi, delta: np.array(
-    [[sqrt1_2, sqrt1_2 * np.exp(1j * delta)], [sqrt1_2 * np.exp(1j * phi), sqrt1_2 * np.exp(1j * (phi + delta))]]
-)
 u3 = lambda theta, phi, delta: np.array(
     [
         [np.cos(theta / 2), -np.exp(1j * delta) * np.sin(theta / 2)],
@@ -141,15 +138,11 @@ single_qubit_param = [
     (qml.adjoint(qml.RZ(0, wires=0)), lambda theta: rz(-theta)),
     (qml.adjoint(qml.PhaseShift(0, wires=0)), lambda theta: phase_shift(-theta)),
 ]
-single_qubit_two_param = [
-    (qml.U2(0, 0, wires=0), u2),
-    (qml.adjoint(qml.U2(0, 0, wires=0)), lambda phi, delta: u2(-phi, -delta)),
-]
 single_qubit_three_param = [
     (qml.U3(0, 0, 0, wires=0), u3),
     (
         qml.adjoint(qml.U3(0, 0, 0, wires=0)),
-        lambda theta, phi, delta: u3(-theta, -phi, -delta),
+        lambda theta, phi, delta: u3(-theta, -delta, -phi),
     ),
 ]
 # list of all non-parametrized two-qubit gates
@@ -368,22 +361,6 @@ class TestStateApply:
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("phi", [0.126, -0.721])
-    @pytest.mark.parametrize("delta", [0.5432, -0.232])
-    @pytest.mark.parametrize("op,func", single_qubit_two_param)
-    def test_single_qubit_two_parameters(self, init_state, op, func, phi, delta, tol):
-        """Test PauliX application"""
-        dev = QrackDevice(1, isOpenCL=False)
-        state = init_state(1)
-
-        op.data = [phi, delta]
-        dev.apply([qml.QubitStateVector(state, wires=[0]), op])
-        dev._obs_queue = []
-
-        res = dev.state
-        expected = func(phi, delta) @ state
-        assert np.allclose(res, expected, tol)
-
-    @pytest.mark.parametrize("phi", [0.126, -0.721])
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
     @pytest.mark.parametrize("omega", [1.213, -0.221])
     @pytest.mark.parametrize("op,func", single_qubit_three_param)
@@ -400,6 +377,32 @@ class TestStateApply:
 
         res = dev.state
         expected = func(phi, theta, omega) @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("phi", [0.126, -0.721])
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("omega", [1.213, -0.221])
+    @pytest.mark.parametrize("op,func", single_qubit_three_param)
+    def test_single_qubit_three_parameters_qjit(
+        self, init_state, op, func, phi, theta, omega, tol
+    ):
+        """Test PauliX application"""
+        dev = QrackDevice(1, isOpenCL=False)
+        state = init_state(1)
+
+        op.data = [phi, theta, omega]
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0])
+            qml.apply(op)
+            return qml.probs()
+
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = func(phi, theta, omega) @ state
+        expected = [(x * x.conj()).real for x in expected]
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("op, mat", two_qubit)

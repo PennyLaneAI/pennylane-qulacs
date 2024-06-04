@@ -44,8 +44,6 @@ CRY = { properties = [ "controllable", "invertible" ] }
 CRZ = { properties = [ "controllable", "invertible" ] }
 CRot = { properties = [ "controllable", "invertible" ] }
 U3 = { properties = [ "controllable", "invertible" ] }
-U2 = { properties = [ "controllable", "invertible" ] }
-U1 = { properties = [ "controllable", "invertible" ] }
 MultiControlledX = { properties = [ "controllable", "invertible" ] }
 Identity = { properties = [ "controllable", "invertible" ] }
 
@@ -78,6 +76,8 @@ Identity = { properties = [ "controllable", "invertible" ] }
 # IsingYY = {}
 # IsingZZ = {}
 # IsingXY = {}
+# U2 = {}
+# U1 = {}
 # QFT = {}
 
 # Gates which should be translated to QubitUnitary
