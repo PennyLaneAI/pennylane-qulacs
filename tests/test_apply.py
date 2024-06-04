@@ -174,7 +174,7 @@ two_qubit_three_param = [
     (qml.CRot(0, 0, 0, wires=[0, 1]), crot),
     (
         qml.adjoint(qml.CRot(0, 0, 0, wires=[0, 1])),
-        lambda phi, theta, omega: crot(-phi, -theta, -omega),
+        lambda phi, theta, omega: crot(-omega, -theta, -phi),
     ),
 ]
 # list of all three-qubit gates
@@ -579,7 +579,9 @@ class TestStateApply:
         dev._obs_queue = []
 
         res = dev.state
+        res = [(x * np.conjugate(x)).real for x in res]
         expected = func(phi, theta, omega) @ state
+        expected = [(x * x.conj()).real for x in expected]
         assert np.allclose(res, expected, tol)
 
     def test_apply_errors_qubit_state_vector(self):

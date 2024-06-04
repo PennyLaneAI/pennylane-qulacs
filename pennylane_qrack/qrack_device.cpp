@@ -169,16 +169,19 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->RZ(inverse ? -params[0U] : params[0U], target);
             }
         } else if (name == "Rot") {
+            const Qrack::real1 phi = inverse ? -params[2U] : params[0U];
+            const Qrack::real1 theta = inverse ? -params[1U] : params[1U];
+            const Qrack::real1 omega = inverse ? -params[0U] : params[2U];
+            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
+            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
+            const Qrack::complex expP = exp(Qrack::I_CMPLX * (phi + omega) / (2 * ONE_R1));
+            const Qrack::complex expM = exp(Qrack::I_CMPLX * (phi - omega) / (2 * ONE_R1));
+            const Qrack::complex mtrx[4U]{
+                cos0 / expP, -sin0 * expM,
+                sin0 / expM, cos0 * expP
+            };
             for (const bitLenInt& target : wires) {
-                if (inverse) {
-                    qsim->RZ(-params[2U], target);
-                    qsim->RY(-params[1U], target);
-                    qsim->RZ(-params[0U], target);
-                } else {
-                    qsim->RZ(params[0U], target);
-                    qsim->RY(params[1U], target);
-                    qsim->RZ(params[2U], target);
-                }
+                qsim->Mtrx(mtrx, target);
             }
         } else if (name == "U3") {
             for (const bitLenInt& target : wires) {
@@ -328,9 +331,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCPhase(control_wires, conj(bottomRight), bottomRight, target, controlPerm);
             }
         } else if ((name == "Rot") || (name == "CRot")) {
-            const Qrack::real1 phi = inverse ? -params[0U] : params[0U];
+            const Qrack::real1 phi = inverse ? -params[2U] : params[0U];
             const Qrack::real1 theta = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 omega = inverse ? -params[2U] : params[2U];
+            const Qrack::real1 omega = inverse ? -params[0U] : params[2U];
             const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
             const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
             const Qrack::complex expP = exp(Qrack::I_CMPLX * (phi + omega) / (2 * ONE_R1));

@@ -338,16 +338,17 @@ class QrackDevice(QubitDevice):
             theta = par[1]
             omega = par[2]
             if ".inv" in opname:
-                phi = -phi
+                tmp = phi
+                phi = -omega
                 theta = -theta
-                omega = -omega
+                omega = -phi
             c = math.cos(theta / 2)
             s = math.sin(theta / 2)
             mtrx = [
                 cmath.exp(-0.5j * (phi + omega)) * c,
                 cmath.exp(0.5j * (phi - omega)) * s,
                 cmath.exp(-0.5j * (phi - omega)) * s,
-                cmath.exp(0.5j * (phi + omega)) * c,
+                cmath.exp(0.5j * (phi + omega)) * np.cos(theta / 2),
             ]
             self._state.mcmtrx(device_wires.labels[:-1], mtrx, device_wires.labels[-1])
         elif opname in ["SWAP", "SWAP.inv"]:
