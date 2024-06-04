@@ -18,6 +18,7 @@ import numpy as np
 import pennylane as qml
 from scipy.linalg import block_diag
 from pennylane_qrack.qrack_device import QrackDevice
+from catalyst import qjit
 
 from conftest import U, U2, A
 
@@ -26,6 +27,7 @@ np.random.seed(42)
 
 # ==========================================================
 # Some useful global variables
+sqrt1_2 = 1 / np.sqrt(2)
 
 # non-parametrized qubit gates
 I = np.identity(2)
@@ -53,7 +55,7 @@ rx = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * X
 ry = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Y
 rz = lambda theta: np.cos(theta / 2) * I + 1j * np.sin(-theta / 2) * Z
 u2 = lambda phi, delta: np.array(
-    [[1, np.exp(1j * delta)], [np.exp(1j * phi), np.exp(1j * (phi + delta))]]
+    [[sqrt1_2, sqrt1_2 * np.exp(1j * delta)], [sqrt1_2 * np.exp(1j * phi), sqrt1_2 * np.exp(1j * (phi + delta))]]
 )
 u3 = lambda theta, phi, delta: np.array(
     [
@@ -307,6 +309,26 @@ class TestStateApply:
         expected = mat @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("op,mat", single_qubit)
+    def test_single_qubit_no_parameters_qjit(self, init_state, op, mat, tol):
+        """Test PauliX application"""
+        dev = QrackDevice(1, isOpenCL=False)
+        state = init_state(1)
+
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0])
+            qml.apply(op)
+            return qml.probs()
+        
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = mat @ state
+        expected = [(x * x.conj()).real for x in expected]
+        assert np.allclose(res, expected, tol)
+
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
     @pytest.mark.parametrize("op,func", single_qubit_param)
     def test_single_qubit_parameters(self, init_state, op, func, theta, tol):
@@ -320,6 +342,29 @@ class TestStateApply:
 
         res = dev.state
         expected = func(theta) @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("op,func", single_qubit_param)
+    def test_single_qubit_parameters_qjit(self, init_state, op, func, theta, tol):
+        """Test PauliX application"""
+        dev = QrackDevice(1, isOpenCL=False)
+        state = init_state(1)
+
+        op.data = [theta]
+
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0])
+            qml.apply(op)
+            return qml.probs()
+        
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = func(theta) @ state
+        expected = [(x * x.conj()).real for x in expected]
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("phi", [0.126, -0.721])

@@ -515,20 +515,22 @@ class QrackDevice(QubitDevice):
                 device_wires.labels[-1],
             )
         elif opname == "U2":
+            sqrt1_2 = 1/math.sqrt(2)
             u2_mtrx = [
-                1,
-                cmath.exp(1j * par[1]),
-                cmath.exp(1j * par[0]),
-                cmath.exp(1j * (par[0] + par[1])),
+                sqrt1_2,
+                sqrt1_2 * cmath.exp(1j * par[1]),
+                sqrt1_2 * cmath.exp(1j * par[0]),
+                sqrt1_2 * cmath.exp(1j * (par[0] + par[1])),
             ]
             for label in device_wires.labels:
                 self._state.mtrx(u2_mtrx, label)
         elif opname == "U2.inv":
+            sqrt1_2 = 1/math.sqrt(2)
             iu2_mtrx = [
-                1,
-                cmath.exp(1j * -par[1]),
-                cmath.exp(1j * -par[0]),
-                cmath.exp(1j * (-par[0] - par[1])),
+                sqrt1_2,
+                sqrt1_2 * cmath.exp(1j * -par[1]),
+                sqrt1_2 * cmath.exp(1j * -par[0]),
+                sqrt1_2 * cmath.exp(1j * (-par[0] + -par[1])),
             ]
             for label in device_wires.labels:
                 self._state.mtrx(iu2_mtrx, label)

@@ -183,18 +183,24 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         } else if (name == "U3") {
             for (const bitLenInt& target : wires) {
                 if (inverse) {
-                    qsim->U(target, -params[0U], -params[1U], -params[2U]);
+                    qsim->U(target, -params[0U], -params[2U], -params[1U]);
                 } else {
                     qsim->U(target, params[0U], params[1U], params[2U]);
                 }
             }
         } else if (name == "U2") {
+            const Qrack::real1 th = inverse ? -params[0U] : params[0U];
+            const Qrack::real1 ph = inverse ? -params[1U] : params[1U];
+            const Qrack::complex u2Mtrx[4U] = {
+                Qrack::SQRT1_2_R1,
+                Qrack::SQRT1_2_R1 * -exp(Qrack::complex(ZERO_R1, ph)),
+                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th)),
+                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th + ph)),
+            };
+            Qrack::complex iU2Mtrx[4U];
+            Qrack::inv2x2(u2Mtrx, iU2Mtrx);
             for (const bitLenInt& target : wires) {
-                if (inverse) {
-                    qsim->U(target, -Qrack::PI_R1 / 2, -params[0U], -params[1U]);
-                } else {
-                    qsim->U(target, Qrack::PI_R1 / 2, params[0U], params[1U]);
-                }
+                qsim->Mtrx(inverse ? iU2Mtrx : u2Mtrx, target);
             }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);
@@ -351,34 +357,35 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
             }
         } else if (name == "U3") {
-            const Qrack::real1 theta = inverse ? -params[0U] : params[0U];
-            const Qrack::real1 phi = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 lambda = inverse ? -params[2U] : params[2U];
-            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
-            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
+            const Qrack::real1 th = params[0U];
+            const Qrack::real1 ph = params[1U];
+            const Qrack::real1 lm = params[2U];
+            const Qrack::real1 cos0 = (Qrack::real1)cos(th / 2);
+            const Qrack::real1 sin0 = (Qrack::real1)sin(th / 2);
             const Qrack::complex mtrx[4U]{
-                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lambda)),
-                (Qrack::real1)(-sin(lambda))),
-                sin0 * Qrack::complex((Qrack::real1)cos(phi), (Qrack::real1)sin(phi)),
-                cos0 * Qrack::complex((Qrack::real1)cos(phi + lambda), (Qrack::real1)sin(phi + lambda))
+                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lm)),
+                (Qrack::real1)(-sin(lm))),
+                sin0 * Qrack::complex((Qrack::real1)cos(ph), (Qrack::real1)sin(ph)),
+                cos0 * Qrack::complex((Qrack::real1)cos(ph + lm), (Qrack::real1)sin(ph + lm))
             };
+            Qrack::complex iMtrx[4U];
+            Qrack::inv2x2(mtrx, iMtrx);
             for (const bitLenInt& target : wires) {
-                qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
+                qsim->UCMtrx(control_wires, inverse ? iMtrx : mtrx, target, controlPerm);
             }
         } else if (name == "U2") {
-            const Qrack::real1 theta = (inverse ? -Qrack::PI_R1 : Qrack::PI_R1) / 2;
-            const Qrack::real1 phi = inverse ? -params[0U] : params[0U];
-            const Qrack::real1 lambda = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
-            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
-            const Qrack::complex mtrx[4U]{
-                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lambda)),
-                (Qrack::real1)(-sin(lambda))),
-                sin0 * Qrack::complex((Qrack::real1)cos(phi), (Qrack::real1)sin(phi)),
-                cos0 * Qrack::complex((Qrack::real1)cos(phi + lambda), (Qrack::real1)sin(phi + lambda))
+            const Qrack::real1 th = params[0U];
+            const Qrack::real1 ph = params[1U];
+            const Qrack::complex u2Mtrx[4U] = {
+                Qrack::SQRT1_2_R1,
+                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, ph)),
+                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th)),
+                Qrack::SQRT1_2_R1 * exp(Qrack::complex(ZERO_R1, th + ph)),
             };
+            Qrack::complex iU2Mtrx[4U];
+            Qrack::inv2x2(u2Mtrx, iU2Mtrx);
             for (const bitLenInt& target : wires) {
-                qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
+                qsim->UCMtrx(control_wires, inverse ? iU2Mtrx : u2Mtrx, target, controlPerm);
             }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);
@@ -391,7 +398,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         , shots(1U)
         , qsim(nullptr)
     {
-        std::cout << kwargs << std::endl;
         // Cut leading '{' and trailing '}'
         kwargs.erase(0U, 1U);
         kwargs.erase(kwargs.size() - 1U);
