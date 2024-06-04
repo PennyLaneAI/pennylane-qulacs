@@ -544,7 +544,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
     auto AllocateQubit() -> QubitIdType override {
         if (allocated_qubits >= qubit_map.size()) {
-            throw std::runtime_error("Catalyst has requested more qubits than exist in device. (Set your wires count high enough, for the device.)");
+            throw std::runtime_error("Catalyst has requested more qubits than exist in device, with "
+                + std::to_string(allocated_qubits) + " allocated qubits. "
+                + "(Set your wires count high enough, for the device.)");
         }
         auto it = qubit_map.begin();
         std::advance(it, allocated_qubits);
