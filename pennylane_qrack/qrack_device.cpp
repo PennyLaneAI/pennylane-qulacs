@@ -391,6 +391,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         , shots(1U)
         , qsim(nullptr)
     {
+        std::cout << kwargs << std::endl;
         // Cut leading '{' and trailing '}'
         kwargs.erase(0U, 1U);
         kwargs.erase(kwargs.size() - 1U);
@@ -408,10 +409,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_gpu'"] = 8;
         keyMap["'is_host_pointer'"] = 9;
 
-        // If no argument is present, allocate one wire by default
-        bitLenInt wires = 1U;
-        qubit_map[0U] = 0U;
-
+        bitLenInt wires = 0U;
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
@@ -426,9 +424,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
-                // Clear the default wire map setup
-                wires = 0U;
-                qubit_map.clear();
+                // Handle if empty:
+                if (kwargs.find("<Wires = []>") != std::string::npos) {
+                    continue;
+                }
 
                 // Handle if integer
                 pos = kwargs.find(",");
