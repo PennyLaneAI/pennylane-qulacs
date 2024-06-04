@@ -418,6 +418,25 @@ class TestStateApply:
         expected = mat @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("op, mat", two_qubit)
+    def test_two_qubit_no_parameters_qjit(self, init_state, op, mat, tol):
+        """Test PauliX application"""
+        dev = QrackDevice(2, isOpenCL=False)
+        state = init_state(2)
+
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0, 1])
+            qml.apply(op)
+            return qml.probs()
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = mat @ state
+        expected = [(x * x.conj()).real for x in expected]
+        assert np.allclose(res, expected, tol)
+
     @pytest.mark.parametrize("mat", [U])
     def test_qubit_unitary(self, init_state, mat, tol):
         """Test QubitUnitary application"""
@@ -432,6 +451,28 @@ class TestStateApply:
 
         res = dev.state
         expected = mat @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("mat", [U])
+    def test_qubit_unitary_qjit(self, init_state, mat, tol):
+        """Test QubitUnitary application"""
+
+        N = int(np.log2(len(mat)))
+        dev = QrackDevice(N, isOpenCL=False)
+        state = init_state(N)
+
+        op = qml.QubitUnitary(mat, wires=list(range(N)))
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=list(range(N)))
+            qml.apply(op)
+            return qml.probs()
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = mat @ state
+        expected = [(x * x.conj()).real for x in expected]
         assert np.allclose(res, expected, tol)
 
     def test_invalid_qubit_state_unitary(self):
@@ -452,6 +493,24 @@ class TestStateApply:
 
         res = dev.state
         expected = mat @ state
+        assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("op, mat", three_qubit)
+    def test_three_qubit_no_parameters_qjit(self, init_state, op, mat, tol):
+        dev = QrackDevice(3, isOpenCL=False)
+        state = init_state(3)
+
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0, 1, 2])
+            qml.apply(op)
+            return qml.probs()
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = mat @ state
+        expected = [(x * x.conj()).real for x in expected]
         assert np.allclose(res, expected, tol)
 
     @pytest.mark.parametrize("op, mat", four_qubit)
@@ -482,6 +541,28 @@ class TestStateApply:
         expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("theta", [0.5432, -0.232])
+    @pytest.mark.parametrize("op,func", two_qubit_param)
+    def test_two_qubit_parameters_qjit(self, init_state, op, func, theta, tol):
+        """Test parametrized two qubit gates application"""
+        dev = QrackDevice(2, isOpenCL=False)
+        state = init_state(2)
+
+        op.data = [theta]
+        @qjit
+        @qml.qnode(dev)
+        def circuit():
+            qml.StatePrep(state, wires=[0, 1])
+            qml.apply(op)
+            return qml.probs()
+
+        dev._obs_queue = []
+
+        res = circuit()
+        expected = func(theta) @ state
+        expected = [(x * x.conj()).real for x in expected]
+        assert np.allclose(res, expected, tol)
+
     @pytest.mark.parametrize("phi", [0.126, -0.721])
     @pytest.mark.parametrize("theta", [0.5432, -0.232])
     @pytest.mark.parametrize("omega", [1.213, -0.221])
@@ -495,7 +576,6 @@ class TestStateApply:
 
         op.data = [phi, theta, omega]
         dev.apply([qml.QubitStateVector(state, wires=[0, 1]), op])
-
         dev._obs_queue = []
 
         res = dev.state
