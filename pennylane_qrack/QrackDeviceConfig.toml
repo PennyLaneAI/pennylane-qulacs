@@ -132,19 +132,19 @@ wires = "wires"
 # Number of shots per job
 shots = "shots"
 # Use "hybrid" stabilizer optimization? (Default is "true"; non-Clifford circuits will fall back to near-Clifford or universal simulation)
-is_hybrid_stabilizer = "is_hybrid_stabilizer"
+is_hybrid_stabilizer = "isStabilizerHybrid"
 # Use "tensor network" optimization? (Default is "false"; prevents dynamic qubit de-allocation; might function sub-optimally with "hybrid" stabilizer enabled)
-is_tensor_network = "is_tensor_network"
+is_tensor_network = "isTensorNetwork"
 # Use Schmidt decomposition optimizations? (Default is "true")
-is_schmidt_decomposed = "is_schmidt_decomposed"
+is_schmidt_decomposed = "isSchmidtDecompose"
 # Distribute Schmidt-decomposed qubit subsystems to multiple GPUs or accelerators, if available? (Default is "true"; mismatched device capacities might hurt overall performance)
-is_schmidt_decomposition_parallel = "is_schmidt_decomposition_parallel"
+is_schmidt_decomposition_parallel = "isSchmidtDecomposeMulti"
 # Use "quantum binary decision diagram" ("QBDD") methods? (Default is "false"; note that QBDD is CPU-only)
-is_qbdd = "is_qbdd"
+is_qbdd = "isBinaryDecisionTree"
 # Use GPU acceleration? (Default is "true")
-is_gpu = "is_gpu"
+is_gpu = "isOpenCL"
 # Allocate GPU buffer from general host heap? (Default is "false"; "true" might improve performance or reliability in certain cases, like if using an Intel HD as accelerator)
-is_host_pointer = "is_host_pointer"
+is_host_pointer = "isHostPointer"
 
 # In the above example, a dictionary will be constructed at run time.
 # The dictionary will contain the string key "option_key" and its value
