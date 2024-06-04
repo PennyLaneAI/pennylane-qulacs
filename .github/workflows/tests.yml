@@ -41,6 +41,11 @@ jobs:
           cmake ..
           sudo make install
           cd ../..
+          cd catalyst
+          git submodule update --init --depth=1
+          pip3 install -r requirements.txt
+          make all
+          cd ..
 
       - name: Install Plugin
         run: |
