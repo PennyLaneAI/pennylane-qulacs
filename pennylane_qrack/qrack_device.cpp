@@ -424,8 +424,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
-                // Handle if empty:
-                if (kwargs.find("<Wires = []>") != std::string::npos) {
+                // Handle if empty
+                // We look for ',' or npos, to respect other Wires value kwargs
+                if (kwargs.find("<Wires = []>") != kwargs.find("<Wires = []>,")) {
                     continue;
                 }
 
