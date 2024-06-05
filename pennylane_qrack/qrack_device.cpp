@@ -773,7 +773,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         for (size_t shot = 0U; shot < shots; ++shot) {
             bitCapInt sample = q_samples[shot];
             for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
+                *(samplesIter++) = bi_compare_0(sample & (1U << wire)) ? 1.0 : 0.0;
             }
         }
     }
@@ -795,7 +795,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         for (size_t shot = 0U; shot < shots; ++shot) {
             bitCapInt sample = q_samples[shot];
             for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
+                *(samplesIter++) = bi_compare_0(sample & (1U << wire)) ? 1.0 : 0.0;
             }
         }
     }
@@ -824,7 +824,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             std::bitset<1U << QBCAPPOW> basisState;
             size_t idx = numQubits;
             for (size_t wire = 0; wire < numQubits; wire++) {
-                basisState[--idx] = bi_compare_0((sample >> wire) & 1U);
+                basisState[--idx] = bi_compare_0(sample & (1U << wire));
             }
             ++counts(static_cast<size_t>(basisState.to_ulong()));
         }
