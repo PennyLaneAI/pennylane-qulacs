@@ -2,4 +2,4 @@ pennylane>=0.32
 pennylane-catalyst>=0.6
 pyqrack>=0.13.0
 numpy~=1.16
-scikit-build
+scikit-build>=0.1.0

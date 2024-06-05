@@ -761,7 +761,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
         // that could be instead implied by the size of "samples."
-        RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
+        RT_FAIL_IF(samples.size() != shots * qsim->GetQubitCount(), "Invalid size for the pre-allocated samples");
 
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
@@ -781,7 +781,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
         // that could be instead implied by the size of "samples."
-        RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
+        std::cout << shots << std::endl;
+        RT_FAIL_IF(samples.size() != shots * wires.size(), "Invalid size for the pre-allocated samples");
 
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
@@ -804,7 +805,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
         // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = qsim->GetQubitCount();
-        const size_t numElements = (size_t)qsim->GetMaxQPower();
+        const size_t numElements = 1U << numQubits;
 
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
@@ -835,7 +836,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
         // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = wires.size();
-        const size_t numElements = (size_t)Qrack::pow2(numQubits);
+        const size_t numElements = 1U << numQubits;
 
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
