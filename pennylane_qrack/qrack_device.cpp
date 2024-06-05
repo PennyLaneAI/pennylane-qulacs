@@ -761,10 +761,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         auto samplesIter = samples.begin();
         auto q_samplesIter = q_samples.begin();
-        for (size_t shot = 0U; shot < shots; ++shot) {
-            bitCapInt sample = q_samplesIter->first;
+        for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
+            const bitCapInt sample = q_samplesIter->first;
             int shots = q_samplesIter->second;
-            ++q_samplesIter;
             for (; shots > 0; --shots) {
                 for (size_t wire = 0U; wire < numQubits; ++wire) {
                     *(samplesIter++) = bi_compare_0((sample >> wire) & 1U) ? 1.0 : 0.0;
@@ -802,7 +801,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void _CountsBody(const size_t numQubits, const std::map<bitCapInt, int>& q_samples, DataView<int64_t, 1> &counts)
     {
         for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
-            bitCapInt sample = q_samplesIter->first;
+            const bitCapInt sample = q_samplesIter->first;
             int shots = q_samplesIter->second;
             std::bitset<1U << QBCAPPOW> basisState;
             for (size_t wire = 0; wire < numQubits; wire++) {
