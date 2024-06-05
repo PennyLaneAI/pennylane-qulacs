@@ -757,6 +757,21 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
     }
+    void _SampleBody(const size_t numQubits, const std::map<bitCapInt, int>& q_samples, DataView<double, 2> &samples)
+    {
+        auto samplesIter = samples.begin();
+        auto q_samplesIter = q_samples.begin();
+        for (size_t shot = 0U; shot < shots; ++shot) {
+            bitCapInt sample = q_samplesIter->first;
+            int shots = q_samplesIter->second;
+            ++q_samplesIter;
+            for (; shots > 0; --shots) {
+                for (size_t wire = 0U; wire < numQubits; ++wire) {
+                    *(samplesIter++) = bi_compare_0((sample >> wire) & 1U) ? 1.0 : 0.0;
+                }
+            }
+        }
+    }
     void Sample(DataView<double, 2> &samples, size_t shots) override
     {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
@@ -765,17 +780,10 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
+            qPowers[i] = Qrack::pow2(i);
         }
-        auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
-
-        auto samplesIter = samples.begin();
-        for (size_t shot = 0U; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_compare_0(sample & (1U << wire)) ? 1.0 : 0.0;
-            }
-        }
+        const std::map<bitCapInt, int> q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        _SampleBody(qPowers.size(), q_samples, samples);
     }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
@@ -787,15 +795,22 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
+            qPowers[i] = Qrack::pow2(dev_wires[i]);
         }
-        auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
-
-        auto samplesIter = samples.begin();
-        for (size_t shot = 0U; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_compare_0(sample & (1U << wire)) ? 1.0 : 0.0;
+        const std::map<bitCapInt, int> q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        _SampleBody(qPowers.size(), q_samples, samples);
+    }
+    void _CountsBody(const size_t numQubits, const std::map<bitCapInt, int>& q_samples, DataView<int64_t, 1> &counts)
+    {
+        for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
+            bitCapInt sample = q_samplesIter->first;
+            int shots = q_samplesIter->second;
+            for (; shots > 0; --shots) {
+                std::bitset<1U << QBCAPPOW> basisState;
+                for (size_t wire = 0; wire < numQubits; wire++) {
+                    basisState[wire] = bi_compare_0((sample >> wire) & 1U);
+                }
+                ++counts(static_cast<size_t>(basisState.to_ulong()));
             }
         }
     }
@@ -812,22 +827,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
         std::vector<bitCapInt> qPowers(numQubits);
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
+            qPowers[i] = Qrack::pow2(i);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
         std::iota(eigvals.begin(), eigvals.end(), 0);
         std::fill(counts.begin(), counts.end(), 0);
 
-        for (size_t shot = 0; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            std::bitset<1U << QBCAPPOW> basisState;
-            size_t idx = numQubits;
-            for (size_t wire = 0; wire < numQubits; wire++) {
-                basisState[--idx] = bi_compare_0(sample & (1U << wire));
-            }
-            ++counts(static_cast<size_t>(basisState.to_ulong()));
-        }
+        _CountsBody(numQubits, q_samples, counts);
     }
 
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
@@ -851,15 +858,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         std::iota(eigvals.begin(), eigvals.end(), 0);
         std::fill(counts.begin(), counts.end(), 0);
 
-        for (size_t shot = 0; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            std::bitset<1U << QBCAPPOW> basisState;
-            size_t idx = numQubits;
-            for (size_t wire = 0; wire < numQubits; wire++) {
-                basisState[--idx] = bi_compare_0((sample >> wire) & 1U);
-            }
-            ++counts(static_cast<size_t>(basisState.to_ulong()));
-        }
+        _CountsBody(numQubits, q_samples, counts);
     }
 
     void Gradient(std::vector<DataView<double, 1>> &, const std::vector<size_t> &) override {}
