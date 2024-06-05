@@ -789,7 +789,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
         // that could be instead implied by the size of "samples."
-        std::cout << shots << std::endl;
         RT_FAIL_IF(samples.size() != shots * wires.size(), "Invalid size for the pre-allocated samples");
 
         auto &&dev_wires = getDeviceWires(wires);
