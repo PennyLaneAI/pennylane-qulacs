@@ -804,11 +804,11 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
             bitCapInt sample = q_samplesIter->first;
             int shots = q_samplesIter->second;
+            std::bitset<1U << QBCAPPOW> basisState;
+            for (size_t wire = 0; wire < numQubits; wire++) {
+                basisState[wire] = bi_compare_0((sample >> wire) & 1U);
+            }
             for (; shots > 0; --shots) {
-                std::bitset<1U << QBCAPPOW> basisState;
-                for (size_t wire = 0; wire < numQubits; wire++) {
-                    basisState[wire] = bi_compare_0((sample >> wire) & 1U);
-                }
                 ++counts(static_cast<size_t>(basisState.to_ulong()));
             }
         }
