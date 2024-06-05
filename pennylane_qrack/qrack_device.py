@@ -258,21 +258,25 @@ class QrackDevice(QubitDevice):
             op = op.base
             opname = op.name + ".inv"
 
+        par = op.parameters
+
         if opname == "MultiRZ":
             device_wires = self.map_wires(op.wires)
             for q in device_wires:
                 self._state.r(Pauli.PauliZ, par[0], q)
-        elif opname == "C(MultiRZ)":
+            return
+
+        if opname == "C(MultiRZ)":
             device_wires = self.map_wires(op.wires)
             control_wires = self.map_wires(op.control_wires)
             for q in device_wires:
                 self._state.mcr(Pauli.PauliZ, par[0], control_wires, q)
+            return
 
         # translate op wire labels to consecutive wire labels used by the device
         device_wires = self.map_wires(
             (op.control_wires + op.wires) if op.control_wires else op.wires
         )
-        par = op.parameters
 
         if opname in [
             "".join(p)
