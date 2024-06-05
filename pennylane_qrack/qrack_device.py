@@ -127,10 +127,6 @@ class QrackDevice(QubitDevice):
         "C(SX)",
         "PhaseShift",
         "C(PhaseShift)",
-        "U1",
-        "C(U1)",
-        "U2",
-        "C(U2)",
         "U3",
         "C(U3)",
         "Rot",
@@ -342,16 +338,17 @@ class QrackDevice(QubitDevice):
             theta = par[1]
             omega = par[2]
             if ".inv" in opname:
-                phi = -phi
+                tmp = phi
+                phi = -omega
                 theta = -theta
-                omega = -omega
+                omega = -phi
             c = math.cos(theta / 2)
             s = math.sin(theta / 2)
             mtrx = [
                 cmath.exp(-0.5j * (phi + omega)) * c,
                 cmath.exp(0.5j * (phi - omega)) * s,
                 cmath.exp(-0.5j * (phi - omega)) * s,
-                cmath.exp(0.5j * (phi + omega)) * c,
+                cmath.exp(0.5j * (phi + omega)) * np.cos(theta / 2),
             ]
             self._state.mcmtrx(device_wires.labels[:-1], mtrx, device_wires.labels[-1])
         elif opname in ["SWAP", "SWAP.inv"]:
@@ -472,21 +469,21 @@ class QrackDevice(QubitDevice):
                 [(1 + 1j) / 2, (1 - 1j) / 2, (1 - 1j) / 2, (1 + 1j) / 2],
                 device_wires.labels[-1],
             )
-        elif opname in ["PhaseShift", "U1"]:
+        elif opname == "PhaseShift":
             p_mtrx = [1, 0, 0, cmath.exp(1j * par[0])]
             for label in device_wires.labels:
                 self._state.mtrx(p_mtrx, label)
-        elif opname in ["PhaseShift.inv", "U1.inv"]:
+        elif opname == "PhaseShift.inv":
             ip_mtrx = [1, 0, 0, cmath.exp(1j * -par[0])]
             for label in device_wires.labels:
                 self._state.mtrx(ip_mtrx, label)
-        elif opname in ["C(PhaseShift)", "C(U1)"]:
+        elif opname == "C(PhaseShift)":
             self._state.mtrx(
                 device_wires.labels[:-1],
                 [1, 0, 0, cmath.exp(1j * par[0])],
                 device_wires.labels[-1],
             )
-        elif opname in ["C(PhaseShift).inv", "C(U1).inv"]:
+        elif opname == "C(PhaseShift).inv":
             self._state.mtrx(
                 device_wires.labels[:-1],
                 [1, 0, 0, cmath.exp(1j * -par[0])],
@@ -514,52 +511,12 @@ class QrackDevice(QubitDevice):
                 [1, 0, 0, cmath.exp(1j * -par[0])],
                 device_wires.labels[-1],
             )
-        elif opname == "U2":
-            u2_mtrx = [
-                1,
-                cmath.exp(1j * par[1]),
-                cmath.exp(1j * par[0]),
-                cmath.exp(1j * (par[0] + par[1])),
-            ]
-            for label in device_wires.labels:
-                self._state.mtrx(u2_mtrx, label)
-        elif opname == "U2.inv":
-            iu2_mtrx = [
-                1,
-                cmath.exp(1j * -par[1]),
-                cmath.exp(1j * -par[0]),
-                cmath.exp(1j * (-par[0] - par[1])),
-            ]
-            for label in device_wires.labels:
-                self._state.mtrx(iu2_mtrx, label)
-        elif opname == "C(U2)":
-            self._state.mcmtrx(
-                device_wires.labels[:-1],
-                [
-                    1,
-                    cmath.exp(1j * par[1]),
-                    cmath.exp(1j * par[0]),
-                    cmath.exp(1j * (par[0] + par[1])),
-                ],
-                device_wires.labels[-1],
-            )
-        elif opname == "C(U2).inv":
-            self._state.mcmtrx(
-                device_wires.labels[:-1],
-                [
-                    1,
-                    cmath.exp(1j * -par[1]),
-                    cmath.exp(1j * -par[0]),
-                    cmath.exp(1j * (-par[0] - par[1])),
-                ],
-                device_wires.labels[-1],
-            )
         elif opname == "U3":
             for label in device_wires.labels:
                 self._state.u(label, par[0], par[1], par[2])
         elif opname == "U3.inv":
             for label in device_wires.labels:
-                self._state.u(label, -par[0], -par[1], -par[2])
+                self._state.u(label, -par[0], -par[2], -par[1])
         elif opname == "Rot":
             for label in device_wires.labels:
                 self._state.r(Pauli.PauliZ, par[0], label)
@@ -583,8 +540,8 @@ class QrackDevice(QubitDevice):
                 device_wires.labels[:-1],
                 device_wires.labels[-1],
                 -par[0],
-                -par[1],
                 -par[2],
+                -par[1],
             )
         elif opname not in [
             "Identity",

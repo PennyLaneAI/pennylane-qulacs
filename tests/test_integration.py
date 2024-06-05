@@ -15,7 +15,7 @@
 import numpy as np
 import pennylane as qml
 from pennylane_qrack.qrack_device import QrackDevice
-
+from catalyst import qjit
 
 class TestIntegration:
     """Some basic integration tests."""
@@ -36,6 +36,25 @@ class TestIntegration:
         theta = 0.432
         phi = 0.123
 
+        @qml.qnode(dev)
+        def circuit():
+            qml.adjoint(qml.RY(theta, wires=[0]))
+            qml.RY(phi, wires=[1])
+            qml.CNOT(wires=[0, 1])
+            return qml.expval(qml.PauliX(wires=0)), qml.expval(qml.PauliX(wires=1))
+
+        res = circuit()
+        expected = np.array([np.sin(-theta) * np.sin(phi), np.sin(phi)])
+        assert np.allclose(res, expected, atol=0.05)
+
+    def test_expectation_qjit(self):
+        """Test that expectation of a non-trivial circuit is correct."""
+        dev = QrackDevice(2, shots=int(1e6), isOpenCL=False)
+
+        theta = 0.432
+        phi = 0.123
+
+        @qjit
         @qml.qnode(dev)
         def circuit():
             qml.adjoint(qml.RY(theta, wires=[0]))

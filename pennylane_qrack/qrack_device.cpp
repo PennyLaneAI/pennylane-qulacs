@@ -151,7 +151,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
             qsim->Swap(wires[0U], wires[1U]);
             qsim->CU(c, wires[1U], ZERO_R1, ZERO_R1, inverse ? -params[0U] : params[0U]);
-        } else if ((name == "PhaseShift") || (name == "U1")) {
+        } else if (name == "PhaseShift") {
             const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->Phase(Qrack::ONE_CMPLX, bottomRight, target);
@@ -169,31 +169,26 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->RZ(inverse ? -params[0U] : params[0U], target);
             }
         } else if (name == "Rot") {
+            const Qrack::real1 phi = inverse ? -params[2U] : params[0U];
+            const Qrack::real1 theta = inverse ? -params[1U] : params[1U];
+            const Qrack::real1 omega = inverse ? -params[0U] : params[2U];
+            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
+            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
+            const Qrack::complex expP = exp(Qrack::I_CMPLX * (phi + omega) / (2 * ONE_R1));
+            const Qrack::complex expM = exp(Qrack::I_CMPLX * (phi - omega) / (2 * ONE_R1));
+            const Qrack::complex mtrx[4U]{
+                cos0 / expP, -sin0 * expM,
+                sin0 / expM, cos0 * expP
+            };
             for (const bitLenInt& target : wires) {
-                if (inverse) {
-                    qsim->RZ(-params[2U], target);
-                    qsim->RY(-params[1U], target);
-                    qsim->RZ(-params[0U], target);
-                } else {
-                    qsim->RZ(params[0U], target);
-                    qsim->RY(params[1U], target);
-                    qsim->RZ(params[2U], target);
-                }
+                qsim->Mtrx(mtrx, target);
             }
         } else if (name == "U3") {
             for (const bitLenInt& target : wires) {
                 if (inverse) {
-                    qsim->U(target, -params[0U], -params[1U], -params[2U]);
+                    qsim->U(target, -params[0U], -params[2U], -params[1U]);
                 } else {
                     qsim->U(target, params[0U], params[1U], params[2U]);
-                }
-            }
-        } else if (name == "U2") {
-            for (const bitLenInt& target : wires) {
-                if (inverse) {
-                    qsim->U(target, -Qrack::PI_R1 / 2, -params[0U], -params[1U]);
-                } else {
-                    qsim->U(target, Qrack::PI_R1 / 2, params[0U], params[1U]);
                 }
             }
         } else if (name != "Identity") {
@@ -299,7 +294,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     qsim->X(control_wires[i]);
                 }
             }
-        } else if ((name == "PhaseShift") || (name == "U1") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
+        } else if ((name == "PhaseShift") || (name == "ControlledPhaseShift") || (name == "CPhase")) {
             const Qrack::complex bottomRight = exp(Qrack::I_CMPLX * (Qrack::real1)(inverse ? -params[0U] : params[0U]));
             for (const bitLenInt& target : wires) {
                 qsim->UCPhase(control_wires, Qrack::ONE_CMPLX, bottomRight, target, controlPerm);
@@ -336,9 +331,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCPhase(control_wires, conj(bottomRight), bottomRight, target, controlPerm);
             }
         } else if ((name == "Rot") || (name == "CRot")) {
-            const Qrack::real1 phi = inverse ? -params[0U] : params[0U];
+            const Qrack::real1 phi = inverse ? -params[2U] : params[0U];
             const Qrack::real1 theta = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 omega = inverse ? -params[2U] : params[2U];
+            const Qrack::real1 omega = inverse ? -params[0U] : params[2U];
             const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
             const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
             const Qrack::complex expP = exp(Qrack::I_CMPLX * (phi + omega) / (2 * ONE_R1));
@@ -351,34 +346,21 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
             }
         } else if (name == "U3") {
-            const Qrack::real1 theta = inverse ? -params[0U] : params[0U];
-            const Qrack::real1 phi = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 lambda = inverse ? -params[2U] : params[2U];
-            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
-            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
+            const Qrack::real1 th = params[0U];
+            const Qrack::real1 ph = params[1U];
+            const Qrack::real1 lm = params[2U];
+            const Qrack::real1 cos0 = (Qrack::real1)cos(th / 2);
+            const Qrack::real1 sin0 = (Qrack::real1)sin(th / 2);
             const Qrack::complex mtrx[4U]{
-                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lambda)),
-                (Qrack::real1)(-sin(lambda))),
-                sin0 * Qrack::complex((Qrack::real1)cos(phi), (Qrack::real1)sin(phi)),
-                cos0 * Qrack::complex((Qrack::real1)cos(phi + lambda), (Qrack::real1)sin(phi + lambda))
+                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lm)),
+                (Qrack::real1)(-sin(lm))),
+                sin0 * Qrack::complex((Qrack::real1)cos(ph), (Qrack::real1)sin(ph)),
+                cos0 * Qrack::complex((Qrack::real1)cos(ph + lm), (Qrack::real1)sin(ph + lm))
             };
+            Qrack::complex iMtrx[4U];
+            Qrack::inv2x2(mtrx, iMtrx);
             for (const bitLenInt& target : wires) {
-                qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
-            }
-        } else if (name == "U2") {
-            const Qrack::real1 theta = (inverse ? -Qrack::PI_R1 : Qrack::PI_R1) / 2;
-            const Qrack::real1 phi = inverse ? -params[0U] : params[0U];
-            const Qrack::real1 lambda = inverse ? -params[1U] : params[1U];
-            const Qrack::real1 cos0 = (Qrack::real1)cos(theta / 2);
-            const Qrack::real1 sin0 = (Qrack::real1)sin(theta / 2);
-            const Qrack::complex mtrx[4U]{
-                Qrack::complex(cos0, ZERO_R1), sin0 * Qrack::complex((Qrack::real1)(-cos(lambda)),
-                (Qrack::real1)(-sin(lambda))),
-                sin0 * Qrack::complex((Qrack::real1)cos(phi), (Qrack::real1)sin(phi)),
-                cos0 * Qrack::complex((Qrack::real1)cos(phi + lambda), (Qrack::real1)sin(phi + lambda))
-            };
-            for (const bitLenInt& target : wires) {
-                qsim->UCMtrx(control_wires, mtrx, target, controlPerm);
+                qsim->UCMtrx(control_wires, inverse ? iMtrx : mtrx, target, controlPerm);
             }
         } else if (name != "Identity") {
             throw std::domain_error("Unrecognized gate name: " + name);
@@ -423,6 +405,12 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             kwargs.erase(0, pos + 1U);
 
             if (key == "'wires'") {
+                // Handle if empty
+                // We look for ',' or npos, to respect other Wires value kwargs
+                if (kwargs.find("<Wires = []>") != kwargs.find("<Wires = []>,")) {
+                    continue;
+                }
+
                 // Handle if integer
                 pos = kwargs.find(",");
                 bool isInt = true;
@@ -537,7 +525,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
     auto AllocateQubit() -> QubitIdType override {
         if (allocated_qubits >= qubit_map.size()) {
-            throw std::runtime_error("Catalyst has requested more qubits than exist in device. (Set your wires count high enough, for the device.)");
+            throw std::runtime_error("Catalyst has requested more qubits than exist in device, with "
+                + std::to_string(allocated_qubits) + " allocated qubits. "
+                + "(Set your wires count high enough, for the device.)");
         }
         auto it = qubit_map.begin();
         std::advance(it, allocated_qubits);
@@ -758,6 +748,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     {
         RT_FAIL_IF((size_t)Qrack::pow2(wires.size()) != p.size(), "Invalid size for the pre-allocated probabilities vector");
         auto &&dev_wires = getDeviceWires(wires);
+        std::reverse(dev_wires.begin(), dev_wires.end());
 #if FPPOW == 6
         qsim->ProbBitsAll(dev_wires, &(*(p.begin())));
 #else
@@ -772,11 +763,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
 
-        reverseWires();
-
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(i);
+            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -787,8 +776,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
             }
         }
-
-        reverseWires();
     }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
@@ -799,7 +786,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2((bitLenInt)dev_wires[i]);
+            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -822,11 +809,9 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
 
-        reverseWires();
-
         std::vector<bitCapInt> qPowers(numQubits);
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(i);
+            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
@@ -842,8 +827,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             }
             ++counts(static_cast<size_t>(basisState.to_ulong()));
         }
-
-        reverseWires();
     }
 
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
@@ -860,7 +843,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(dev_wires[i]);
+            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
