@@ -773,8 +773,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     }
     void Sample(DataView<double, 2> &samples, size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots * qsim->GetQubitCount(), "Invalid size for the pre-allocated samples");
 
         std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
@@ -786,8 +784,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "samples."
         RT_FAIL_IF(samples.size() != shots * wires.size(), "Invalid size for the pre-allocated samples");
 
         auto &&dev_wires = getDeviceWires(wires);
@@ -815,8 +811,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void Counts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
                 size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = qsim->GetQubitCount();
         const size_t numElements = 1U << numQubits;
 
@@ -838,8 +832,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
                        const std::vector<QubitIdType> &wires, size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = wires.size();
         const size_t numElements = 1U << numQubits;
 
