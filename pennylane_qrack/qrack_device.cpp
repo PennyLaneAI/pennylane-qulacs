@@ -6,6 +6,8 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 300
 #include "qrack/qfactory.hpp"
 
+#define QSIM_CONFIG(numQubits) CreateQuantumInterface(simulatorType, numQubits, Qrack::ZERO_BCI, nullptr, Qrack::CMPLX_DEFAULT_ARG, false, true, is_host_pointer)
+
 std::string trim(std::string s)
 {
     // Cut leading, trailing, and extra spaces
@@ -30,11 +32,13 @@ struct QrackObservable {
 
 struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     bool tapeRecording;
+    bool is_host_pointer;
     bitLenInt allocated_qubits;
     size_t shots;
     Qrack::QInterfacePtr qsim;
     std::map<QubitIdType, bitLenInt> qubit_map;
     std::vector<QrackObservable> obs_cache;
+    std::vector<Qrack::QInterfaceEngine> simulatorType;
 
     // static constants for RESULT values
     static constexpr bool QRACK_RESULT_TRUE_CONST = true;
@@ -369,6 +373,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
 
     QrackDevice([[maybe_unused]] std::string kwargs = "{}")
         : tapeRecording(false)
+        , is_host_pointer(false)
         , allocated_qubits(0U)
         , shots(1U)
         , qsim(nullptr)
@@ -390,14 +395,12 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_gpu'"] = 8;
         keyMap["'is_host_pointer'"] = 9;
 
-        bitLenInt wires = 0U;
         bool is_hybrid_stabilizer = true;
         bool is_tensor_network = false;
         bool is_schmidt_decomposed = true;
         bool is_schmidt_decomposition_parallel = true;
         bool is_qbdd = false;
         bool is_gpu = true;
-        bool is_host_pointer = false;
 
         size_t pos;
         while ((pos = kwargs.find(":")) != std::string::npos) {
@@ -421,8 +424,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     }
                 }
                 if (isInt) {
-                    wires = stoi(trim(kwargs.substr(0, pos)));
-                    for (size_t i = 0U; i < wires; ++i) {
+                    allocated_qubits = stoi(trim(kwargs.substr(0, pos)));
+                    for (size_t i = 0U; i < allocated_qubits; ++i) {
                         qubit_map[i] = i;
                     }
                     kwargs.erase(0, pos + 1U);
@@ -436,15 +439,14 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 kwargs.erase(0, pos + 3U);
                 size_t p = value.find("[");
                 value.erase(0, p + 1U);
-                wires = 0U;
                 size_t q;
                 while ((q = value.find(",")) != std::string::npos) {
-                    qubit_map[(QubitIdType)stoi(trim(value.substr(0, q)))] = wires;
-                    ++wires;
+                    qubit_map[(QubitIdType)stoi(trim(value.substr(0, q)))] = allocated_qubits;
+                    ++allocated_qubits;
                     value.erase(0, q + 1U);
                 }
-                qubit_map[stoi(trim(value))] = wires;
-                ++wires;
+                qubit_map[stoi(trim(value))] = allocated_qubits;
+                ++allocated_qubits;
 
                 continue;
             }
@@ -486,8 +488,6 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         }
 
         // Construct backwards, then reverse:
-        std::vector<Qrack::QInterfaceEngine> simulatorType;
-
         if (!is_gpu) {
             simulatorType.push_back(Qrack::QINTERFACE_CPU);
         }
@@ -515,7 +515,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             simulatorType.push_back(Qrack::QINTERFACE_CPU);
         }
 
-        qsim = CreateQuantumInterface(simulatorType, wires, Qrack::ZERO_BCI, nullptr, Qrack::CMPLX_DEFAULT_ARG, false, true, is_host_pointer);
+        qsim = QSIM_CONFIG(allocated_qubits);
     }
 
     QrackDevice &operator=(const QuantumDevice &) = delete;
@@ -607,7 +607,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     void ReleaseAllQubits() override
     {
         // State vector is left empty
-        qsim->Dispose(0U, qsim->GetQubitCount());
+        qsim = QSIM_CONFIG(0U);
         qubit_map.clear();
     }
     [[nodiscard]] auto GetNumQubits() const -> size_t override
