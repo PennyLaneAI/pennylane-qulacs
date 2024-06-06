@@ -152,11 +152,7 @@ class QrackDevice(QubitDevice):
 
     def __init__(self, wires=0, shots=None, **kwargs):
         super().__init__(wires=wires, shots=shots)
-
-        if "isTensorNetwork" in kwargs:
-            self._state = QrackSimulator(self.num_wires, **kwargs)
-        else:
-            self._state = QrackSimulator(self.num_wires, isTensorNetwork=False, **kwargs)
+        self._state = QrackSimulator(self.num_wires, **kwargs)
 
     def _reverse_state(self):
         end = self.num_wires - 1
