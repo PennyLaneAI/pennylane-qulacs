@@ -34,6 +34,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
     bool tapeRecording;
     bool is_host_pointer;
     bitLenInt allocated_qubits;
+    bitLenInt mapped_qubits;
     size_t shots;
     Qrack::QInterfacePtr qsim;
     std::map<QubitIdType, bitLenInt> qubit_map;
@@ -375,6 +376,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         : tapeRecording(false)
         , is_host_pointer(false)
         , allocated_qubits(0U)
+        , mapped_qubits(0U)
         , shots(1U)
         , qsim(nullptr)
     {
@@ -396,7 +398,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         keyMap["'is_host_pointer'"] = 9;
 
         bool is_hybrid_stabilizer = true;
-        bool is_tensor_network = false;
+        bool is_tensor_network = true;
         bool is_schmidt_decomposed = true;
         bool is_schmidt_decomposition_parallel = true;
         bool is_qbdd = false;
@@ -424,8 +426,8 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                     }
                 }
                 if (isInt) {
-                    allocated_qubits = stoi(trim(kwargs.substr(0, pos)));
-                    for (size_t i = 0U; i < allocated_qubits; ++i) {
+                    mapped_qubits = stoi(trim(kwargs.substr(0, pos)));
+                    for (size_t i = 0U; i < mapped_qubits; ++i) {
                         qubit_map[i] = i;
                     }
                     kwargs.erase(0, pos + 1U);
@@ -441,12 +443,12 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
                 value.erase(0, p + 1U);
                 size_t q;
                 while ((q = value.find(",")) != std::string::npos) {
-                    qubit_map[(QubitIdType)stoi(trim(value.substr(0, q)))] = allocated_qubits;
-                    ++allocated_qubits;
+                    qubit_map[(QubitIdType)stoi(trim(value.substr(0, q)))] = mapped_qubits;
+                    ++mapped_qubits;
                     value.erase(0, q + 1U);
                 }
-                qubit_map[stoi(trim(value))] = allocated_qubits;
-                ++allocated_qubits;
+                qubit_map[stoi(trim(value))] = mapped_qubits;
+                ++mapped_qubits;
 
                 continue;
             }
@@ -515,7 +517,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
             simulatorType.push_back(Qrack::QINTERFACE_CPU);
         }
 
-        qsim = QSIM_CONFIG(allocated_qubits);
+        qsim = QSIM_CONFIG(mapped_qubits);
     }
 
     QrackDevice &operator=(const QuantumDevice &) = delete;
