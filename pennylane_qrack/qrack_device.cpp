@@ -757,85 +757,83 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         std::copy(_p.get(), _p.get() + p.size(), p.begin());
 #endif
     }
-    void Sample(DataView<double, 2> &samples, size_t shots) override
+    void _SampleBody(const size_t numQubits, const std::map<bitCapInt, int>& q_samples, DataView<double, 2> &samples)
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "samples."
-        RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
-
-        std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
-        for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
-        }
-        auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
-
         auto samplesIter = samples.begin();
-        for (size_t shot = 0U; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
+        auto q_samplesIter = q_samples.begin();
+        for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
+            const bitCapInt sample = q_samplesIter->first;
+            int shots = q_samplesIter->second;
+            for (; shots > 0; --shots) {
+                for (size_t wire = 0U; wire < numQubits; ++wire) {
+                    *(samplesIter++) = bi_compare_0((sample >> wire) & 1U) ? 1.0 : 0.0;
+                }
             }
         }
     }
+    void Sample(DataView<double, 2> &samples, size_t shots) override
+    {
+        RT_FAIL_IF(samples.size() != shots * qsim->GetQubitCount(), "Invalid size for the pre-allocated samples");
+
+        std::vector<bitCapInt> qPowers(qsim->GetQubitCount());
+        for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
+            qPowers[i] = Qrack::pow2(i);
+        }
+        const std::map<bitCapInt, int> q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        _SampleBody(qPowers.size(), q_samples, samples);
+    }
     void PartialSample(DataView<double, 2> &samples, const std::vector<QubitIdType> &wires, size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "samples."
-        RT_FAIL_IF(samples.size() != shots, "Invalid size for the pre-allocated samples");
+        RT_FAIL_IF(samples.size() != shots * wires.size(), "Invalid size for the pre-allocated samples");
 
         auto &&dev_wires = getDeviceWires(wires);
         std::vector<bitCapInt> qPowers(dev_wires.size());
         for (size_t i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(dev_wires[qPowers.size() - (i + 1U)]);
+            qPowers[i] = Qrack::pow2(dev_wires[i]);
         }
-        auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
-
-        auto samplesIter = samples.begin();
-        for (size_t shot = 0U; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            for (size_t wire = 0U; wire < qPowers.size(); ++wire) {
-                *(samplesIter++) = bi_to_double((sample >> wire) & 1U);
+        const std::map<bitCapInt, int> q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
+        _SampleBody(qPowers.size(), q_samples, samples);
+    }
+    void _CountsBody(const size_t numQubits, const std::map<bitCapInt, int>& q_samples, DataView<int64_t, 1> &counts)
+    {
+        for (auto q_samplesIter = q_samples.begin(); q_samplesIter != q_samples.end(); ++q_samplesIter) {
+            const bitCapInt sample = q_samplesIter->first;
+            int shots = q_samplesIter->second;
+            std::bitset<1U << QBCAPPOW> basisState;
+            for (size_t wire = 0; wire < numQubits; wire++) {
+                basisState[wire] = bi_compare_0((sample >> wire) & 1U);
+            }
+            for (; shots > 0; --shots) {
+                ++counts(static_cast<size_t>(basisState.to_ulong()));
             }
         }
     }
     void Counts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
                 size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = qsim->GetQubitCount();
-        const size_t numElements = (size_t)qsim->GetMaxQPower();
+        const size_t numElements = 1U << numQubits;
 
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
 
         std::vector<bitCapInt> qPowers(numQubits);
         for (bitLenInt i = 0U; i < qPowers.size(); ++i) {
-            qPowers[i] = Qrack::pow2(qPowers.size() - (i + 1U));
+            qPowers[i] = Qrack::pow2(i);
         }
         auto q_samples = qsim->MultiShotMeasureMask(qPowers, shots);
 
         std::iota(eigvals.begin(), eigvals.end(), 0);
         std::fill(counts.begin(), counts.end(), 0);
 
-        for (size_t shot = 0; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            std::bitset<1U << QBCAPPOW> basisState;
-            size_t idx = numQubits;
-            for (size_t wire = 0; wire < numQubits; wire++) {
-                basisState[--idx] = bi_compare_0((sample >> wire) & 1U);
-            }
-            ++counts(static_cast<size_t>(basisState.to_ulong()));
-        }
+        _CountsBody(numQubits, q_samples, counts);
     }
 
     void PartialCounts(DataView<double, 1> &eigvals, DataView<int64_t, 1> &counts,
                        const std::vector<QubitIdType> &wires, size_t shots) override
     {
-        // TODO: We could suggest, for upstream, that "shots" is a redundant parameter
-        // that could be instead implied by the size of "eigvals"/"counts".
         const size_t numQubits = wires.size();
-        const size_t numElements = (size_t)Qrack::pow2(numQubits);
+        const size_t numElements = 1U << numQubits;
 
         RT_FAIL_IF(eigvals.size() != numElements || counts.size() != numElements,
                    "Invalid size for the pre-allocated counts");
@@ -850,15 +848,7 @@ struct QrackDevice final : public Catalyst::Runtime::QuantumDevice {
         std::iota(eigvals.begin(), eigvals.end(), 0);
         std::fill(counts.begin(), counts.end(), 0);
 
-        for (size_t shot = 0; shot < shots; ++shot) {
-            bitCapInt sample = q_samples[shot];
-            std::bitset<1U << QBCAPPOW> basisState;
-            size_t idx = numQubits;
-            for (size_t wire = 0; wire < numQubits; wire++) {
-                basisState[--idx] = bi_compare_0((sample >> wire) & 1U);
-            }
-            ++counts(static_cast<size_t>(basisState.to_ulong()));
-        }
+        _CountsBody(numQubits, q_samples, counts);
     }
 
     void Gradient(std::vector<DataView<double, 1>> &, const std::vector<size_t> &) override {}

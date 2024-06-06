@@ -22,6 +22,7 @@ with open("./pennylane_qrack/_version.py") as f:
 
 requirements = [
     "pennylane>=0.32",
+    "pennylane-catalyst>=0.6",
     "pyqrack>=0.13.0",
     "numpy~=1.16",
     "scikit-build>=0.1.0",
