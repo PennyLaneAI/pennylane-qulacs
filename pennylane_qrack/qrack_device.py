@@ -621,7 +621,7 @@ class QrackDevice(QubitDevice):
             sample = 0
             for i in range(self.num_wires):
                 if (rev_sample & (1 << i)) > 0:
-                    sample = sample | (1 << (self.num_wires - (i + 1)))
+                    sample |= 1 << (self.num_wires - (i + 1))
             self._samples = QubitDevice.states_to_binary(np.array([sample]), self.num_wires)
 
             return self._samples
