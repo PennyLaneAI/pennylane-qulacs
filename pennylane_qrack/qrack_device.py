@@ -617,7 +617,7 @@ class QrackDevice(QubitDevice):
             )
 
         if self.shots == 1:
-            rev_sample = self._state.measure_all()
+            rev_sample = self._state.m_all()
             sample = 0
             for i in range(self.num_wires):
                 if (rev_sample & (1 << i)) > 0:
