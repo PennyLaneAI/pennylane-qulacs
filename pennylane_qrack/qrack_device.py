@@ -616,6 +616,16 @@ class QrackDevice(QubitDevice):
                 "when using sample-based measurements."
             )
 
+        if self.shots == 1:
+            rev_sample = self._state.measure_all()
+            sample = 0
+            for i in range(self.num_wires):
+                if (rev_sample & (1 << i)) > 0:
+                    sample |= 1 << (self.num_wires - (i + 1))
+            self._samples = QubitDevice.states_to_binary(np.array([sample]), self.num_wires)
+
+            return self._samples
+
         samples = np.array(
             self._state.measure_shots(list(range(self.num_wires - 1, -1, -1)), self.shots)
         )
