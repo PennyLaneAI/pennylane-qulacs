@@ -69,6 +69,13 @@ To test that the PennyLane-Qrack plugin is working correctly you can run
 
 in the source folder.
 
+Documentation
+=============
+The API-doc can be generated locally by running
+.. code-block:: bash
+
+    $ make docs
+
 Contributing
 ============
 
