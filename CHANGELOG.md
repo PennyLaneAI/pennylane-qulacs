@@ -1,4 +1,4 @@
-# Release 0.33.0-dev
+# Release 0.37.0-dev
 
 ### New features since last release
 
@@ -15,6 +15,20 @@
 ### Contributors ✍️
 
 This release contains contributions from (in alphabetical order):
+
+---
+# Release 0.36.0
+
+### New features since last release
+
+* Added support for `Prod` observables.
+  [(#64)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/64)
+
+### Contributors ✍️
+
+This release contains contributions from (in alphabetical order):
+
+Astral Cai
 
 ---
 # Release 0.32.0

@@ -180,7 +180,9 @@ class TestStateApply:
     @pytest.mark.parametrize("state_prep_op", (qml.QubitStateVector, qml.StatePrep))
     @pytest.mark.parametrize("device_wires", [3, 4, 5])
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
-    def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, state_prep_op, tol):
+    def test_qubit_state_vector_on_wires_subset(
+        self, init_state, device_wires, op_wires, state_prep_op, tol
+    ):
         """Test QubitStateVector and StatePrep application on a subset of device wires"""
         dev = QulacsDevice(device_wires)
         state = init_state(len(op_wires))
@@ -292,12 +294,12 @@ class TestStateApply:
         dev = QulacsDevice(1)
 
         with pytest.raises(
-            ValueError, match="BasisState parameter must consist of 0 or 1 integers."
+            ValueError, match="Basis state must only consist of 0s and 1s"
         ):
             dev.apply([qml.BasisState(np.array([-0.2, 4.2]), wires=[0, 1])])
 
         with pytest.raises(
-            ValueError, match="BasisState parameter and wires must be of equal length."
+            ValueError, match="State must be of length 1; got length 2"
         ):
             dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
 

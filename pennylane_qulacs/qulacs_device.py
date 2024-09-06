@@ -122,6 +122,7 @@ class QulacsDevice(QubitDevice):
         "Identity": "I",
         "Hadamard": None,
         "Hermitian": None,
+        "Prod": None,
     }
 
     operations = _operation_map.keys()
@@ -348,6 +349,8 @@ class QulacsDevice(QubitDevice):
             qulacs_observable = Observable(self.num_wires)
             if isinstance(observable.name, list):
                 observables = [self._observable_map[obs] for obs in observable.name]
+            elif observable.name == "Prod":
+                observables = [self._observable_map[obs.name] for obs in observable.operands]
             else:
                 observables = [self._observable_map[observable.name]]
 
