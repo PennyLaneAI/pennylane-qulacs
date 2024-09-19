@@ -163,13 +163,12 @@ class TestStateApply:
         expected = dev._expand_state(expected, op_wires)
         assert np.allclose(res, expected, tol)
 
-    @pytest.mark.parametrize("state_prep_op", (qml.QubitStateVector, qml.StatePrep))
-    def test_qubit_state_vector(self, init_state, state_prep_op, tol):
-        """Test QubitStateVector and StatePrep application"""
+    def test_qubit_state_vector(self, init_state, tol):
+        """Test StatePrep application"""
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        op = state_prep_op(state, wires=[0])
+        op = qml.StatePrep(state, wires=[0])
         dev.apply([op])
         dev._obs_queue = []
 
@@ -177,17 +176,14 @@ class TestStateApply:
         expected = state
         assert np.allclose(res, expected, tol)
 
-    @pytest.mark.parametrize("state_prep_op", (qml.QubitStateVector, qml.StatePrep))
     @pytest.mark.parametrize("device_wires", [3, 4, 5])
     @pytest.mark.parametrize("op_wires", [[0], [2], [0, 1], [1, 0], [2, 0]])
-    def test_qubit_state_vector_on_wires_subset(
-        self, init_state, device_wires, op_wires, state_prep_op, tol
-    ):
-        """Test QubitStateVector and StatePrep application on a subset of device wires"""
+    def test_qubit_state_vector_on_wires_subset(self, init_state, device_wires, op_wires, tol):
+        """Test StatePrep application on a subset of device wires"""
         dev = QulacsDevice(device_wires)
         state = init_state(len(op_wires))
 
-        op = state_prep_op(state, wires=op_wires)
+        op = qml.StatePrep(state, wires=op_wires)
         dev.apply([op])
         dev._obs_queue = []
 
