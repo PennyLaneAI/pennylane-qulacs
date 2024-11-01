@@ -7,8 +7,8 @@
 
 ### Breaking changes 💔
 
-* Removes support for Python 3.9.
-  [(#43)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/78)
+* Remove support for Python 3.9.
+  [(#78)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/78)
 
 ### Contributors ✍️
 
