@@ -36,6 +36,7 @@ jobs:
 
       - name: Install Plugin
         run: |
+          python -m pip install --upgrade pip setuptools
           python setup.py bdist_wheel
           pip install dist/pennylane*.whl
 
