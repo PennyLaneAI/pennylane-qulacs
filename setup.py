@@ -13,8 +13,8 @@
 # limitations under the License.
 #!/usr/bin/env python3
 import re
-from setuptools import setup
 
+from setuptools import setup
 
 with open("./pennylane_qulacs/_version.py") as f:
     (version,) = re.findall('__version__ = "(.*)"', f.read())
@@ -40,7 +40,9 @@ info = {
     "license": "Apache License 2.0",
     "packages": ["pennylane_qulacs"],
     "entry_points": {
-        "pennylane.plugins": ["qulacs.simulator = pennylane_qulacs.qulacs_device:QulacsDevice"]
+        "pennylane.plugins": [
+            "qulacs.simulator = pennylane_qulacs.qulacs_device:QulacsDevice"
+        ]
     },
     "description": "PennyLane plugin for Qulacs.",
     "long_description": open("README.rst").read(),
@@ -63,9 +65,9 @@ classifiers = [
     "Programming Language :: Python",
     # Make sure to specify here the versions of Python supported
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Scientific/Engineering :: Physics",
 ]

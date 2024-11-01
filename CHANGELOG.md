@@ -5,11 +5,17 @@
 * Fix deprecated import path for `QubitDevice`.
   [(#74)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/74)
 
+### Breaking changes 💔
+
+* Removes support for Python 3.9.
+  [(#43)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/78)
+
 ### Contributors ✍️
 
 This release contains contributions from (in alphabetical order):
 
 Astral Cai
+Yushao Chen
 
 ---
 # Release 0.36.0
