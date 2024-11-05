@@ -10,6 +10,9 @@
 * Remove support for Python 3.9.
   [(#78)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/78)
 
+* Upgrade minimum supported version of PennyLane to 0.38.0.
+  [(#)]()
+
 ### Contributors ✍️
 
 This release contains contributions from (in alphabetical order):
