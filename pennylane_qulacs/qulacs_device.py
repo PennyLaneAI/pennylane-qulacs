@@ -81,7 +81,7 @@ class QulacsDevice(QubitDevice):
 
     name = "Qulacs device"
     short_name = "qulacs.simulator"
-    pennylane_requires = ">=0.11.0"
+    pennylane_requires = ">=0.38.0"
     version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED
