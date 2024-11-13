@@ -23,7 +23,6 @@ import numpy as np
 from pennylane.devices import QubitDevice
 from pennylane import DeviceError
 from pennylane.ops import (
-    StatePrep,
     BasisState,
     QubitUnitary,
     CRZ,
