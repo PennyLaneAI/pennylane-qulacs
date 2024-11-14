@@ -23,7 +23,6 @@ import numpy as np
 from pennylane.devices import QubitDevice
 from pennylane import DeviceError
 from pennylane.ops import (
-    QubitStateVector,
     BasisState,
     QubitUnitary,
     CRZ,
@@ -95,7 +94,6 @@ class QulacsDevice(QubitDevice):
 
     _operation_map = {
         "StatePrep": None,
-        "QubitStateVector": None,
         "BasisState": None,
         "QubitUnitary": None,
         "Toffoli": gate.TOFFOLI,
@@ -170,7 +168,7 @@ class QulacsDevice(QubitDevice):
         """
 
         for i, op in enumerate(operations):
-            if i > 0 and isinstance(op, (QubitStateVector, BasisState, StatePrep)):
+            if i > 0 and isinstance(op, (BasisState, StatePrep)):
                 raise DeviceError(
                     "Operation {} cannot be used after other Operations have already been applied "
                     "on a {} device.".format(op.name, self.short_name)
@@ -180,7 +178,7 @@ class QulacsDevice(QubitDevice):
                 inverse = True
                 op = op.base
 
-            if isinstance(op, (QubitStateVector, StatePrep)):
+            if isinstance(op, StatePrep):
                 self._apply_qubit_state_vector(op)
             elif isinstance(op, BasisState):
                 self._apply_basis_state(op)
