@@ -1,25 +1,15 @@
-# Release 0.40.0-dev
-
-### New features since last release
-
-### Improvements 🛠
+# Release 0.40.0
 
 ### Breaking changes 💔
 
 * The ``qml.QubitStateVector`` template has been removed. Instead, use :class:`~pennylane.StatePrep`.
   [(#83)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/83)
 
-### Deprecations 👋
-
-### Documentation 📝
-
-### Bug fixes 🐛
-
 ### Contributors ✍️
 
-Andrija Paurevic
-
 This release contains contributions from (in alphabetical order):
+
+Andrija Paurevic
 
 ---
 # Release 0.39.0
