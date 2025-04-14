@@ -43,7 +43,7 @@ class TestDeviceUnits:
         monkeypatch.setattr(QulacsDevice, "gpu_supported", False)
 
         with pytest.raises(
-            qml.DeviceError, match="GPU not supported with installed version of qulacs"
+            qml.exceptions.DeviceError, match="GPU not supported with installed version of qulacs"
         ):
             QulacsDevice(3, gpu=True)
 
