@@ -21,7 +21,7 @@ import itertools as it
 import numpy as np
 
 from pennylane.devices import QubitDevice
-from pennylane import DeviceError
+from pennylane.exceptions import DeviceError
 from pennylane.ops import (
     BasisState,
     QubitUnitary,
