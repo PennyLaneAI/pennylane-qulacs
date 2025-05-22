@@ -6,6 +6,7 @@ You can instantiate the qulacs device in PennyLane as follows:
 .. code-block:: python
 
     import pennylane as qml
+    from pennylane.exceptions import DeviceError
 
     dev = qml.device('qulacs.simulator', wires=2)
 
