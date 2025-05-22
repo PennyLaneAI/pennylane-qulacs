@@ -6,6 +6,7 @@ You can instantiate the qulacs device in PennyLane as follows:
 .. code-block:: python
 
     import pennylane as qml
+    from pennylane.exceptions import DeviceError
 
     dev = qml.device('qulacs.simulator', wires=2)
 
@@ -24,6 +25,9 @@ parameters would look like:
         return qml.expval(qml.PauliZ(wires=1))
 
 You can then execute the circuit like any other function to get the quantum mechanical expectation value.
+.. autosummary::
+    pennylane.exceptions
+
 
 .. code-block:: python
 
