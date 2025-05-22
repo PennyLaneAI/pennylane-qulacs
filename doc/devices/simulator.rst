@@ -25,6 +25,9 @@ parameters would look like:
         return qml.expval(qml.PauliZ(wires=1))
 
 You can then execute the circuit like any other function to get the quantum mechanical expectation value.
+.. autosummary::
+    pennylane.exceptions
+
 
 .. code-block:: python
 
