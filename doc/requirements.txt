@@ -1,6 +1,6 @@
 docutils==0.16
 sphinxcontrib-bibtex
 pygments-github-lexers
-pennylane>=0.42.0
+pennylane
 sphinx-automodapi
 pennylane-sphinx-theme
