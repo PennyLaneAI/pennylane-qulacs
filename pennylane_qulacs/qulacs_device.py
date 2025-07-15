@@ -21,7 +21,7 @@ import itertools as it
 import numpy as np
 
 from pennylane.devices import QubitDevice
-from pennylane import DeviceError
+from pennylane.exceptions import DeviceError
 from pennylane.ops import (
     BasisState,
     QubitUnitary,
@@ -80,7 +80,7 @@ class QulacsDevice(QubitDevice):
 
     name = "Qulacs device"
     short_name = "qulacs.simulator"
-    pennylane_requires = ">=0.38.0"
+    pennylane_requires = ">=0.42.0"
     version = __version__
     author = "Steven Oud and Xanadu"
     gpu_supported = GPU_SUPPORTED

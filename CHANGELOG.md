@@ -1,4 +1,4 @@
-# Release 0.42.0-dev
+# Release 0.43.0-dev
 
 ### New features since last release
 
@@ -17,6 +17,38 @@
 This release contains contributions from (in alphabetical order):
 
 ---
+# Release 0.42.0
+ 
+ ### New features since last release
+ 
+ ### Improvements 🛠
+ 
+ ### Breaking changes 💔
+
+ * Upgrade minimum supported version of PennyLane to 0.42.0.
+  [(#80)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/95)
+ 
+ ### Deprecations 👋
+
+ ### Internal changes ⚙️
+
+ * Bumped the `readthedocs.yml` action up to Ubuntu-24.04.
+   [(#91)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/91)
+
+ * Use new `pennylane.exceptions` module for custom exceptions.
+   [(#90)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/90)
+ 
+ ### Documentation 📝
+ 
+ ### Bug fixes 🐛
+ 
+ ### Contributors ✍️
+ 
+ This release contains contributions from (in alphabetical order):
+
+ Runor Agbaire, Andrija Paurevic
+ 
+ ---
 # Release 0.41.0
 
 ### Internal changes ⚙️

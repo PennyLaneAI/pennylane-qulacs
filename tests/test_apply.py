@@ -301,7 +301,7 @@ class TestStateApply:
 
         dev.reset()
         with pytest.raises(
-            qml.DeviceError,
+            qml.exceptions.DeviceError,
             match="Operation BasisState cannot be used after other Operations have already been applied "
             "on a qulacs.simulator device.",
         ):
