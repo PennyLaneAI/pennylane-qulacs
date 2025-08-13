@@ -31,11 +31,12 @@ class TestIntegration:
 
     def test_expectation(self):
         """Test that expectation of a non-trivial circuit is correct."""
-        dev = QulacsDevice(2, shots=int(1e6))
+        dev = QulacsDevice(2)
 
         theta = 0.432
         phi = 0.123
 
+        @qml.set_shots(1_000)
         @qml.qnode(dev)
         def circuit():
             qml.adjoint(qml.RY(theta, wires=[0]))
