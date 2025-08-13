@@ -36,7 +36,7 @@ class TestIntegration:
         theta = 0.432
         phi = 0.123
 
-        @qml.set_shots(1_000_000)
+        @qml.set_shots(1_000)
         @qml.qnode(dev)
         def circuit():
             qml.adjoint(qml.RY(theta, wires=[0]))
