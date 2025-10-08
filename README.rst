@@ -79,7 +79,7 @@ and compared the runtimes between CPU and GPU.
 Installation
 ============
 
-This plugin requires Python version 3.10 or above, as well as PennyLane and
+This plugin requires Python version 3.11 or above, as well as PennyLane and
 Qulacs. Installation of this plugin, as well as all dependencies, can be done
 using ``pip``:
 
@@ -128,7 +128,7 @@ Dependencies
 
 PennyLane-Qulacs requires the following libraries be installed:
 
-* `Python <http://python.org/>`__ >= 3.10
+* `Python <http://python.org/>`__ >= 3.11
 
 as well as the following Python packages:
 
