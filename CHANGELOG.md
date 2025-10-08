@@ -1,25 +1,15 @@
-# Release 0.43.0-dev
-
-### New features since last release
-
-### Improvements 🛠
+# Release 0.43.0
 
 ### Breaking changes 💔
 
 * Remove support for Python 3.10 and add support for Python 3.13.
   [(#98)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/98)
 
-### Deprecations 👋
-
 ### Internal changes ⚙️
 
 * Adjusted `test_expectation` to use 1,000 shots instead of 1,000,000,
   and use `set_shots` instead of setting on device.
   [(#99)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/99)
-
-### Documentation 📝
-
-### Bug fixes 🐛
 
 ### Contributors ✍️
 
