@@ -2,6 +2,9 @@
 
 ### Breaking changes 💔
 
+* Minimum supported version of PennyLane is now v0.43.0.
+  [(#)]()
+
 * Remove support for Python 3.10 and add support for Python 3.13.
   [(#98)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/98)
   [(#101](https://github.com/PennyLaneAI/pennylane-qulacs/pull/101)
