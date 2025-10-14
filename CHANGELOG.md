@@ -1,8 +1,4 @@
-# Release 0.43.0-dev
-
-### New features since last release
-
-### Improvements 🛠
+# Release 0.43.0
 
 ### Breaking changes 💔
 
@@ -10,17 +6,11 @@
   [(#98)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/98)
   [(#101](https://github.com/PennyLaneAI/pennylane-qulacs/pull/101)
 
-### Deprecations 👋
-
 ### Internal changes ⚙️
 
 * Adjusted `test_expectation` to use 1,000 shots instead of 1,000,000,
   and use `set_shots` instead of setting on device.
   [(#99)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/99)
-
-### Documentation 📝
-
-### Bug fixes 🐛
 
 ### Contributors ✍️
 
