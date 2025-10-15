@@ -21,7 +21,7 @@ with open("./pennylane_qulacs/_version.py") as f:
 
 
 requirements = [
-    "pennylane>=0.42",
+    "pennylane>=0.43",
     "numpy",
     "scipy",
 ]
