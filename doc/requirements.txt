@@ -4,3 +4,4 @@ pygments-github-lexers
 sphinx-automodapi
 pennylane-sphinx-theme
 git+https://github.com/PennyLaneAI/pennylane.git@master
+sphinx==8.1
