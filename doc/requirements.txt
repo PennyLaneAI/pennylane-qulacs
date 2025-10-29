@@ -1,7 +1,7 @@
 docutils==0.20
+sphinx==8.1
 sphinxcontrib-bibtex
 pygments-github-lexers
 sphinx-automodapi
 pennylane-sphinx-theme
 git+https://github.com/PennyLaneAI/pennylane.git@master
-sphinx==8.1
