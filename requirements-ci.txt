@@ -1,0 +1,14 @@
+# Core testing tools
+
+wheel
+pytest
+pytest-cov
+pytest-mock
+
+# Project dependency
+
+qulacs>=0.1.10.1
+
+# Install latest PennyLane
+
+git+https://github.com/PennyLaneAI/pennylane.git#egg=pennylane
