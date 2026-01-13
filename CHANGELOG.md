@@ -1,20 +1,25 @@
-# Release 0.44.0-dev
-
-### New features since last release
+# Release 0.44.0
 
 ### Improvements 🛠
 
-### Breaking changes 💔
+* Added support for Python 3.14.
+  [(#109)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/109)
 
-### Deprecations 👋
+### Internal changes ⚙️
 
-### Documentation 📝
+* Upgraded Sphinx to version 8.1.
+  [(#105)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/105)
 
-### Bug fixes 🐛
+* Fix `default_config` access in tests.
+  [(#106)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/106)
 
 ### Contributors ✍️
 
 This release contains contributions from (in alphabetical order):
+
+Runor Agbaire,
+Yushao Chen,
+Andrija Paurevic.
 
 ---
 # Release 0.43.0
