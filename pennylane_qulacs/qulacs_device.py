@@ -14,6 +14,7 @@
 """
 Base device class for PennyLane-Qulacs.
 """
+
 from functools import reduce
 import math, cmath
 import itertools as it
@@ -35,7 +36,6 @@ import qulacs.gate as gate
 from qulacs import QuantumCircuit, QuantumState, Observable
 
 from ._version import __version__
-
 
 GPU_SUPPORTED = True
 try:
