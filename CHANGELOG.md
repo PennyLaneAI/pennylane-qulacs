@@ -4,6 +4,11 @@
 
 ### Improvements 🛠
 
+### Internal changes ⚙️
+
+* Upgraded Sphinx to version 9.0.
+  [(#113)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/113)
+
 ### Breaking changes 💔
 
 ### Deprecations 👋
@@ -15,6 +20,8 @@
 ### Contributors ✍️
 
 This release contains contributions from (in alphabetical order):
+
+Runor Agbaire
 
 ---
 # Release 0.44.0
