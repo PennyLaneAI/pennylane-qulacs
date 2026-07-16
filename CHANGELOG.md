@@ -9,6 +9,9 @@
 * Upgraded Sphinx to version 9.0.
   [(#113)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/113)
 
+* Tests stop using Operator data setter.
+  [(#115)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/115)
+
 ### Breaking changes 💔
 
 ### Deprecations 👋
