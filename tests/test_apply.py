@@ -16,6 +16,7 @@ import pytest
 
 import numpy as np
 import pennylane as qml
+from pennylane.ops.functions import bind_new_parameters
 from scipy.linalg import block_diag
 from pennylane_qulacs.qulacs_device import QulacsDevice
 
@@ -212,7 +213,7 @@ class TestStateApply:
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        op.data = [theta]
+        op = bind_new_parameters(op, (theta,))
         dev.apply([qml.StatePrep(state, wires=[0]), op])
         dev._obs_queue = []
 
@@ -276,7 +277,7 @@ class TestStateApply:
         dev = QulacsDevice(2)
         state = init_state(2)
 
-        op.data = [theta]
+        op = bind_new_parameters(op, (theta,))
         dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
