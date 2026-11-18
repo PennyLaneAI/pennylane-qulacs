@@ -4,6 +4,10 @@
 
 ### Improvements 🛠
 
+* The device now supports `GlobalPhase`, so graph-based decompositions such as
+  `ControlledPhaseShift` no longer need a work wire.
+  [(#117)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/117)
+
 ### Internal changes ⚙️
 
 * Updated tests for PennyLane's read-only `Operator.data` and the new `BasisState`

@@ -285,6 +285,20 @@ class TestStateApply:
         expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
 
+    @pytest.mark.parametrize("adjoint", [False, True])
+    def test_global_phase(self, init_state, adjoint, tol):
+        """Test that GlobalPhase multiplies the state by the correct phase."""
+        dev = QulacsDevice(2)
+        state = init_state(2)
+
+        op = qml.GlobalPhase(0.3)
+        if adjoint:
+            op = qml.adjoint(op)
+        dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
+
+        phase = 0.3 if adjoint else -0.3
+        assert np.allclose(dev.state, np.exp(1j * phase) * state, tol)
+
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
         dev = QulacsDevice(1)
