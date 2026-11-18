@@ -8,7 +8,7 @@
 
 * Updated tests for PennyLane's read-only `Operator.data` and the new `BasisState`
   wire-length error message.
-  [(#XXX)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/XXX)
+  [(#117)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/117)
 
 * Upgraded Sphinx to version 9.0.
   [(#113)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/113)
