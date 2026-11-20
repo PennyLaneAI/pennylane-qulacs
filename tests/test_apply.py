@@ -212,7 +212,7 @@ class TestStateApply:
         dev = QulacsDevice(1)
         state = init_state(1)
 
-        op.data = [theta]
+        op = qml.ops.functions.bind_new_parameters(op, [theta])
         dev.apply([qml.StatePrep(state, wires=[0]), op])
         dev._obs_queue = []
 
@@ -276,7 +276,7 @@ class TestStateApply:
         dev = QulacsDevice(2)
         state = init_state(2)
 
-        op.data = [theta]
+        op = qml.ops.functions.bind_new_parameters(op, [theta])
         dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
 
         dev._obs_queue = []
@@ -284,6 +284,20 @@ class TestStateApply:
         res = dev.state
         expected = func(theta) @ state
         assert np.allclose(res, expected, tol)
+
+    @pytest.mark.parametrize("adjoint", [False, True])
+    def test_global_phase(self, init_state, adjoint, tol):
+        """Test that GlobalPhase multiplies the state by the correct phase."""
+        dev = QulacsDevice(2)
+        state = init_state(2)
+
+        op = qml.GlobalPhase(0.3)
+        if adjoint:
+            op = qml.adjoint(op)
+        dev.apply([qml.StatePrep(state, wires=[0, 1]), op])
+
+        phase = 0.3 if adjoint else -0.3
+        assert np.allclose(dev.state, np.exp(1j * phase) * state, tol)
 
     def test_apply_errors_basis_state(self):
         """Test that apply fails for incorrect basis state preparation."""
@@ -295,7 +309,7 @@ class TestStateApply:
             dev.apply([qml.BasisState(np.array([-0.2, 4.2]), wires=[0, 1])])
 
         with pytest.raises(
-            ValueError, match="State must be of length 1; got length 2"
+            ValueError, match="State must be of length 1; got length 2|State and wires must have the same length"
         ):
             dev.apply([qml.BasisState(np.array([0, 1]), wires=[0])])
 

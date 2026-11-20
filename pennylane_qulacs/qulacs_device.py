@@ -29,6 +29,7 @@ from pennylane.ops import (
     CRZ,
     PhaseShift,
     Adjoint,
+    GlobalPhase,
     StatePrep,
 )
 
@@ -96,6 +97,7 @@ class QulacsDevice(QubitDevice):
         "StatePrep": None,
         "BasisState": None,
         "QubitUnitary": None,
+        "GlobalPhase": None,
         "Toffoli": gate.TOFFOLI,
         "CSWAP": gate.FREDKIN,
         "CRZ": crz,
@@ -184,6 +186,9 @@ class QulacsDevice(QubitDevice):
                 self._apply_basis_state(op)
             elif isinstance(op, QubitUnitary):
                 self._apply_qubit_unitary(op, inverse)
+            elif isinstance(op, GlobalPhase):
+                phase = -op.data[0] if inverse else op.data[0]
+                self._state.multiply_coef(np.exp(-1j * phase))
             elif isinstance(op, (CRZ, PhaseShift)):
                 self._apply_matrix(op, inverse)
             else:
