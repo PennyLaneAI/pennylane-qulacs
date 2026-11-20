@@ -3,7 +3,7 @@ on:
 - pull_request
 
 concurrency:
-  group: format-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

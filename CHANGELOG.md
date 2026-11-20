@@ -4,7 +4,15 @@
 
 ### Improvements 🛠
 
+* The device now supports `GlobalPhase`, so graph-based decompositions such as
+  `ControlledPhaseShift` no longer need a work wire.
+  [(#117)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/117)
+
 ### Internal changes ⚙️
+
+* Updated tests for PennyLane's read-only `Operator.data` and the new `BasisState`
+  wire-length error message.
+  [(#117)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/117)
 
 * Upgraded Sphinx to version 9.0.
   [(#113)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/113)
@@ -23,7 +31,8 @@
 
 This release contains contributions from (in alphabetical order):
 
-Runor Agbaire
+Runor Agbaire,
+Yushao Chen
 
 ---
 # Release 0.44.0
