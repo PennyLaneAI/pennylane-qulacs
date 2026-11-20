@@ -128,7 +128,7 @@ Dependencies
 
 PennyLane-Qulacs requires the following libraries be installed:
 
-* `Python <http://python.org/>`__ >= 3.11
+* `Python <http://python.org/>`__ >= 3.12
 
 as well as the following Python packages:
 

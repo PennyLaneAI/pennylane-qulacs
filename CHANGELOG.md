@@ -18,6 +18,8 @@
   [(#113)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/113)
 
 ### Breaking changes 💔
+* Support for Python 3.11 has been removed.
+  [(#116)](https://github.com/PennyLaneAI/pennylane-qulacs/pull/116)
 
 ### Deprecations 👋
 
